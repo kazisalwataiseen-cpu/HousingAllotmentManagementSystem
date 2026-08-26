@@ -1,0 +1,235 @@
+@model HousingAllotmentManagementSystem.Models.Amenity
+
+@{
+    ViewData["Title"] = "Create Amenity";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-stars text-primary me-2"></i>
+                Create Amenity
+            </h2>
+
+            <p class="text-muted mb-0">
+                Add a new amenity that can be assigned to properties.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Amenities
+
+        </a>
+
+    </div>
+
+
+    <!-- Main Card -->
+    <div class="row justify-content-center">
+
+        <div class="col-xl-8 col-lg-9">
+
+            <div class="card border-0 shadow-sm">
+
+                <!-- Card Header -->
+                <div class="card-header bg-primary text-white py-3">
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Amenity Information
+                    </h5>
+
+                </div>
+
+
+                <!-- Card Body -->
+                <div class="card-body p-4">
+
+                    <form asp-action="Create" method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <!-- Validation Summary -->
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+
+                        <div class="row g-4">
+
+                            <!-- Amenity Name -->
+                            <div class="col-12">
+
+                                <label asp-for="AmenityName"
+                                       class="form-label fw-semibold">
+
+                                    <i class="bi bi-tag text-primary me-1"></i>
+                                    Amenity Name
+
+                                </label>
+
+                                <input asp-for="AmenityName"
+                                       class="form-control form-control-lg"
+                                       placeholder="Enter amenity name"
+                                       autocomplete="off" />
+
+                                <span asp-validation-for="AmenityName"
+                                      class="text-danger">
+                                </span>
+
+                                <div class="form-text">
+                                    Enter a unique name such as Parking,
+                                    Gym, Swimming Pool, Garden, CCTV, etc.
+                                </div>
+
+                            </div>
+
+
+                            <!-- Status -->
+                            <div class="col-md-6">
+
+                                <label asp-for="Status"
+                                       class="form-label fw-semibold">
+
+                                    <i class="bi bi-toggle-on text-primary me-1"></i>
+                                    Status
+
+                                </label>
+
+                                <select asp-for="Status"
+                                        class="form-select form-select-lg">
+
+                                    <option value="true">
+                                        Active
+                                    </option>
+
+                                    <option value="false">
+                                        Inactive
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="Status"
+                                      class="text-danger">
+                                </span>
+
+                                <div class="form-text">
+                                    Active amenities can be assigned to properties.
+                                </div>
+
+                            </div>
+
+
+                            <!-- Created Date Information -->
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+
+                                    <i class="bi bi-calendar-plus text-primary me-1"></i>
+                                    Created Date
+
+                                </label>
+
+                                <div class="form-control form-control-lg bg-light">
+
+                                    <i class="bi bi-clock me-1"></i>
+                                    Automatically generated
+
+                                </div>
+
+                                <div class="form-text">
+                                    The creation date will be saved automatically.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <hr class="my-4" />
+
+
+                        <!-- Information Alert -->
+                        <div class="alert alert-info border-0 d-flex align-items-start">
+
+                            <i class="bi bi-info-circle-fill fs-5 me-2"></i>
+
+                            <div>
+                                <strong>Important:</strong>
+                                Amenity names must be unique.
+                                For example, you cannot create two amenities
+                                with the name <strong>Parking</strong>.
+                            </div>
+
+                        </div>
+
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+
+                            <a asp-action="Index"
+                               class="btn btn-outline-secondary px-4">
+
+                                <i class="bi bi-x-circle me-1"></i>
+                                Cancel
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+
+                                <i class="bi bi-check-circle me-1"></i>
+                                Save Amenity
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+
+        // Prevent accidental duplicate spaces
+        const amenityName =
+            document.getElementById("AmenityName");
+
+        if (amenityName) {
+
+            amenityName.addEventListener("blur", function() {
+
+                this.value =
+                    this.value.trim();
+
+            });
+
+        }
+
+    </script>
+
+}

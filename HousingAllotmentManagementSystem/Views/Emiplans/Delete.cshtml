@@ -1,0 +1,155 @@
+@model HousingAllotmentManagementSystem.Models.Emiplan
+
+@{
+    ViewData["Title"] = "Delete EMI Plan";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-danger text-white">
+
+                    <h5 class="mb-0">
+
+                        <i class="bi bi-trash-fill me-2"></i>
+
+                        Delete EMI Plan
+
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <div class="alert alert-danger">
+
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+                        Are you sure you want to delete this EMI Plan?
+
+                        All generated installments belonging to this
+                        EMI Plan will also be deleted.
+
+                    </div>
+
+
+                    <dl class="row">
+
+                        <dt class="col-sm-4">
+                            EMI Plan ID
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @Model.EmiplanId
+                        </dd>
+
+
+                        <dt class="col-sm-4">
+                            Loan Number
+                        </dt>
+
+                        <dd class="col-sm-8">
+
+                            @if (Model.Loan != null)
+                            {
+                                @Model.Loan.LoanNumber
+                            }
+                            else
+                            {
+                                <span>N/A</span>
+                            }
+
+                        </dd>
+
+
+                        <dt class="col-sm-4">
+                            Total EMIs
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @Model.TotalEmis
+                        </dd>
+
+
+                        <dt class="col-sm-4">
+                            Monthly EMI
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            ₹@Model.MonthlyEmi.ToString("N2")
+                        </dd>
+
+
+                        <dt class="col-sm-4">
+                            Installments
+                        </dt>
+
+                        <dd class="col-sm-8">
+
+                            <span class="badge bg-info">
+                                @(Model.Installments?.Count ?? 0)
+                            </span>
+
+                        </dd>
+
+
+                        <dt class="col-sm-4">
+                            Status
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @Model.PlanStatus
+                        </dd>
+
+                    </dl>
+
+
+                    <form asp-action="Delete"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="emiplanid"
+                               value="@Model.EmiplanId" />
+
+
+                        <div class="border-top pt-4 mt-4 text-end">
+
+                            <a asp-action="Index"
+                               class="btn btn-secondary me-2">
+
+                                <i class="bi bi-x-circle me-1"></i>
+                                Cancel
+
+                            </a>
+
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+
+                                <i class="bi bi-trash-fill me-1"></i>
+                                Delete EMI Plan
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

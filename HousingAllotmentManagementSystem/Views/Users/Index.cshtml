@@ -1,0 +1,189 @@
+@model IEnumerable<HousingAllotmentManagementSystem.Models.User>
+
+@{
+    ViewData["Title"] = "Users";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="card shadow border-0">
+
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+
+        <h3 class="mb-0">
+            <i class="bi bi-people-fill"></i>
+            Users
+        </h3>
+
+        <a asp-action="Create" class="btn btn-light">
+
+            <i class="bi bi-plus-circle"></i>
+
+            Add New User
+
+        </a>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover table-bordered align-middle">
+
+                <thead class="table-primary">
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Profile</th>
+
+                        <th>Full Name</th>
+
+                        <th>Email</th>
+
+                        <th>Mobile</th>
+
+                        <th>Role</th>
+
+                        <th>Status</th>
+
+                        <th width="200">Actions</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @if (Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>
+                                    @item.UserId
+                                </td>
+
+                                <td>
+
+                                    @if (!string.IsNullOrEmpty(item.ProfileImage))
+                                    {
+                                        <img src="@item.ProfileImage"
+                                             width="50"
+                                             height="50"
+                                             class="rounded-circle border" />
+                                    }
+                                    else
+                                    {
+                                        <img src="https://ui-avatars.com/api/?name=@item.FullName&background=2563eb&color=fff"
+                                             width="50"
+                                             height="50"
+                                             class="rounded-circle border" />
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    <strong>@item.FullName</strong>
+
+                                </td>
+
+                                <td>
+
+                                    @item.Email
+
+                                </td>
+
+                                <td>
+
+                                    @item.Mobile
+
+                                </td>
+
+                                <td>
+
+                                    <span class="badge bg-info">
+
+                                        @item.Role?.RoleName
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    @if (item.Status == true)
+                                    {
+                                        <span class="badge bg-success">
+
+                                            Active
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">
+
+                                            Inactive
+
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    <a asp-action="Details"
+                                       asp-route-userid="@item.UserId"
+                                       class="btn btn-info btn-sm">
+
+                                        <i class="bi bi-eye-fill"></i>
+
+                                    </a>
+
+                                    <a asp-action="Edit"
+                                       asp-route-userid="@item.UserId"
+                                       class="btn btn-warning btn-sm">
+
+                                        <i class="bi bi-pencil-fill"></i>
+
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-userid="@item.UserId"
+                                       class="btn btn-danger btn-sm">
+
+                                        <i class="bi bi-trash-fill"></i>
+
+                                    </a>
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+
+                            <td colspan="8" class="text-center text-muted">
+
+                                No Users Found.
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

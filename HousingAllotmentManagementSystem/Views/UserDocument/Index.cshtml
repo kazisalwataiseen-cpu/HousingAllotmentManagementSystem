@@ -1,0 +1,107 @@
+@model IEnumerable<HousingAllotmentManagementSystem.Models.UserDocument>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AadhaarCard)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Pancard)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IncomeCertificate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SalarySlip)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PassportPhoto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BankStatement)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OtherDocument)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VerificationStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Remarks)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UploadedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VerifiedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(model => item.UserId)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.AadhaarCard)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Pancard)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.IncomeCertificate)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.SalarySlip)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.PassportPhoto)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.BankStatement)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.OtherDocument)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.VerificationStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Remarks)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.UploadedDate)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.VerifiedDate)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.User)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.DocumentId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.DocumentId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.DocumentId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

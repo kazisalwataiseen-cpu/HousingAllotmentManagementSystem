@@ -1,0 +1,262 @@
+@model HousingAllotmentManagementSystem.Models.Amenity
+
+@{
+    ViewData["Title"] = "Edit Amenity";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-pencil-square text-primary me-2"></i>
+                Edit Amenity
+            </h2>
+
+            <p class="text-muted mb-0">
+                Update the amenity information and availability status.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Amenities
+
+        </a>
+
+    </div>
+
+
+    <!-- Main Card -->
+    <div class="row justify-content-center">
+
+        <div class="col-xl-8 col-lg-9">
+
+            <div class="card border-0 shadow-sm">
+
+                <!-- Card Header -->
+                <div class="card-header bg-primary text-white py-3">
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3">
+                            <i class="bi bi-pencil fs-5"></i>
+                        </div>
+
+                        <div>
+                            <h5 class="mb-0">
+                                Edit Amenity
+                            </h5>
+
+                            <small class="opacity-75">
+                                Amenity ID: #@Model.AmenityId
+                            </small>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Card Body -->
+                <div class="card-body p-4">
+
+                    <form asp-action="Edit"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               asp-for="AmenityId" />
+
+                        <input type="hidden"
+                               asp-for="CreatedDate" />
+
+
+                        <!-- Validation Summary -->
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+
+                        <div class="row g-4">
+
+                            <!-- Amenity Name -->
+                            <div class="col-12">
+
+                                <label asp-for="AmenityName"
+                                       class="form-label fw-semibold">
+
+                                    <i class="bi bi-tag text-primary me-1"></i>
+                                    Amenity Name
+
+                                </label>
+
+                                <input asp-for="AmenityName"
+                                       class="form-control form-control-lg"
+                                       placeholder="Enter amenity name"
+                                       autocomplete="off" />
+
+                                <span asp-validation-for="AmenityName"
+                                      class="text-danger">
+                                </span>
+
+                                <div class="form-text">
+                                    Enter a unique amenity name.
+                                </div>
+
+                            </div>
+
+
+                            <!-- Status -->
+                            <div class="col-md-6">
+
+                                <label asp-for="Status"
+                                       class="form-label fw-semibold">
+
+                                    <i class="bi bi-toggle-on text-primary me-1"></i>
+                                    Status
+
+                                </label>
+
+                                <select asp-for="Status"
+                                        class="form-select form-select-lg">
+
+                                    <option value="true">
+                                        Active
+                                    </option>
+
+                                    <option value="false">
+                                        Inactive
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="Status"
+                                      class="text-danger">
+                                </span>
+
+                                <div class="form-text">
+                                    Choose whether this amenity is currently available.
+                                </div>
+
+                            </div>
+
+
+                            <!-- Created Date -->
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+
+                                    <i class="bi bi-calendar3 text-primary me-1"></i>
+                                    Created Date
+
+                                </label>
+
+                                <div class="form-control form-control-lg bg-light">
+
+                                    @Model.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")
+
+                                </div>
+
+                                <div class="form-text">
+                                    The original creation date is preserved.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <hr class="my-4" />
+
+
+                        <!-- Current Status -->
+                        <div class="alert @(Model.Status ? "alert-success" : "alert-warning") border-0">
+
+                            <div class="d-flex align-items-center">
+
+                                @if (Model.Status)
+                                {
+                                    <i class="bi bi-check-circle-fill fs-5 me-2"></i>
+
+                                    <div>
+                                        <strong>Amenity is currently Active.</strong>
+                                        <div class="small">
+                                            This amenity can be assigned to properties.
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-exclamation-circle-fill fs-5 me-2"></i>
+
+                                    <div>
+                                        <strong>Amenity is currently Inactive.</strong>
+                                        <div class="small">
+                                            This amenity is currently unavailable.
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+
+                            <a asp-action="Index"
+                               class="btn btn-outline-secondary px-4">
+
+                                <i class="bi bi-x-circle me-1"></i>
+                                Cancel
+
+                            </a>
+
+                            <a asp-action="Details"
+                               asp-route-id="@Model.AmenityId"
+                               class="btn btn-outline-info px-4">
+
+                                <i class="bi bi-eye me-1"></i>
+                                View
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+
+                                <i class="bi bi-check-circle me-1"></i>
+                                Save Changes
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+}

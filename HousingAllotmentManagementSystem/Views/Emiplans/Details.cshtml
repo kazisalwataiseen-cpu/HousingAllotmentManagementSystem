@@ -1,0 +1,316 @@
+@model HousingAllotmentManagementSystem.Models.Emiplan
+
+@{
+    ViewData["Title"] = "EMI Plan Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-eye-fill text-primary me-2"></i>
+                EMI Plan Details
+            </h2>
+
+            <p class="text-muted mb-0">
+                View EMI plan and installment details.
+            </p>
+        </div>
+
+        <div>
+
+            <a asp-action="Edit"
+               asp-route-emiplanid="@Model.EmiplanId"
+               class="btn btn-primary me-2">
+
+                <i class="bi bi-pencil me-1"></i>
+                Edit
+
+            </a>
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+
+                <i class="bi bi-arrow-left me-1"></i>
+                Back
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <!-- PLAN INFORMATION -->
+
+        <div class="col-lg-5">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-primary text-white">
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-calendar-check me-2"></i>
+                        EMI Plan
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <dl class="row mb-0">
+
+                        <dt class="col-sm-6">
+                            EMI Plan ID
+                        </dt>
+
+                        <dd class="col-sm-6">
+                            @Model.EmiplanId
+                        </dd>
+
+
+                        <dt class="col-sm-6">
+                            Loan Number
+                        </dt>
+
+                        <dd class="col-sm-6">
+
+                            @if (Model.Loan != null)
+                            {
+                                @Model.Loan.LoanNumber
+                            }
+                            else
+                            {
+                                <span>N/A</span>
+                            }
+
+                        </dd>
+
+
+                        <dt class="col-sm-6">
+                            Start Date
+                        </dt>
+
+                        <dd class="col-sm-6">
+                            @Model.EmistartDate.ToString("dd-MM-yyyy")
+                        </dd>
+
+
+                        <dt class="col-sm-6">
+                            End Date
+                        </dt>
+
+                        <dd class="col-sm-6">
+                            @Model.EmiendDate.ToString("dd-MM-yyyy")
+                        </dd>
+
+
+                        <dt class="col-sm-6">
+                            Total EMIs
+                        </dt>
+
+                        <dd class="col-sm-6">
+                            @Model.TotalEmis
+                        </dd>
+
+
+                        <dt class="col-sm-6">
+                            Paid EMIs
+                        </dt>
+
+                        <dd class="col-sm-6">
+                            @Model.PaidEmis
+                        </dd>
+
+
+                        <dt class="col-sm-6">
+                            Remaining EMIs
+                        </dt>
+
+                        <dd class="col-sm-6">
+                            @Model.RemainingEmis
+                        </dd>
+
+
+                        <dt class="col-sm-6">
+                            Monthly EMI
+                        </dt>
+
+                        <dd class="col-sm-6">
+                            ₹@Model.MonthlyEmi.ToString("N2")
+                        </dd>
+
+
+                        <dt class="col-sm-6">
+                            Outstanding
+                        </dt>
+
+                        <dd class="col-sm-6">
+                            ₹@Model.OutstandingBalance.ToString("N2")
+                        </dd>
+
+
+                        <dt class="col-sm-6">
+                            Next Due Date
+                        </dt>
+
+                        <dd class="col-sm-6">
+                            @Model.NextDueDate.ToString("dd-MM-yyyy")
+                        </dd>
+
+
+                        <dt class="col-sm-6">
+                            Status
+                        </dt>
+
+                        <dd class="col-sm-6">
+                            <span class="badge bg-success">
+                                @Model.PlanStatus
+                            </span>
+                        </dd>
+
+                    </dl>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- INSTALLMENTS -->
+
+        <div class="col-lg-7">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-dark text-white">
+
+                    <h5 class="mb-0">
+
+                        <i class="bi bi-list-ol me-2"></i>
+
+                        Generated Installments
+
+                        <span class="badge bg-info ms-2">
+                            @(Model.Installments?.Count ?? 0)
+                        </span>
+
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm table-hover">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>#</th>
+
+                                    <th>Due Date</th>
+
+                                    <th>Amount</th>
+
+                                    <th>Principal</th>
+
+                                    <th>Interest</th>
+
+                                    <th>Status</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                @if (Model.Installments == null ||
+                                    !Model.Installments.Any())
+                                {
+                                    <tr>
+
+                                        <td colspan="6"
+                                            class="text-center text-muted">
+
+                                            No installments generated.
+
+                                        </td>
+
+                                    </tr>
+                                }
+                                else
+                                {
+                                    foreach (var installment
+                                             in Model.Installments
+                                                 .OrderBy(i => i.InstallmentNumber))
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                @installment.InstallmentNumber
+                                            </td>
+
+                                            <td>
+                                                @installment.DueDate.ToString("dd-MM-yyyy")
+                                            </td>
+
+                                            <td>
+                                                ₹@installment.InstallmentAmount.ToString("N2")
+                                            </td>
+
+                                            <td>
+                                                ₹@installment.PrincipalAmount.ToString("N2")
+                                            </td>
+
+                                            <td>
+                                                ₹@installment.InterestAmount.ToString("N2")
+                                            </td>
+
+                                            <td>
+
+                                                @if (installment.PaymentStatus == "Paid")
+                                                {
+                                                    <span class="badge bg-success">
+                                                        Paid
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">
+                                                        @installment.PaymentStatus
+                                                    </span>
+                                                }
+
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

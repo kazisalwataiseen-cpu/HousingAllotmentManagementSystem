@@ -1,0 +1,474 @@
+@model HousingAllotmentManagementSystem.Models.Application
+
+@{
+    ViewData["Title"] = "New Application";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- PAGE HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="bi bi-file-earmark-plus-fill text-primary me-2"></i>
+            New Housing Application
+        </h2>
+
+        <p class="text-muted mb-0">
+            Create a new housing allotment application.
+        </p>
+    </div>
+
+    <a asp-action="Index"
+       class="btn btn-outline-secondary">
+
+        <i class="bi bi-arrow-left me-1"></i>
+        Back to Applications
+
+    </a>
+
+</div>
+
+
+<!-- FORM CARD -->
+<div class="row justify-content-center">
+
+    <div class="col-xl-10 col-lg-11">
+
+        <div class="card border-0 shadow-sm">
+
+            <!-- CARD HEADER -->
+            <div class="card-header bg-primary text-white py-3">
+
+                <div class="d-flex align-items-center">
+
+                    <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3">
+
+                        <i class="bi bi-file-earmark-text fs-5"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h5 class="mb-0">
+                            Application Information
+                        </h5>
+
+                        <small class="opacity-75">
+                            Enter applicant and housing details
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CARD BODY -->
+            <div class="card-body p-4">
+
+                <form asp-action="Create"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+
+                    <!-- VALIDATION -->
+                    <div asp-validation-summary="All"
+                         class="alert alert-danger"
+                         role="alert">
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- APPLICANT & PROPERTY -->
+                    <!-- ================================================= -->
+
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">
+
+                        <i class="bi bi-person-house me-2"></i>
+
+                        Applicant & Property
+
+                    </h6>
+
+
+                    <div class="row g-4">
+
+                        <!-- APPLICANT -->
+                        <div class="col-md-6">
+
+                            <label asp-for="UserId"
+                                   class="form-label fw-semibold">
+
+                                <i class="bi bi-person me-1"></i>
+
+                                Applicant
+
+                            </label>
+
+
+                            <select asp-for="UserId"
+                                    asp-items="ViewBag.UserId"
+                                    class="form-select">
+
+                                <option value="0">
+                                    -- Select Applicant --
+                                </option>
+
+                            </select>
+
+
+                            <span asp-validation-for="UserId"
+                                  class="text-danger">
+                            </span>
+
+
+                            <small class="text-muted">
+                                Select the applicant for this application.
+                            </small>
+
+                        </div>
+
+
+                        <!-- PROPERTY -->
+                        <div class="col-md-6">
+
+                            <label asp-for="PropertyId"
+                                   class="form-label fw-semibold">
+
+                                <i class="bi bi-house me-1"></i>
+
+                                Property
+
+                            </label>
+
+
+                            <select asp-for="PropertyId"
+                                    asp-items="ViewBag.PropertyId"
+                                    class="form-select">
+
+                                <option value="0">
+                                    -- Select Property --
+                                </option>
+
+                            </select>
+
+
+                            <span asp-validation-for="PropertyId"
+                                  class="text-danger">
+                            </span>
+
+
+                            <small class="text-muted">
+                                Select the property for which the applicant is applying.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- EMPLOYMENT & FINANCIAL -->
+                    <!-- ================================================= -->
+
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-4 mt-5">
+
+                        <i class="bi bi-briefcase me-2"></i>
+
+                        Employment & Financial Information
+
+                    </h6>
+
+
+                    <div class="row g-4">
+
+                        <!-- EMPLOYMENT -->
+                        <div class="col-md-6">
+
+                            <label asp-for="EmploymentType"
+                                   class="form-label fw-semibold">
+
+                                <i class="bi bi-person-workspace me-1"></i>
+
+                                Employment Type
+
+                            </label>
+
+
+                            <select asp-for="EmploymentType"
+                                    class="form-select">
+
+                                <option value="">
+                                    -- Select Employment Type --
+                                </option>
+
+                                <option value="Government">
+                                    Government
+                                </option>
+
+                                <option value="Private">
+                                    Private
+                                </option>
+
+                                <option value="Business">
+                                    Business
+                                </option>
+
+                                <option value="Self Employed">
+                                    Self Employed
+                                </option>
+
+                                <option value="Retired">
+                                    Retired
+                                </option>
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                            </select>
+
+
+                            <span asp-validation-for="EmploymentType"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- ANNUAL INCOME -->
+                        <div class="col-md-6">
+
+                            <label asp-for="AnnualIncome"
+                                   class="form-label fw-semibold">
+
+                                <i class="bi bi-currency-rupee me-1"></i>
+
+                                Annual Income
+
+                            </label>
+
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    ₹
+                                </span>
+
+
+                                <input asp-for="AnnualIncome"
+                                       type="number"
+                                       step="0.01"
+                                       min="0"
+                                       class="form-control"
+                                       placeholder="Enter annual income" />
+
+                            </div>
+
+
+                            <span asp-validation-for="AnnualIncome"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- NOMINEE -->
+                    <!-- ================================================= -->
+
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-4 mt-5">
+
+                        <i class="bi bi-people me-2"></i>
+
+                        Nominee Information
+
+                    </h6>
+
+
+                    <div class="row g-4">
+
+                        <!-- NOMINEE NAME -->
+                        <div class="col-md-6">
+
+                            <label asp-for="NomineeName"
+                                   class="form-label fw-semibold">
+
+                                <i class="bi bi-person-badge me-1"></i>
+
+                                Nominee Name
+
+                            </label>
+
+
+                            <input asp-for="NomineeName"
+                                   class="form-control"
+                                   placeholder="Enter nominee name" />
+
+
+                            <span asp-validation-for="NomineeName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- NOMINEE RELATION -->
+                        <div class="col-md-6">
+
+                            <label asp-for="NomineeRelation"
+                                   class="form-label fw-semibold">
+
+                                <i class="bi bi-diagram-3 me-1"></i>
+
+                                Nominee Relation
+
+                            </label>
+
+
+                            <input asp-for="NomineeRelation"
+                                   class="form-control"
+                                   placeholder="Father, Mother, Spouse..." />
+
+
+                            <span asp-validation-for="NomineeRelation"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- REMARKS -->
+                    <!-- ================================================= -->
+
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-4 mt-5">
+
+                        <i class="bi bi-chat-left-text me-2"></i>
+
+                        Additional Information
+
+                    </h6>
+
+
+                    <div class="mb-4">
+
+                        <label asp-for="Remarks"
+                               class="form-label fw-semibold">
+
+                            Remarks
+
+                        </label>
+
+
+                        <textarea asp-for="Remarks"
+                                  rows="4"
+                                  class="form-control"
+                                  placeholder="Enter additional information..."></textarea>
+
+
+                        <span asp-validation-for="Remarks"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- INFORMATION -->
+                    <!-- ================================================= -->
+
+                    <div class="alert alert-info border-0">
+
+                        <div class="d-flex align-items-start">
+
+                            <i class="bi bi-info-circle-fill fs-5 me-3"></i>
+
+                            <div>
+
+                                <strong>
+                                    Application Information
+                                </strong>
+
+                                <p class="mb-0 mt-1">
+
+                                    Please verify the applicant and property
+                                    before submitting the application.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- BUTTONS -->
+                    <!-- ================================================= -->
+
+                    <div class="border-top pt-4 mt-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <!-- CANCEL -->
+                            <a asp-action="Index"
+                               class="btn btn-outline-secondary px-4">
+
+                                <i class="bi bi-x-circle me-1"></i>
+
+                                Cancel
+
+                            </a>
+
+
+                            <!-- RESET -->
+                            <button type="reset"
+                                    class="btn btn-outline-warning px-4">
+
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>
+
+                                Reset
+
+                            </button>
+
+
+                            <!-- SUBMIT -->
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+
+                                <i class="bi bi-check-circle-fill me-1"></i>
+
+                                Submit Application
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

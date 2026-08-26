@@ -1,0 +1,476 @@
+@model HousingAllotmentManagementSystem.Models.Allotment
+
+@{
+    ViewData["Title"] = "Allotment Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-house-check text-primary me-2"></i>
+                Allotment Details
+            </h2>
+
+            <p class="text-muted mb-0">
+                View complete information about this property allotment.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Allotments
+
+            </a>
+
+            <a asp-action="Edit"
+               asp-route-id="@Model.AllotmentId"
+               class="btn btn-primary">
+
+                <i class="bi bi-pencil me-1"></i>
+                Edit
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- MAIN CARD -->
+    <div class="row justify-content-center">
+
+        <div class="col-xl-10 col-lg-11">
+
+            <div class="card border-0 shadow-sm">
+
+                <!-- HEADER -->
+                <div class="card-header bg-primary text-white py-3">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div class="d-flex align-items-center">
+
+                            <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3">
+
+                                <i class="bi bi-house-check fs-5"></i>
+
+                            </div>
+
+                            <div>
+
+                                <h5 class="mb-0">
+                                    @Model.AllotmentNumber
+                                </h5>
+
+                                <small class="opacity-75">
+                                    Allotment ID: #@Model.AllotmentId
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+                        <div>
+
+                            @if (Model.AllotmentStatus.Equals(
+                            "Active",
+                            StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="badge bg-success px-3 py-2">
+
+                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                    Active
+
+                                </span>
+                            }
+                            else if (Model.AllotmentStatus.Equals(
+                            "Pending",
+                            StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="badge bg-warning text-dark px-3 py-2">
+
+                                    <i class="bi bi-hourglass-split me-1"></i>
+                                    Pending
+
+                                </span>
+                            }
+                            else if (Model.AllotmentStatus.Equals(
+                            "Completed",
+                            StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="badge bg-info px-3 py-2">
+
+                                    <i class="bi bi-check2-all me-1"></i>
+                                    Completed
+
+                                </span>
+                            }
+                            else if (Model.AllotmentStatus.Equals(
+                            "Cancelled",
+                            StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="badge bg-danger px-3 py-2">
+
+                                    <i class="bi bi-x-circle-fill me-1"></i>
+                                    Cancelled
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary px-3 py-2">
+
+                                    @Model.AllotmentStatus
+
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BODY -->
+                <div class="card-body p-4">
+
+
+                    <!-- APPLICATION & PROPERTY -->
+                    <div class="mb-5">
+
+                        <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">
+
+                            <i class="bi bi-link-45deg me-2"></i>
+                            Application & Property
+
+                        </h6>
+
+
+                        <div class="row g-4">
+
+                            <!-- APPLICATION -->
+                            <div class="col-md-6">
+
+                                <div class="border rounded p-3 h-100">
+
+                                    <div class="text-muted small mb-2">
+
+                                        <i class="bi bi-file-earmark-text me-1"></i>
+                                        Application
+
+                                    </div>
+
+                                    <div class="fw-bold fs-5">
+
+                                        Application #@Model.ApplicationId
+
+                                    </div>
+
+                                    <small class="text-muted">
+                                        Linked housing application
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- PROPERTY -->
+                            <div class="col-md-6">
+
+                                <div class="border rounded p-3 h-100">
+
+                                    <div class="text-muted small mb-2">
+
+                                        <i class="bi bi-house me-1"></i>
+                                        Property
+
+                                    </div>
+
+                                    <div class="fw-bold fs-5">
+
+                                        Property #@Model.PropertyId
+
+                                    </div>
+
+                                    <small class="text-muted">
+                                        Allotted property
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ALLOTMENT INFORMATION -->
+                    <div class="mb-5">
+
+                        <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">
+
+                            <i class="bi bi-clipboard-check me-2"></i>
+                            Allotment Information
+
+                        </h6>
+
+
+                        <div class="row g-4">
+
+                            <!-- ALLOTMENT NUMBER -->
+                            <div class="col-md-6">
+
+                                <div class="text-muted small mb-1">
+                                    <i class="bi bi-hash me-1"></i>
+                                    Allotment Number
+                                </div>
+
+                                <div class="fw-semibold fs-5">
+                                    @Model.AllotmentNumber
+                                </div>
+
+                            </div>
+
+
+                            <!-- ALLOTMENT DATE -->
+                            <div class="col-md-6">
+
+                                <div class="text-muted small mb-1">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    Allotment Date
+                                </div>
+
+                                <div class="fw-semibold fs-5">
+                                    @Model.AllotmentDate.ToString("dd MMM yyyy")
+                                </div>
+
+                            </div>
+
+
+                            <!-- BOOKING AMOUNT -->
+                            <div class="col-md-6">
+
+                                <div class="text-muted small mb-1">
+                                    <i class="bi bi-currency-rupee me-1"></i>
+                                    Booking Amount
+                                </div>
+
+                                <div class="fw-bold fs-4 text-success">
+                                    ₹@Model.BookingAmount.ToString("N2")
+                                </div>
+
+                            </div>
+
+
+                            <!-- STATUS -->
+                            <div class="col-md-6">
+
+                                <div class="text-muted small mb-2">
+                                    <i class="bi bi-toggle-on me-1"></i>
+                                    Allotment Status
+                                </div>
+
+                                @if (Model.AllotmentStatus.Equals(
+                                "Active",
+                                StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span class="badge bg-success-subtle text-success px-3 py-2">
+
+                                        <i class="bi bi-check-circle-fill me-1"></i>
+                                        Active
+
+                                    </span>
+                                }
+                                else if (Model.AllotmentStatus.Equals(
+                                "Pending",
+                                StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span class="badge bg-warning-subtle text-warning px-3 py-2">
+
+                                        <i class="bi bi-hourglass-split me-1"></i>
+                                        Pending
+
+                                    </span>
+                                }
+                                else if (Model.AllotmentStatus.Equals(
+                                "Completed",
+                                StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span class="badge bg-info-subtle text-info px-3 py-2">
+
+                                        <i class="bi bi-check2-all me-1"></i>
+                                        Completed
+
+                                    </span>
+                                }
+                                else if (Model.AllotmentStatus.Equals(
+                                "Cancelled",
+                                StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span class="badge bg-danger-subtle text-danger px-3 py-2">
+
+                                        <i class="bi bi-x-circle-fill me-1"></i>
+                                        Cancelled
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary px-3 py-2">
+
+                                        @Model.AllotmentStatus
+
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REMARKS -->
+                    <div class="mb-4">
+
+                        <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">
+
+                            <i class="bi bi-chat-left-text me-2"></i>
+                            Remarks
+
+                        </h6>
+
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Remarks))
+                        {
+                            <div class="bg-light rounded p-4">
+
+                                <p class="mb-0">
+                                    @Model.Remarks
+                                </p>
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-muted fst-italic">
+
+                                No remarks have been added.
+
+                            </div>
+                        }
+
+                    </div>
+
+
+                    <!-- CREATED DATE -->
+                    <div class="border-top pt-4 mt-4">
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+
+                                <div class="text-muted small mb-1">
+
+                                    <i class="bi bi-calendar-plus me-1"></i>
+                                    Created Date
+
+                                </div>
+
+                                <div class="fw-semibold">
+
+                                    @Model.CreatedDate.ToString("dd MMM yyyy")
+
+                                </div>
+
+                                <small class="text-muted">
+
+                                    @Model.CreatedDate.ToString("hh:mm tt")
+
+                                </small>
+
+                            </div>
+
+
+                            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+
+                                <div class="text-muted small mb-1">
+                                    Record ID
+                                </div>
+
+                                <span class="badge bg-light text-dark border px-3 py-2">
+
+                                    #@Model.AllotmentId
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FOOTER -->
+                <div class="card-footer bg-white border-0 p-4">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <a asp-action="Delete"
+                           asp-route-id="@Model.AllotmentId"
+                           class="btn btn-outline-danger">
+
+                            <i class="bi bi-trash me-1"></i>
+                            Delete Allotment
+
+                        </a>
+
+
+                        <div class="d-flex gap-2">
+
+                            <a asp-action="Index"
+                               class="btn btn-outline-secondary">
+
+                                <i class="bi bi-arrow-left me-1"></i>
+                                Back
+
+                            </a>
+
+                            <a asp-action="Edit"
+                               asp-route-id="@Model.AllotmentId"
+                               class="btn btn-primary">
+
+                                <i class="bi bi-pencil me-1"></i>
+                                Edit Allotment
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

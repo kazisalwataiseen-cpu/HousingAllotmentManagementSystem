@@ -1,0 +1,134 @@
+@model HousingAllotmentManagementSystem.Models.HousingScheme
+
+@{
+    ViewData["Title"] = "Edit Housing Scheme";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-header bg-warning text-dark">
+            <h3 class="mb-0">
+                <i class="bi bi-pencil-square"></i>
+                Edit Housing Scheme
+            </h3>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Edit">
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <input type="hidden" asp-for="SchemeId" />
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SchemeName" class="form-label fw-bold"></label>
+                        <input asp-for="SchemeName" class="form-control" />
+                        <span asp-validation-for="SchemeName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="City" class="form-label fw-bold"></label>
+                        <input asp-for="City" class="form-control" />
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="State" class="form-label fw-bold"></label>
+                        <input asp-for="State" class="form-control" />
+                        <span asp-validation-for="State" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Location" class="form-label fw-bold"></label>
+                        <input asp-for="Location" class="form-control" />
+                        <span asp-validation-for="Location" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LaunchDate" class="form-label fw-bold"></label>
+                        <input asp-for="LaunchDate" type="date" class="form-control" />
+                        <span asp-validation-for="LaunchDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LastApplicationDate" class="form-label fw-bold"></label>
+                        <input asp-for="LastApplicationDate" type="date" class="form-control" />
+                        <span asp-validation-for="LastApplicationDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="TotalUnits" class="form-label fw-bold"></label>
+                        <input asp-for="TotalUnits" class="form-control" />
+                        <span asp-validation-for="TotalUnits" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Status" class="form-label fw-bold"></label>
+
+                        <select asp-for="Status" class="form-select">
+                            <option value="">-- Select Status --</option>
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Brochure" class="form-label fw-bold"></label>
+                        <input asp-for="Brochure" class="form-control" />
+                        <span asp-validation-for="Brochure" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="BannerImage" class="form-label fw-bold"></label>
+                        <input asp-for="BannerImage" class="form-control" />
+                        <span asp-validation-for="BannerImage" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label asp-for="Description" class="form-label fw-bold"></label>
+                        <textarea asp-for="Description"
+                                  rows="4"
+                                  class="form-control"></textarea>
+
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <hr />
+
+                <div class="d-flex justify-content-between">
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i>
+                        Back
+                    </a>
+
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-save"></i>
+                        Update Scheme
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

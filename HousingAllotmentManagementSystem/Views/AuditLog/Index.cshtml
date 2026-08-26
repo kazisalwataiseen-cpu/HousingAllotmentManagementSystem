@@ -1,0 +1,645 @@
+@model IEnumerable<HousingAllotmentManagementSystem.Models.AuditLog>
+
+@{
+    ViewData["Title"] = "Audit Logs";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-shield-check text-primary me-2"></i>
+                Audit Logs
+            </h2>
+
+            <p class="text-muted mb-0">
+                Monitor and review system activities and user actions.
+            </p>
+        </div>
+
+        <a asp-action="Create"
+           class="btn btn-primary">
+
+            <i class="bi bi-plus-circle me-1"></i>
+            Add Audit Log
+
+        </a>
+
+    </div>
+
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+
+        <!-- Total Logs -->
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <div class="text-muted small">
+                                Total Logs
+                            </div>
+
+                            <h3 class="fw-bold mb-0">
+                                @Model.Count()
+                            </h3>
+                        </div>
+
+                        <div class="rounded-circle bg-primary-subtle
+                            text-primary p-3">
+
+                            <i class="bi bi-journal-text fs-4"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Today's Logs -->
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <div class="text-muted small">
+                                Today's Activity
+                            </div>
+
+                            <h3 class="fw-bold mb-0">
+
+                                @Model.Count(x =>
+                                    x.ActionDate.Date == DateTime.Today)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="rounded-circle bg-success-subtle
+                            text-success p-3">
+
+                            <i class="bi bi-calendar-check fs-4"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Create Actions -->
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <div class="text-muted small">
+                                Create Actions
+                            </div>
+
+                            <h3 class="fw-bold mb-0">
+
+                                @Model.Count(x =>
+                                    x.Action != null &&
+                                    x.Action.ToLower().Contains("create"))
+
+                            </h3>
+
+                        </div>
+
+                        <div class="rounded-circle bg-info-subtle
+                            text-info p-3">
+
+                            <i class="bi bi-plus-circle fs-4"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Delete Actions -->
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <div class="text-muted small">
+                                Delete Actions
+                            </div>
+
+                            <h3 class="fw-bold mb-0">
+
+                                @Model.Count(x =>
+                                    x.Action != null &&
+                                    x.Action.ToLower().Contains("delete"))
+
+                            </h3>
+
+                        </div>
+
+                        <div class="rounded-circle bg-danger-subtle
+                            text-danger p-3">
+
+                            <i class="bi bi-trash fs-4"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Main Table Card -->
+    <div class="card border-0 shadow-sm">
+
+        <!-- Card Header -->
+        <div class="card-header bg-white border-0 py-3">
+
+            <div class="row align-items-center g-3">
+
+                <div class="col-md-5">
+
+                    <h5 class="fw-bold mb-0">
+
+                        <i class="bi bi-list-ul text-primary me-2"></i>
+                        Activity History
+
+                    </h5>
+
+                </div>
+
+
+                <!-- Search -->
+                <div class="col-md-7">
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-light border-end-0">
+
+                            <i class="bi bi-search text-muted"></i>
+
+                        </span>
+
+                        <input type="text"
+                               id="auditSearch"
+                               class="form-control bg-light border-start-0"
+                               placeholder="Search user, action, table, IP address..." />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Table -->
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0"
+                       id="auditTable">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th class="px-4">
+                                #
+                            </th>
+
+                            <th>
+                                User
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                            <th>
+                                Table
+                            </th>
+
+                            <th>
+                                Record ID
+                            </th>
+
+                            <th>
+                                IP Address
+                            </th>
+
+                            <th>
+                                Action Date
+                            </th>
+
+                            <th class="text-center">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+
+                                    <!-- ID -->
+                                    <td class="px-4">
+
+                                        <span class="fw-semibold text-muted">
+                                            #@item.AuditLogId
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- User -->
+                                    <td>
+
+                                        @if (item.User != null)
+                                        {
+                                            <div class="d-flex align-items-center">
+
+                                                <div class="rounded-circle bg-primary-subtle
+                                                    text-primary d-flex
+                                                    align-items-center
+                                                    justify-content-center me-2"
+                                                     style="width:38px;height:38px;">
+
+                                                    <i class="bi bi-person-fill"></i>
+
+                                                </div>
+
+                                                <div>
+
+                                                    <div class="fw-semibold">
+                                                        @item.User.FullName
+                                                    </div>
+
+                                                    <small class="text-muted">
+                                                        User ID: @item.UserId
+                                                    </small>
+
+                                                </div>
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+
+                                                <i class="bi bi-person-x me-1"></i>
+                                                System / Unknown
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Action -->
+                                    <td>
+
+                                        @{
+                                            var action =
+                                                item.Action?.ToLower() ?? "";
+
+                                            var badgeClass = "bg-secondary-subtle text-secondary";
+                                            var icon = "bi-activity";
+
+                                            if (action.Contains("create") ||
+                                                action.Contains("add"))
+                                            {
+                                                badgeClass =
+                                                    "bg-success-subtle text-success";
+                                                icon = "bi-plus-circle";
+                                            }
+                                            else if (action.Contains("update") ||
+                                                     action.Contains("edit"))
+                                            {
+                                                badgeClass =
+                                                    "bg-primary-subtle text-primary";
+                                                icon = "bi-pencil-square";
+                                            }
+                                            else if (action.Contains("delete") ||
+                                                     action.Contains("remove"))
+                                            {
+                                                badgeClass =
+                                                    "bg-danger-subtle text-danger";
+                                                icon = "bi-trash";
+                                            }
+                                            else if (action.Contains("login"))
+                                            {
+                                                badgeClass =
+                                                    "bg-info-subtle text-info";
+                                                icon = "bi-box-arrow-in-right";
+                                            }
+                                            else if (action.Contains("logout"))
+                                            {
+                                                badgeClass =
+                                                    "bg-warning-subtle text-warning";
+                                                icon = "bi-box-arrow-right";
+                                            }
+                                        }
+
+                                        <span class="badge @badgeClass px-3 py-2">
+
+                                            <i class="bi @icon me-1"></i>
+
+                                            @item.Action
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- Table -->
+                                    <td>
+
+                                        @if (!string.IsNullOrWhiteSpace(item.TableName))
+                                        {
+                                            <span class="badge bg-light text-dark border">
+
+                                                <i class="bi bi-table me-1"></i>
+
+                                                @item.TableName
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                —
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Record ID -->
+                                    <td>
+
+                                        @if (item.RecordId.HasValue)
+                                        {
+                                            <span class="fw-semibold">
+                                                #@item.RecordId
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                —
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- IP Address -->
+                                    <td>
+
+                                        @if (!string.IsNullOrWhiteSpace(item.Ipaddress))
+                                        {
+                                            <code class="text-dark">
+                                                @item.Ipaddress
+                                            </code>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                —
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Action Date -->
+                                    <td>
+
+                                        <div class="fw-semibold">
+
+                                            @item.ActionDate.ToString("dd MMM yyyy")
+
+                                        </div>
+
+                                        <small class="text-muted">
+
+                                            @item.ActionDate.ToString("hh:mm tt")
+
+                                        </small>
+
+                                    </td>
+
+
+                                    <!-- Actions -->
+                                    <td class="text-center">
+
+                                        <div class="btn-group">
+
+                                            <a asp-action="Details"
+                                               asp-route-id="@item.AuditLogId"
+                                               class="btn btn-sm btn-outline-info"
+                                               title="View Details">
+
+                                                <i class="bi bi-eye"></i>
+
+                                            </a>
+
+                                            <a asp-action="Edit"
+                                               asp-route-id="@item.AuditLogId"
+                                               class="btn btn-sm btn-outline-primary"
+                                               title="Edit">
+
+                                                <i class="bi bi-pencil"></i>
+
+                                            </a>
+
+                                            <a asp-action="Delete"
+                                               asp-route-id="@item.AuditLogId"
+                                               class="btn btn-sm btn-outline-danger"
+                                               title="Delete">
+
+                                                <i class="bi bi-trash"></i>
+
+                                            </a>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+
+                                <td colspan="8"
+                                    class="text-center py-5">
+
+                                    <div class="text-muted">
+
+                                        <i class="bi bi-journal-x fs-1 d-block mb-3"></i>
+
+                                        <h5 class="fw-semibold">
+                                            No Audit Logs Found
+                                        </h5>
+
+                                        <p class="mb-3">
+                                            There are currently no audit activities
+                                            recorded in the system.
+                                        </p>
+
+                                        <a asp-action="Create"
+                                           class="btn btn-primary">
+
+                                            <i class="bi bi-plus-circle me-1"></i>
+                                            Add Audit Log
+
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- Footer -->
+        <div class="card-footer bg-white border-0">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <small class="text-muted">
+
+                    Showing
+                    <strong>@Model.Count()</strong>
+                    audit log(s)
+
+                </small>
+
+                <small class="text-muted">
+
+                    <i class="bi bi-shield-check me-1"></i>
+                    System Activity Monitoring
+
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+    ```
+
+</div>
+
+@section Scripts {
+
+    ```
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const searchInput =
+                document.getElementById("auditSearch");
+
+            const table =
+                document.getElementById("auditTable");
+
+            if (!searchInput || !table) {
+                return;
+            }
+
+            searchInput.addEventListener("keyup", function() {
+
+                const searchValue =
+                    this.value.toLowerCase().trim();
+
+                const rows =
+                    table.querySelectorAll("tbody tr");
+
+                rows.forEach(function(row) {
+
+                    const rowText =
+                        row.textContent.toLowerCase();
+
+                    row.style.display =
+                        rowText.includes(searchValue)
+                            ? ""
+                            : "none";
+
+                });
+
+            });
+
+        });
+
+    </script>
+    
+
+}

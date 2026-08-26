@@ -1,0 +1,547 @@
+@model IEnumerable<HousingAllotmentManagementSystem.Models.Allotment>
+
+@{
+    ViewData["Title"] = "Allotments";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var allotments = Model?.ToList() ?? new List<HousingAllotmentManagementSystem.Models.Allotment>();
+
+    var totalAllotments = allotments.Count;
+
+    var activeAllotments = allotments.Count(a =>
+        !string.IsNullOrEmpty(a.AllotmentStatus) &&
+        a.AllotmentStatus.Equals("Active", StringComparison.OrdinalIgnoreCase));
+
+    var pendingAllotments = allotments.Count(a =>
+        !string.IsNullOrEmpty(a.AllotmentStatus) &&
+        a.AllotmentStatus.Equals("Pending", StringComparison.OrdinalIgnoreCase));
+
+    var totalBookingAmount = allotments.Sum(a => a.BookingAmount);
+}
+
+
+<!-- PAGE HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="fw-bold mb-1">
+
+            <i class="bi bi-house-check text-primary me-2"></i>
+
+            Allotments
+
+        </h2>
+
+        <p class="text-muted mb-0">
+            Manage property allotments and booking information.
+        </p>
+
+    </div>
+
+
+    <a asp-action="Create"
+       class="btn btn-primary px-4">
+
+        <i class="bi bi-plus-circle me-1"></i>
+
+        Create Allotment
+
+    </a>
+
+</div>
+
+
+<!-- SUCCESS MESSAGE -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm"
+         role="alert">
+
+        <i class="bi bi-check-circle-fill me-2"></i>
+
+        @TempData["SuccessMessage"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+}
+
+
+<!-- ERROR MESSAGE -->
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm"
+         role="alert">
+
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+        @TempData["ErrorMessage"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+}
+
+
+<!-- SUMMARY CARDS -->
+<div class="row g-4 mb-4">
+
+
+    <!-- TOTAL -->
+    <div class="col-xl-3 col-md-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <span class="text-muted small">
+                            Total Allotments
+                        </span>
+
+                        <h3 class="fw-bold mb-0 mt-1">
+                            @totalAllotments
+                        </h3>
+
+                    </div>
+
+                    <div class="bg-primary-subtle text-primary rounded-circle p-3">
+
+                        <i class="bi bi-house-check fs-4"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ACTIVE -->
+    <div class="col-xl-3 col-md-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <span class="text-muted small">
+                            Active Allotments
+                        </span>
+
+                        <h3 class="fw-bold mb-0 mt-1">
+                            @activeAllotments
+                        </h3>
+
+                    </div>
+
+                    <div class="bg-success-subtle text-success rounded-circle p-3">
+
+                        <i class="bi bi-check-circle fs-4"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PENDING -->
+    <div class="col-xl-3 col-md-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <span class="text-muted small">
+                            Pending
+                        </span>
+
+                        <h3 class="fw-bold mb-0 mt-1">
+                            @pendingAllotments
+                        </h3>
+
+                    </div>
+
+                    <div class="bg-warning-subtle text-warning rounded-circle p-3">
+
+                        <i class="bi bi-hourglass-split fs-4"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BOOKING AMOUNT -->
+    <div class="col-xl-3 col-md-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <span class="text-muted small">
+                            Booking Amount
+                        </span>
+
+                        <h4 class="fw-bold mb-0 mt-1">
+                            ₹@totalBookingAmount.ToString("N2")
+                        </h4>
+
+                    </div>
+
+                    <div class="bg-info-subtle text-info rounded-circle p-3">
+
+                        <i class="bi bi-currency-rupee fs-4"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ALLOTMENT TABLE -->
+<div class="card border-0 shadow-sm">
+
+    <!-- HEADER -->
+    <div class="card-header bg-white border-0 py-3">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    Allotment Records
+                </h5>
+
+                <small class="text-muted">
+                    List of all property allotments
+                </small>
+
+            </div>
+
+
+            <span class="badge bg-primary-subtle text-primary px-3 py-2">
+
+                @totalAllotments Records
+
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- BODY -->
+    <div class="card-body p-0">
+
+        @if (allotments.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th class="ps-4">
+                                #
+                            </th>
+
+                            <th>
+                                Allotment Number
+                            </th>
+
+                            <th>
+                                Application
+                            </th>
+
+                            <th>
+                                Property
+                            </th>
+
+                            <th>
+                                Allotment Date
+                            </th>
+
+                            <th>
+                                Booking Amount
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th class="text-center">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @foreach (var item in allotments)
+                        {
+                            <tr>
+
+                                <!-- ID -->
+                                <td class="ps-4">
+
+                                    <span class="text-muted">
+                                        #@item.AllotmentId
+                                    </span>
+
+                                </td>
+
+
+                                <!-- ALLOTMENT NUMBER -->
+                                <td>
+
+                                    <span class="fw-semibold">
+
+                                        @item.AllotmentNumber
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- APPLICATION -->
+                                <td>
+
+                                    <span class="badge bg-light text-dark border">
+
+                                        <i class="bi bi-file-earmark-text me-1"></i>
+
+                                        Application #@item.ApplicationId
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- PROPERTY -->
+                                <td>
+
+                                    <span class="badge bg-light text-dark border">
+
+                                        <i class="bi bi-house me-1"></i>
+
+                                        Property #@item.PropertyId
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- DATE -->
+                                <td>
+
+                                    @item.AllotmentDate.ToString("dd MMM yyyy")
+
+                                </td>
+
+
+                                <!-- AMOUNT -->
+                                <td>
+
+                                    <span class="fw-semibold">
+
+                                        ₹@item.BookingAmount.ToString("N2")
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- STATUS -->
+                                <td>
+
+                                    @if (!string.IsNullOrEmpty(item.AllotmentStatus) &&
+                                   item.AllotmentStatus.Equals(
+                                   "Active",
+                                   StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-success-subtle text-success px-3 py-2">
+
+                                            <i class="bi bi-check-circle-fill me-1"></i>
+
+                                            Active
+
+                                        </span>
+                                    }
+                                    else if (!string.IsNullOrEmpty(item.AllotmentStatus) &&
+                                    item.AllotmentStatus.Equals(
+                                    "Pending",
+                                    StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning px-3 py-2">
+
+                                            <i class="bi bi-hourglass-split me-1"></i>
+
+                                            Pending
+
+                                        </span>
+                                    }
+                                    else if (!string.IsNullOrEmpty(item.AllotmentStatus) &&
+                                    item.AllotmentStatus.Equals(
+                                    "Completed",
+                                    StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-primary-subtle text-primary px-3 py-2">
+
+                                            <i class="bi bi-check2-all me-1"></i>
+
+                                            Completed
+
+                                        </span>
+                                    }
+                                    else if (!string.IsNullOrEmpty(item.AllotmentStatus) &&
+                                    item.AllotmentStatus.Equals(
+                                    "Cancelled",
+                                    StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger px-3 py-2">
+
+                                            <i class="bi bi-x-circle-fill me-1"></i>
+
+                                            Cancelled
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary px-3 py-2">
+
+                                            @item.AllotmentStatus
+
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- ACTIONS -->
+                                <td class="text-center">
+
+                                    <div class="btn-group">
+
+                                        <!-- DETAILS -->
+                                        <a asp-action="Details"
+                                           asp-route-id="@item.AllotmentId"
+                                           class="btn btn-sm btn-outline-info"
+                                           title="Details">
+
+                                            <i class="bi bi-eye"></i>
+
+                                        </a>
+
+
+                                        <!-- EDIT -->
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.AllotmentId"
+                                           class="btn btn-sm btn-outline-primary"
+                                           title="Edit">
+
+                                            <i class="bi bi-pencil"></i>
+
+                                        </a>
+
+
+                                        <!-- DELETE -->
+                                        <a asp-action="Delete"
+                                           asp-route-id="@item.AllotmentId"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Delete">
+
+                                            <i class="bi bi-trash"></i>
+
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <!-- EMPTY STATE -->
+            <div class="text-center py-5">
+
+                <i class="bi bi-house-x display-4 text-muted"></i>
+
+                <h5 class="fw-bold mt-3">
+                    No Allotments Found
+                </h5>
+
+                <p class="text-muted mb-4">
+                    There are currently no property allotment records.
+                </p>
+
+                <a asp-action="Create"
+                   class="btn btn-primary">
+
+                    <i class="bi bi-plus-circle me-1"></i>
+
+                    Create First Allotment
+
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+</div>

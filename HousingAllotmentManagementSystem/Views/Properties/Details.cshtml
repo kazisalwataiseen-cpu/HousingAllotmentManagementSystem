@@ -1,0 +1,181 @@
+@model HousingAllotmentManagementSystem.Models.Property
+
+@{
+    ViewData["Title"] = "Property Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-header bg-info text-white">
+            <h3 class="mb-0">
+                <i class="bi bi-house-door-fill"></i>
+                Property Details
+            </h3>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Housing Scheme</label>
+                    <div class="form-control bg-light">
+                        @Model.Scheme?.SchemeName
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Property Type</label>
+                    <div class="form-control bg-light">
+                        @Model.PropertyType
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Unit Number</label>
+                    <div class="form-control bg-light">
+                        @Model.UnitNumber
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Plot Number</label>
+                    <div class="form-control bg-light">
+                        @Model.PlotNumber
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="fw-bold">Bedrooms</label>
+                    <div class="form-control bg-light">
+                        @Model.Bedrooms
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="fw-bold">Bathrooms</label>
+                    <div class="form-control bg-light">
+                        @Model.Bathrooms
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="fw-bold">Carpet Area</label>
+                    <div class="form-control bg-light">
+                        @Model.CarpetArea Sq.ft
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="fw-bold">Built-up Area</label>
+                    <div class="form-control bg-light">
+                        @Model.BuiltupArea Sq.ft
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Facing</label>
+                    <div class="form-control bg-light">
+                        @Model.Facing
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Price</label>
+                    <div class="form-control bg-light">
+                        ₹ @String.Format("{0:N0}", Model.Price)
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Booking Amount</label>
+                    <div class="form-control bg-light">
+                        ₹ @String.Format("{0:N0}", Model.BookingAmount)
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Status</label>
+
+                    <div>
+
+                        @if (Model.Status == "Available")
+                        {
+                            <span class="badge bg-success fs-6">Available</span>
+                        }
+                        else if (Model.Status == "Booked")
+                        {
+                            <span class="badge bg-warning text-dark fs-6">Booked</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger fs-6">Sold</span>
+                        }
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Created Date</label>
+                    <div class="form-control bg-light">
+                        @(Model.CreatedDate?.ToString("dd-MMM-yyyy"))
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold">Floor Plan Image</label>
+
+                    @if (!string.IsNullOrEmpty(Model.FloorPlanImage))
+                    {
+                        <img src="@Model.FloorPlanImage"
+                             class="img-fluid rounded border"
+                             style="max-height:250px;" />
+                    }
+                    else
+                    {
+                        <div class="text-muted">
+                            No Image Available
+                        </div>
+                    }
+
+                </div>
+
+                <div class="col-12 mb-3">
+
+                    <label class="fw-bold">Description</label>
+
+                    <div class="form-control bg-light" style="min-height:120px;">
+                        @Model.Description
+                    </div>
+
+                </div>
+
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between">
+
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Back
+                </a>
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.PropertyId"
+                   class="btn btn-warning">
+                    <i class="bi bi-pencil-square"></i>
+                    Edit Property
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

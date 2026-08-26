@@ -1,0 +1,55 @@
+﻿@model HousingAllotmentManagementSystem.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="mb-4">Dashboard</h2>
+
+<div class="row">
+
+    <div class="col-md-3 mb-4">
+        <div class="card shadow border-0">
+            <div class="card-body text-center">
+                <h6>Total Users</h6>
+                <h2>@Model.TotalUsers</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card shadow border-0">
+            <div class="card-body text-center">
+                <h6>Total Properties</h6>
+                <h2>@Model.TotalProperties</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card shadow border-0">
+            <div class="card-body text-center">
+                <h6>Total Applications</h6>
+                <h2>@Model.TotalApplications</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card shadow border-0">
+            <div class="card-body text-center">
+                <h6>Total Payments</h6>
+                <h2>@Model.TotalPayments</h2>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-body">
+        <h4>Total Payment Collection</h4>
+        <h2 class="text-success">₹ @Model.TotalPaymentAmount.ToString("N2")</h2>
+    </div>
+</div>

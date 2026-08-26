@@ -1,0 +1,167 @@
+@model HousingAllotmentManagementSystem.Models.Payment
+
+@{
+    ViewData["Title"] = "Payment Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">
+                <i class="bi bi-credit-card-2-front-fill text-primary"></i>
+                Payment Details
+            </h2>
+
+            <p class="text-muted mb-0">
+                View complete payment information.
+            </p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i>
+            Back to List
+        </a>
+
+    </div>
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-header bg-primary text-white">
+
+            <h4 class="mb-0">
+                <i class="bi bi-receipt"></i>
+                Payment Information
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-secondary">Payment ID</label>
+                    <p class="form-control-plaintext">@Model.PaymentId</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-secondary">User</label>
+                    <p class="form-control-plaintext">@Model.User?.FullName</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-secondary">Installment ID</label>
+                    <p class="form-control-plaintext">
+                        @(Model.InstallmentId.HasValue ? Model.InstallmentId.ToString() : "-")
+                    </p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-secondary">Payment Type</label>
+                    <p class="form-control-plaintext">@Model.PaymentType</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-secondary">Payment Date</label>
+                    <p class="form-control-plaintext">
+                        @Model.PaymentDate.ToString("dd MMM yyyy")
+                    </p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-secondary">Amount</label>
+                    <p class="form-control-plaintext text-success fw-bold">
+                        ₹ @Model.Amount.ToString("N2")
+                    </p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-secondary">Payment Method</label>
+                    <p class="form-control-plaintext">@Model.PaymentMethod</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-secondary">Transaction ID</label>
+                    <p class="form-control-plaintext">
+                        @(string.IsNullOrEmpty(Model.TransactionId) ? "-" : Model.TransactionId)
+                    </p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-secondary">Receipt Number</label>
+                    <p class="form-control-plaintext">
+                        @(string.IsNullOrEmpty(Model.ReceiptNumber) ? "-" : Model.ReceiptNumber)
+                    </p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-secondary">Payment Status</label>
+
+                    @if (Model.PaymentStatus == "Paid")
+                    {
+                        <span class="badge bg-success px-3 py-2">
+                            @Model.PaymentStatus
+                        </span>
+                    }
+                    else if (Model.PaymentStatus == "Pending")
+                    {
+                        <span class="badge bg-warning text-dark px-3 py-2">
+                            @Model.PaymentStatus
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger px-3 py-2">
+                            @Model.PaymentStatus
+                        </span>
+                    }
+
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <label class="fw-bold text-secondary">Remarks</label>
+                    <p class="form-control-plaintext">
+                        @(string.IsNullOrEmpty(Model.Remarks) ? "-" : Model.Remarks)
+                    </p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-bold text-secondary">Created Date</label>
+                    <p class="form-control-plaintext">
+                        @Model.CreatedDate.ToString("dd MMM yyyy hh:mm tt")
+                    </p>
+                </div>
+
+            </div>
+
+            <hr />
+
+            <div class="text-end">
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.PaymentId"
+                   class="btn btn-warning me-2">
+
+                    <i class="bi bi-pencil-square"></i>
+                    Edit
+
+                </a>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    <i class="bi bi-arrow-left"></i>
+                    Back
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

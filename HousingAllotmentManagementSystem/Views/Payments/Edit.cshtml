@@ -1,0 +1,279 @@
+@model HousingAllotmentManagementSystem.Models.Payment
+
+@{
+    ViewData["Title"] = "Edit Payment";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">
+                <i class="bi bi-pencil-square text-warning"></i>
+                Edit Payment
+            </h2>
+
+            <p class="text-muted mb-0">
+                Update payment transaction information.
+            </p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i>
+            Back to List
+        </a>
+
+    </div>
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-header bg-warning text-dark">
+
+            <h4 class="mb-0">
+                <i class="bi bi-credit-card"></i>
+                Payment Details
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Edit">
+
+                <input type="hidden" asp-for="PaymentId" />
+                <input type="hidden" asp-for="CreatedDate" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger"></div>
+
+                <div class="row">
+
+                    <!-- User -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="UserId"
+                               class="form-label fw-semibold"></label>
+
+                        <select asp-for="UserId"
+                                asp-items="ViewBag.UserId"
+                                class="form-select">
+
+                            <option value="">-- Select User --</option>
+
+                        </select>
+
+                        <span asp-validation-for="UserId"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Installment -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="InstallmentId"
+                               class="form-label fw-semibold"></label>
+
+                        <select asp-for="InstallmentId"
+                                asp-items="ViewBag.InstallmentId"
+                                class="form-select">
+
+                            <option value="">-- Select Installment --</option>
+
+                        </select>
+
+                        <span asp-validation-for="InstallmentId"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Payment Type -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="PaymentType"
+                               class="form-label fw-semibold"></label>
+
+                        <select asp-for="PaymentType"
+                                class="form-select">
+
+                            <option>Booking Amount</option>
+                            <option>Down Payment</option>
+                            <option>Installment</option>
+                            <option>Final Payment</option>
+
+                        </select>
+
+                        <span asp-validation-for="PaymentType"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Payment Date -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="PaymentDate"
+                               class="form-label fw-semibold"></label>
+
+                        <input asp-for="PaymentDate"
+                               type="date"
+                               class="form-control" />
+
+                        <span asp-validation-for="PaymentDate"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Amount -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Amount"
+                               class="form-label fw-semibold"></label>
+
+                        <input asp-for="Amount"
+                               class="form-control"
+                               placeholder="Enter Amount" />
+
+                        <span asp-validation-for="Amount"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Payment Method -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="PaymentMethod"
+                               class="form-label fw-semibold"></label>
+
+                        <select asp-for="PaymentMethod"
+                                class="form-select">
+
+                            <option>Cash</option>
+                            <option>UPI</option>
+                            <option>Credit Card</option>
+                            <option>Debit Card</option>
+                            <option>Net Banking</option>
+                            <option>Cheque</option>
+
+                        </select>
+
+                        <span asp-validation-for="PaymentMethod"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Transaction -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="TransactionId"
+                               class="form-label fw-semibold"></label>
+
+                        <input asp-for="TransactionId"
+                               class="form-control"
+                               placeholder="Transaction ID" />
+
+                        <span asp-validation-for="TransactionId"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Receipt -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="ReceiptNumber"
+                               class="form-label fw-semibold"></label>
+
+                        <input asp-for="ReceiptNumber"
+                               class="form-control"
+                               placeholder="Receipt Number" />
+
+                        <span asp-validation-for="ReceiptNumber"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Status -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="PaymentStatus"
+                               class="form-label fw-semibold"></label>
+
+                        <select asp-for="PaymentStatus"
+                                class="form-select">
+
+                            <option>Paid</option>
+                            <option>Pending</option>
+                            <option>Failed</option>
+
+                        </select>
+
+                        <span asp-validation-for="PaymentStatus"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Remarks -->
+
+                    <div class="col-md-12 mb-3">
+
+                        <label asp-for="Remarks"
+                               class="form-label fw-semibold"></label>
+
+                        <textarea asp-for="Remarks"
+                                  rows="4"
+                                  class="form-control"
+                                  placeholder="Enter Remarks"></textarea>
+
+                        <span asp-validation-for="Remarks"
+                              class="text-danger"></span>
+
+                    </div>
+
+                </div>
+
+                <hr />
+
+                <div class="text-end">
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary me-2">
+
+                        <i class="bi bi-x-circle"></i>
+                        Cancel
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-warning">
+
+                        <i class="bi bi-check-circle-fill"></i>
+                        Update Payment
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+}

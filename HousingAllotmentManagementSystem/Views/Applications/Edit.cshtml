@@ -1,0 +1,269 @@
+@model HousingAllotmentManagementSystem.Models.Application
+
+@{
+    ViewData["Title"] = "Edit Application";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">
+                <i class="bi bi-pencil-square text-warning"></i>
+                Edit Application
+            </h2>
+
+            <p class="text-muted mb-0">
+                Update housing application details.
+            </p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i>
+            Back to List
+        </a>
+
+    </div>
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-header bg-warning text-dark py-3">
+
+            <h4 class="mb-0">
+                <i class="bi bi-pencil-fill"></i>
+                Edit Application Information
+            </h4>
+
+        </div>
+
+        <div class="card-body p-4">
+
+            <form asp-action="Edit">
+
+                <input type="hidden" asp-for="ApplicationId" />
+                <input type="hidden" asp-for="ApplicationDate" />
+                <input type="hidden" asp-for="CreatedDate" />
+                <!-- Status -->
+
+                <div class="col-md-6 mb-4">
+
+                    <label asp-for="Status"
+                           class="form-label fw-semibold">
+
+                        Application Status
+
+                    </label>
+
+                    <select asp-for="Status"
+                            class="form-select">
+
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+
+                    </select>
+
+                    <span asp-validation-for="Status"
+                          class="text-danger"></span>
+
+                </div>
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger">
+                </div>
+
+                <div class="row">
+
+                    <!-- Applicant -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="UserId" class="form-label fw-semibold">
+                            Applicant
+                        </label>
+
+                        <select asp-for="UserId"
+                                asp-items="ViewBag.UserId"
+                                class="form-select">
+
+                            <option value="">-- Select Applicant --</option>
+
+                        </select>
+
+                        <span asp-validation-for="UserId"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Property -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="PropertyId"
+                               class="form-label fw-semibold">
+
+                            Property
+
+                        </label>
+
+                        <select asp-for="PropertyId"
+                                asp-items="ViewBag.PropertyId"
+                                class="form-select">
+
+                            <option value="">-- Select Property --</option>
+
+                        </select>
+
+                        <span asp-validation-for="PropertyId"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Employment -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="EmploymentType"
+                               class="form-label fw-semibold">
+
+                            Employment Type
+
+                        </label>
+
+                        <select asp-for="EmploymentType"
+                                class="form-select">
+
+                            <option value="">Select Employment</option>
+                            <option>Government</option>
+                            <option>Private</option>
+                            <option>Business</option>
+                            <option>Self Employed</option>
+                            <option>Retired</option>
+                            <option>Other</option>
+
+                        </select>
+
+                        <span asp-validation-for="EmploymentType"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Income -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="AnnualIncome"
+                               class="form-label fw-semibold">
+
+                            Annual Income
+
+                        </label>
+
+                        <input asp-for="AnnualIncome"
+                               class="form-control"
+                               placeholder="Annual Income" />
+
+                        <span asp-validation-for="AnnualIncome"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Nominee -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="NomineeName"
+                               class="form-label fw-semibold">
+
+                            Nominee Name
+
+                        </label>
+
+                        <input asp-for="NomineeName"
+                               class="form-control"
+                               placeholder="Nominee Name" />
+
+                        <span asp-validation-for="NomineeName"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Relation -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="NomineeRelation"
+                               class="form-label fw-semibold">
+
+                            Nominee Relation
+
+                        </label>
+
+                        <input asp-for="NomineeRelation"
+                               class="form-control"
+                               placeholder="Nominee Relation" />
+
+                        <span asp-validation-for="NomineeRelation"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <!-- Remarks -->
+
+                    <div class="col-md-12 mb-4">
+
+                        <label asp-for="Remarks"
+                               class="form-label fw-semibold">
+
+                            Remarks
+
+                        </label>
+
+                        <textarea asp-for="Remarks"
+                                  rows="4"
+                                  class="form-control"
+                                  placeholder="Additional Remarks"></textarea>
+
+                        <span asp-validation-for="Remarks"
+                              class="text-danger"></span>
+
+                    </div>
+
+                </div>
+
+                <hr />
+
+                <div class="text-end">
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary me-2">
+
+                        <i class="bi bi-x-circle"></i>
+                        Cancel
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-warning">
+
+                        <i class="bi bi-check-circle-fill"></i>
+                        Update Application
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

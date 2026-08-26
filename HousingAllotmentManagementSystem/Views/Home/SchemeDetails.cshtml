@@ -1,0 +1,651 @@
+﻿@model HousingAllotmentManagementSystem.Models.HousingScheme
+
+@{
+    ViewData["Title"] = Model.SchemeName;
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@Model.SchemeName - Housing Allotment System</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+
+            body {
+                margin: 0;
+                background: #f5f7fb;
+                color: #263238;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            /* =========================================
+                       NAVBAR
+                    ========================================= */
+
+            .public-navbar {
+                background: #ffffff;
+                border-bottom: 1px solid #e5e7eb;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                padding: 15px 40px;
+            }
+
+            .brand {
+                color: #2563eb;
+                text-decoration: none;
+                font-size: 23px;
+                font-weight: 700;
+            }
+
+                .brand:hover {
+                    color: #1d4ed8;
+                }
+
+                .brand i {
+                    margin-right: 8px;
+                }
+
+            .home-link {
+                text-decoration: none;
+                color: #475569;
+                font-weight: 600;
+            }
+
+                .home-link:hover {
+                    color: #2563eb;
+                }
+
+            /* =========================================
+                       PAGE
+                    ========================================= */
+
+            .details-page {
+                padding: 40px 50px 60px;
+            }
+
+            .back-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                text-decoration: none;
+                color: #2563eb;
+                font-weight: 600;
+                margin-bottom: 25px;
+            }
+
+                .back-link:hover {
+                    color: #1d4ed8;
+                }
+
+            /* =========================================
+                       HERO IMAGE
+                    ========================================= */
+
+            .scheme-hero {
+                height: 420px;
+                border-radius: 22px;
+                overflow: hidden;
+                position: relative;
+                background: #d1d5db;
+            }
+
+                .scheme-hero img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                }
+
+            .scheme-overlay {
+                position: absolute;
+                inset: 0;
+                background: linear-gradient( to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.10) );
+            }
+
+            .scheme-hero-content {
+                position: absolute;
+                left: 35px;
+                right: 35px;
+                bottom: 30px;
+                color: white;
+                z-index: 2;
+            }
+
+                .scheme-hero-content h1 {
+                    font-size: 42px;
+                    font-weight: 700;
+                    margin-bottom: 10px;
+                }
+
+            .scheme-location {
+                font-size: 18px;
+            }
+
+            .status-badge {
+                display: inline-block;
+                padding: 8px 18px;
+                border-radius: 25px;
+                font-size: 14px;
+                font-weight: 600;
+                margin-bottom: 15px;
+            }
+
+            .active {
+                background: #16a34a;
+            }
+
+            .inactive {
+                background: #dc2626;
+            }
+
+            /* =========================================
+                       DETAILS CARD
+                    ========================================= */
+
+            .details-card {
+                background: white;
+                border-radius: 20px;
+                padding: 30px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+                margin-top: 30px;
+            }
+
+            .section-title {
+                font-size: 24px;
+                font-weight: 700;
+                color: #1f2937;
+                margin-bottom: 20px;
+            }
+
+            .description {
+                color: #64748b;
+                font-size: 16px;
+                line-height: 1.7;
+            }
+
+            /* =========================================
+                       INFORMATION
+                    ========================================= */
+
+            .info-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 18px;
+                margin-top: 25px;
+            }
+
+            .info-box {
+                background: #f8fafc;
+                border-radius: 14px;
+                padding: 18px;
+                border: 1px solid #e2e8f0;
+            }
+
+            .info-icon {
+                color: #2563eb;
+                font-size: 23px;
+                margin-bottom: 8px;
+            }
+
+            .info-label {
+                display: block;
+                color: #64748b;
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+
+            .info-value {
+                display: block;
+                color: #1f2937;
+                font-size: 17px;
+                font-weight: 700;
+            }
+
+            /* =========================================
+                       ACTIONS
+                    ========================================= */
+
+            .action-area {
+                margin-top: 30px;
+                display: flex;
+                gap: 15px;
+                flex-wrap: wrap;
+            }
+
+            .apply-btn {
+                background: #16a34a;
+                color: white;
+                padding: 13px 28px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-size: 16px;
+                font-weight: 700;
+            }
+
+                .apply-btn:hover {
+                    background: #15803d;
+                    color: white;
+                }
+
+            .back-btn {
+                background: #e2e8f0;
+                color: #334155;
+                padding: 13px 28px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-size: 16px;
+                font-weight: 600;
+            }
+
+                .back-btn:hover {
+                    background: #cbd5e1;
+                    color: #334155;
+                }
+
+            .closed-btn {
+                padding: 13px 28px;
+                border-radius: 10px;
+                font-weight: 600;
+            }
+
+            /* =========================================
+                       RESPONSIVE
+                    ========================================= */
+
+            @@media (max-width: 991px) {
+
+                .details-page {
+                    padding: 30px 25px;
+                }
+
+                .info-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .scheme-hero-content h1 {
+                    font-size: 34px;
+                }
+            }
+
+            @@media (max-width: 575px) {
+
+                .public-navbar {
+                    padding: 15px 20px;
+                }
+
+                .details-page {
+                    padding: 20px 15px 40px;
+                }
+
+                .scheme-hero {
+                    height: 320px;
+                }
+
+                .scheme-hero-content {
+                    left: 20px;
+                    right: 20px;
+                    bottom: 20px;
+                }
+
+                    .scheme-hero-content h1 {
+                        font-size: 28px;
+                    }
+
+                .info-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =========================================
+         PUBLIC NAVBAR
+    ========================================= -->
+
+    <nav class="public-navbar">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="brand">
+
+                <i class="bi bi-buildings-fill"></i>
+
+                Housing Allotment System
+
+            </a>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="home-link">
+
+                <i class="bi bi-house-fill me-1"></i>
+
+                Home
+
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================================
+         MAIN
+    ========================================= -->
+
+    <main class="details-page">
+
+        <!-- BACK TO SCHEMES -->
+
+        <a asp-controller="Home"
+           asp-action="HousingSchemes"
+           class="back-link">
+
+            <i class="bi bi-arrow-left"></i>
+
+            Back to Housing Schemes
+
+        </a>
+
+
+        <!-- =========================================
+             HERO
+        ========================================= -->
+
+        <div class="scheme-hero">
+
+            @if (!string.IsNullOrWhiteSpace(Model.BannerImage))
+            {
+                <img src="@Url.Content("~/Images/schemes/" + Model.BannerImage.Trim())"
+                     alt="@Model.SchemeName"
+                     onerror="this.onerror=null;this.src='/Images/schemes/default.jpg';" />
+            }
+            else
+            {
+                <img src="@Url.Content("~/Images/schemes/default.jpg")"
+                     alt="Housing Scheme" />
+            }
+
+            <div class="scheme-overlay"></div>
+
+            <div class="scheme-hero-content">
+
+                @if (Model.Status == true)
+                {
+                    <span class="status-badge active">
+
+                        <i class="bi bi-check-circle-fill me-1"></i>
+
+                        Active
+
+                    </span>
+                }
+                else
+                {
+                    <span class="status-badge inactive">
+
+                        <i class="bi bi-x-circle-fill me-1"></i>
+
+                        Inactive
+
+                    </span>
+                }
+
+                <h1>
+                    @Model.SchemeName
+                </h1>
+
+                <div class="scheme-location">
+
+                    <i class="bi bi-geo-alt-fill me-1"></i>
+
+                    @(Model.Location ?? Model.City ?? "Location not specified")
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================================
+             DETAILS
+        ========================================= -->
+
+        <div class="details-card">
+
+            <h2 class="section-title">
+
+                <i class="bi bi-info-circle-fill text-primary me-2"></i>
+
+                Scheme Details
+
+            </h2>
+
+
+            <!-- DESCRIPTION -->
+
+            <div class="description">
+
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    @Model.Description
+                }
+                else
+                {
+                    <span>
+                        No description available for this housing scheme.
+                    </span>
+                }
+
+            </div>
+
+
+            <!-- =========================================
+                 INFORMATION
+            ========================================= -->
+
+            <div class="info-grid">
+
+                <!-- CITY -->
+
+                <div class="info-box">
+
+                    <i class="bi bi-geo-alt-fill info-icon"></i>
+
+                    <span class="info-label">
+                        City
+                    </span>
+
+                    <span class="info-value">
+                        @(Model.City ?? "-")
+                    </span>
+
+                </div>
+
+
+                <!-- STATE -->
+
+                <div class="info-box">
+
+                    <i class="bi bi-map-fill info-icon"></i>
+
+                    <span class="info-label">
+                        State
+                    </span>
+
+                    <span class="info-value">
+                        @(Model.State ?? "-")
+                    </span>
+
+                </div>
+
+
+                <!-- LOCATION -->
+
+                <div class="info-box">
+
+                    <i class="bi bi-pin-map-fill info-icon"></i>
+
+                    <span class="info-label">
+                        Location
+                    </span>
+
+                    <span class="info-value">
+                        @(Model.Location ?? "-")
+                    </span>
+
+                </div>
+
+
+                <!-- TOTAL UNITS -->
+
+                <div class="info-box">
+
+                    <i class="bi bi-houses-fill info-icon"></i>
+
+                    <span class="info-label">
+                        Total Units
+                    </span>
+
+                    <span class="info-value">
+                        @(Model.TotalUnits?.ToString() ?? "-")
+                    </span>
+
+                </div>
+
+
+                <!-- LAUNCH DATE -->
+
+                <div class="info-box">
+
+                    <i class="bi bi-calendar-event-fill info-icon"></i>
+
+                    <span class="info-label">
+                        Launch Date
+                    </span>
+
+                    <span class="info-value">
+
+                        @if (Model.LaunchDate.HasValue)
+                        {
+                            @Model.LaunchDate.Value.ToString("dd MMM yyyy")
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+
+                    </span>
+
+                </div>
+
+
+                <!-- LAST APPLICATION DATE -->
+
+                <div class="info-box">
+
+                    <i class="bi bi-calendar-x-fill info-icon"></i>
+
+                    <span class="info-label">
+                        Last Application Date
+                    </span>
+
+                    <span class="info-value">
+
+                        @if (Model.LastApplicationDate.HasValue)
+                        {
+                            @Model.LastApplicationDate.Value.ToString("dd MMM yyyy")
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================================
+                 ACTION BUTTONS
+            ========================================= -->
+
+            <div class="action-area">
+
+                @if (Model.Status == true)
+                {
+                    <!-- IMPORTANT:
+                         This goes to the PUBLIC Apply action,
+                         NOT the Admin Create action.
+                    -->
+
+                    <a asp-controller="Applications"
+                       asp-action="Apply"
+                       asp-route-schemeId="@Model.SchemeId"
+                       class="apply-btn">
+
+                        <i class="bi bi-file-earmark-check-fill me-2"></i>
+
+                        Apply Now
+
+                    </a>
+                }
+                else
+                {
+                    <button type="button"
+                            class="btn btn-secondary closed-btn"
+                            disabled>
+
+                        <i class="bi bi-x-circle me-2"></i>
+
+                        Applications Closed
+
+                    </button>
+                }
+
+
+                <!-- BACK -->
+
+                <a asp-controller="Home"
+                   asp-action="HousingSchemes"
+                   class="back-btn">
+
+                    <i class="bi bi-arrow-left me-1"></i>
+
+                    Back to Schemes
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

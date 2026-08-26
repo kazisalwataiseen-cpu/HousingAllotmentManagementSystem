@@ -1,0 +1,102 @@
+@model HousingAllotmentManagementSystem.Models.UserDocument
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>UserDocument</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="UserId" class="control-label"></label>
+                <input asp-for="UserId" class="form-control" />
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="AadhaarCard" class="control-label"></label>
+                <input asp-for="AadhaarCard" class="form-control" />
+                <span asp-validation-for="AadhaarCard" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Pancard" class="control-label"></label>
+                <input asp-for="Pancard" class="form-control" />
+                <span asp-validation-for="Pancard" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IncomeCertificate" class="control-label"></label>
+                <input asp-for="IncomeCertificate" class="form-control" />
+                <span asp-validation-for="IncomeCertificate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SalarySlip" class="control-label"></label>
+                <input asp-for="SalarySlip" class="form-control" />
+                <span asp-validation-for="SalarySlip" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PassportPhoto" class="control-label"></label>
+                <input asp-for="PassportPhoto" class="form-control" />
+                <span asp-validation-for="PassportPhoto" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BankStatement" class="control-label"></label>
+                <input asp-for="BankStatement" class="form-control" />
+                <span asp-validation-for="BankStatement" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="OtherDocument" class="control-label"></label>
+                <input asp-for="OtherDocument" class="form-control" />
+                <span asp-validation-for="OtherDocument" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="VerificationStatus" class="control-label"></label>
+                <input asp-for="VerificationStatus" class="form-control" />
+                <span asp-validation-for="VerificationStatus" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Remarks" class="control-label"></label>
+                <input asp-for="Remarks" class="form-control" />
+                <span asp-validation-for="Remarks" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="UploadedDate" class="control-label"></label>
+                <input asp-for="UploadedDate" class="form-control" />
+                <span asp-validation-for="UploadedDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="VerifiedDate" class="control-label"></label>
+                <input asp-for="VerifiedDate" class="form-control" />
+                <span asp-validation-for="VerifiedDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="User" class="control-label"></label>
+                <input asp-for="User" class="form-control" />
+                <span asp-validation-for="User" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

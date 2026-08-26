@@ -1,0 +1,284 @@
+@model HousingAllotmentManagementSystem.Models.PropertyAmenity
+
+@{
+    ViewData["Title"] = "Edit Property Amenity";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    ```
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-pencil-square text-primary me-2"></i>
+                Edit Property Amenity
+            </h2>
+
+            <p class="text-muted mb-0">
+                Update the property and amenity assignment.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Property Amenities
+
+        </a>
+
+    </div>
+
+
+    <!-- Main Card -->
+    <div class="row justify-content-center">
+
+        <div class="col-xl-8 col-lg-9">
+
+            <div class="card border-0 shadow-sm">
+
+                <!-- Card Header -->
+                <div class="card-header bg-primary text-white py-3">
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3">
+                            <i class="bi bi-pencil fs-5"></i>
+                        </div>
+
+                        <div>
+                            <h5 class="mb-0">
+                                Update Assignment
+                            </h5>
+
+                            <small class="opacity-75">
+                                Assignment ID: #@Model.PropertyAmenityId
+                            </small>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Form Body -->
+                <div class="card-body p-4">
+
+                    <form asp-action="Edit" method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               asp-for="PropertyAmenityId" />
+
+
+                        <!-- Validation -->
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+
+                        <!-- Assignment Information -->
+                        <div class="mb-4">
+
+                            <h6 class="fw-bold text-primary mb-3">
+
+                                <i class="bi bi-link-45deg me-2"></i>
+                                Assignment Information
+
+                            </h6>
+
+                            <div class="border rounded p-4">
+
+                                <div class="row g-4">
+
+                                    <!-- Property -->
+                                    <div class="col-md-6">
+
+                                        <label asp-for="PropertyId"
+                                               class="form-label fw-semibold">
+
+                                            <i class="bi bi-house-door text-primary me-1"></i>
+                                            Property
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <select asp-for="PropertyId"
+                                                asp-items="ViewBag.PropertyId"
+                                                class="form-select">
+
+                                            <option value="">
+                                                -- Select Property --
+                                            </option>
+
+                                        </select>
+
+                                        <span asp-validation-for="PropertyId"
+                                              class="text-danger small">
+                                        </span>
+
+                                        <div class="form-text">
+                                            Select the property for this assignment.
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- Amenity -->
+                                    <div class="col-md-6">
+
+                                        <label asp-for="AmenityId"
+                                               class="form-label fw-semibold">
+
+                                            <i class="bi bi-star text-success me-1"></i>
+                                            Amenity
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <select asp-for="AmenityId"
+                                                asp-items="ViewBag.AmenityId"
+                                                class="form-select">
+
+                                            <option value="">
+                                                -- Select Amenity --
+                                            </option>
+
+                                        </select>
+
+                                        <span asp-validation-for="AmenityId"
+                                              class="text-danger small">
+                                        </span>
+
+                                        <div class="form-text">
+                                            Select the amenity to assign to this property.
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Current Assignment -->
+                        <div class="alert alert-light border">
+
+                            <div class="d-flex align-items-start">
+
+                                <i class="bi bi-info-circle-fill text-primary fs-5 me-2"></i>
+
+                                <div>
+
+                                    <strong>Current Assignment</strong>
+
+                                    <p class="mb-0 mt-1">
+
+                                        Property:
+                                        <strong>
+                                            @(Model.Property?.UnitNumber ?? "Not available")
+                                        </strong>
+
+                                        <span class="mx-2">|</span>
+
+                                        Amenity:
+                                        <strong>
+                                            @(Model.Amenity?.AmenityName ?? "Not available")
+                                        </strong>
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Warning -->
+                        <div class="alert alert-warning border-0">
+
+                            <div class="d-flex align-items-start">
+
+                                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+
+                                <div>
+
+                                    <strong>Important</strong>
+
+                                    <p class="mb-0 mt-1">
+                                        Make sure the selected property and amenity
+                                        are correct. Avoid assigning the same amenity
+                                        to the same property more than once.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Buttons -->
+                        <div class="border-top pt-4 mt-4">
+
+                            <div class="d-flex justify-content-end gap-2">
+
+                                <a asp-action="Index"
+                                   class="btn btn-outline-secondary px-4">
+
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Cancel
+
+                                </a>
+
+                                <a asp-action="Details"
+                                   asp-route-id="@Model.PropertyAmenityId"
+                                   class="btn btn-outline-info px-4">
+
+                                    <i class="bi bi-eye me-1"></i>
+                                    View Details
+
+                                </a>
+
+                                <button type="submit"
+                                        class="btn btn-primary px-4">
+
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Save Changes
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    ```
+
+</div>
+
+@section Scripts {
+
+    ```
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    ```
+
+}

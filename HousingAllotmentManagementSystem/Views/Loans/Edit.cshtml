@@ -1,0 +1,128 @@
+@model HousingAllotmentManagementSystem.Models.Loan
+
+@{
+    ViewData["Title"] = "Edit Loan";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-10">
+
+            <div class="card shadow border-0">
+
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit"></i>
+                        Edit Loan
+                    </h4>
+                </div>
+
+                <div class="card-body">
+
+                    <form asp-action="Edit">
+
+                        <input type="hidden" asp-for="LoanId" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="AllotmentId" class="form-label fw-bold"></label>
+                                <select asp-for="AllotmentId"
+                                        class="form-select"
+                                        asp-items="ViewBag.AllotmentId">
+                                </select>
+                                <span asp-validation-for="AllotmentId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LoanNumber" class="form-label fw-bold"></label>
+                                <input asp-for="LoanNumber" class="form-control" />
+                                <span asp-validation-for="LoanNumber" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LoanAmount" class="form-label fw-bold"></label>
+                                <input asp-for="LoanAmount" class="form-control" />
+                                <span asp-validation-for="LoanAmount" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DownPayment" class="form-label fw-bold"></label>
+                                <input asp-for="DownPayment" class="form-control" />
+                                <span asp-validation-for="DownPayment" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="InterestRate" class="form-label fw-bold"></label>
+                                <input asp-for="InterestRate" class="form-control" />
+                                <span asp-validation-for="InterestRate" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LoanTenure" class="form-label fw-bold"></label>
+                                <input asp-for="LoanTenure" class="form-control" />
+                                <span asp-validation-for="LoanTenure" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Emiamount" class="form-label fw-bold"></label>
+                                <input asp-for="Emiamount" class="form-control" />
+                                <span asp-validation-for="Emiamount" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="SanctionDate" class="form-label fw-bold"></label>
+                                <input asp-for="SanctionDate" type="date" class="form-control" />
+                                <span asp-validation-for="SanctionDate" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LoanStatus" class="form-label fw-bold"></label>
+                                <select asp-for="LoanStatus" class="form-select">
+                                    <option>Pending</option>
+                                    <option>Active</option>
+                                    <option>Closed</option>
+                                </select>
+                                <span asp-validation-for="LoanStatus" class="text-danger"></span>
+                            </div>
+
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-end">
+
+                            <a asp-action="Index" class="btn btn-secondary me-2">
+                                <i class="fas fa-arrow-left"></i>
+                                Cancel
+                            </a>
+
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save"></i>
+                                Update Loan
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

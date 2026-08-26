@@ -1,0 +1,170 @@
+@model IEnumerable<HousingAllotmentManagementSystem.Models.Property>
+
+@{
+    ViewData["Title"] = "Properties";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">
+                <i class="bi bi-house-door-fill text-primary"></i>
+                Property Management
+            </h2>
+            <p class="text-muted mb-0">
+                Manage all housing properties
+            </p>
+        </div>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            Add Property
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body">
+            <input type="text"
+                   id="searchBox"
+                   class="form-control"
+                   placeholder="Search Property...">
+        </div>
+    </div>
+
+    <div class="card shadow border-0">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle" id="propertyTable">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>ID</th>
+
+                            <th>Scheme ID</th>
+
+                            <th>Unit</th>
+
+                            <th>Type</th>
+
+                            <th>Bedrooms</th>
+
+                            <th>Price</th>
+
+                            <th>Status</th>
+
+                            <th width="180">Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>@item.PropertyId</td>
+
+                                <td>@item.SchemeId</td>
+
+                                <td>@item.UnitNumber</td>
+
+                                <td>@item.PropertyType</td>
+
+                                <td>@item.Bedrooms</td>
+
+                                <td>
+                                    @(item.Price?.ToString("C"))
+                                </td>
+
+                                <td>
+
+                                    @if (item.Status == "Available")
+                                    {
+                                        <span class="badge bg-success">
+                                            Available
+                                        </span>
+                                    }
+                                    else if (item.Status == "Booked")
+                                    {
+                                        <span class="badge bg-danger">
+                                            Booked
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            @item.Status
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.PropertyId"
+                                       class="btn btn-warning btn-sm">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+
+                                    <a asp-action="Details"
+                                       asp-route-id="@item.PropertyId"
+                                       class="btn btn-info btn-sm text-white">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@item.PropertyId"
+                                       class="btn btn-danger btn-sm">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script>
+
+        document.getElementById("searchBox").addEventListener("keyup", function() {
+
+            let value = this.value.toLowerCase();
+
+            let rows = document.querySelectorAll("#propertyTable tbody tr");
+
+            rows.forEach(function(row) {
+
+                row.style.display = row.innerText.toLowerCase().includes(value)
+                    ? ""
+                    : "none";
+
+            });
+
+        });
+
+    </script>
+
+}

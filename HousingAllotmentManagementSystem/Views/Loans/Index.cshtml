@@ -1,0 +1,175 @@
+@model IEnumerable<HousingAllotmentManagementSystem.Models.Loan>
+
+@{
+    ViewData["Title"] = "Loan Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-0">Loan Management</h2>
+            <small class="text-muted">Manage all housing loans</small>
+        </div>
+
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="fas fa-plus-circle"></i> Add Loan
+        </a>
+    </div>
+
+    <div class="card shadow border-0">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-hand-holding-usd text-primary"></i>
+                Loan List
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Loan No.</th>
+                            <th>Allotment</th>
+                            <th>Loan Amount</th>
+                            <th>Down Payment</th>
+                            <th>Interest</th>
+                            <th>Tenure</th>
+                            <th>EMI</th>
+                            <th>Sanction Date</th>
+                            <th>Status</th>
+                            <th width="180">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+
+                                    <td>
+                                        <strong>@item.LoanNumber</strong>
+                                    </td>
+
+                                    <td>
+                                        @item.AllotmentId
+                                    </td>
+
+                                    <td>
+                                        ₹ @item.LoanAmount.ToString("N2")
+                                    </td>
+
+                                    <td>
+                                        ₹ @item.DownPayment.ToString("N2")
+                                    </td>
+
+                                    <td>
+                                        @item.InterestRate %
+                                    </td>
+
+                                    <td>
+                                        @item.LoanTenure Months
+                                    </td>
+
+                                    <td>
+                                        ₹ @item.Emiamount.ToString("N2")
+                                    </td>
+
+                                    <td>
+                                        @item.SanctionDate.ToString("dd-MMM-yyyy")
+                                    </td>
+
+                                    <td>
+
+                                        @if (item.LoanStatus == "Active")
+                                        {
+                                            <span class="badge bg-success">
+                                                Active
+                                            </span>
+                                        }
+                                        else if (item.LoanStatus == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+                                        }
+                                        else if (item.LoanStatus == "Closed")
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Closed
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                @item.LoanStatus
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <td>
+
+                                        <a asp-action="Details"
+                                           asp-route-id="@item.LoanId"
+                                           class="btn btn-info btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.LoanId"
+                                           class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        <a asp-action="Delete"
+                                           asp-route-id="@item.LoanId"
+                                           class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+
+                                <td colspan="10" class="text-center text-muted py-5">
+
+                                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+
+                                    <h5>No Loan Records Found</h5>
+
+                                    <a asp-action="Create"
+                                       class="btn btn-primary mt-3">
+                                        Add First Loan
+                                    </a>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

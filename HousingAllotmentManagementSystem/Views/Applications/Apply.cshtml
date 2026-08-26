@@ -1,0 +1,621 @@
+﻿@model HousingAllotmentManagementSystem.Models.Application
+
+@{
+    var scheme = ViewBag.Scheme as HousingAllotmentManagementSystem.Models.HousingScheme;
+    var properties = ViewBag.Properties as IEnumerable<HousingAllotmentManagementSystem.Models.Property>;
+    var currentUser = ViewBag.CurrentUser as HousingAllotmentManagementSystem.Models.User;
+
+    ViewData["Title"] = "Apply for Housing";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Apply - @scheme?.SchemeName</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+
+            body {
+                margin: 0;
+                background: #f5f7fb;
+                font-family: Arial, Helvetica, sans-serif;
+                color: #263238;
+            }
+
+            .page {
+                padding: 40px 20px 60px;
+            }
+
+            .application-card {
+                max-width: 950px;
+                margin: auto;
+                background: white;
+                border-radius: 20px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+                overflow: hidden;
+            }
+
+            .header {
+                background: #2563eb;
+                color: white;
+                padding: 25px 30px;
+            }
+
+                .header h2 {
+                    margin: 0;
+                    font-weight: 700;
+                }
+
+                .header p {
+                    margin-bottom: 0;
+                    margin-top: 8px;
+                    opacity: 0.85;
+                }
+
+            .body {
+                padding: 30px;
+            }
+
+            .section-title {
+                color: #2563eb;
+                font-weight: 700;
+                border-bottom: 1px solid #e5e7eb;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+
+            .scheme-box {
+                margin-bottom: 30px;
+                padding: 20px;
+                border-radius: 14px;
+                background: #eff6ff;
+                border: 1px solid #bfdbfe;
+            }
+
+                .scheme-box h4 {
+                    color: #1d4ed8;
+                    margin-bottom: 8px;
+                    font-weight: 700;
+                }
+
+            .scheme-location {
+                color: #64748b;
+            }
+
+            .form-label {
+                font-weight: 600;
+            }
+
+            .readonly-field {
+                background: #f8fafc !important;
+                cursor: not-allowed;
+            }
+
+            .info-note {
+                color: #64748b;
+                font-size: 14px;
+            }
+
+            .submit-btn {
+                background: #16a34a;
+                color: white;
+                border: none;
+                padding: 12px 25px;
+                border-radius: 9px;
+                font-weight: 700;
+            }
+
+                .submit-btn:hover {
+                    background: #15803d;
+                    color: white;
+                }
+
+            .back-btn {
+                padding: 12px 25px;
+                border-radius: 9px;
+            }
+
+            @@media (max-width: 575px) {
+
+                .page {
+                    padding: 20px 10px;
+                }
+
+                .header {
+                    padding: 20px;
+                }
+
+                .body {
+                    padding: 20px;
+                }
+
+                .scheme-box {
+                    padding: 16px;
+                }
+            }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="page">
+
+        <div class="application-card">
+
+            <!-- =====================================================
+             HEADER
+        ====================================================== -->
+
+            <div class="header">
+
+                <h2>
+                    <i class="bi bi-file-earmark-plus-fill me-2"></i>
+                    Housing Application
+                </h2>
+
+                <p>
+                    Apply for the selected housing scheme
+                </p>
+
+            </div>
+
+
+            <div class="body">
+
+                <!-- =================================================
+                 SELECTED SCHEME
+            ================================================== -->
+
+                <div class="scheme-box">
+
+                    <h4>
+                        <i class="bi bi-buildings-fill me-2"></i>
+                        @scheme?.SchemeName
+                    </h4>
+
+                    <div class="scheme-location">
+
+                        <i class="bi bi-geo-alt-fill me-1"></i>
+
+                        @(scheme?.Location ?? scheme?.City ?? "Location not specified")
+
+                        @if (!string.IsNullOrWhiteSpace(scheme?.State))
+                        {
+                            <span>
+                                , @scheme.State
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <form asp-action="Apply"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="schemeId"
+                           value="@scheme?.SchemeId" />
+
+
+                    <!-- =================================================
+                     VALIDATION
+                ================================================== -->
+
+                    <div asp-validation-summary="All"
+                         class="alert alert-danger">
+                    </div>
+
+
+                    <!-- =================================================
+                     APPLICANT INFORMATION
+                ================================================== -->
+
+                    <h5 class="section-title">
+
+                        <i class="bi bi-person-fill me-2"></i>
+
+                        Applicant Information
+
+                    </h5>
+
+
+                    <div class="row g-4 mb-4">
+
+                        <!-- FULL NAME -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Full Name
+                            </label>
+
+                            <input type="text"
+                                   class="form-control readonly-field"
+                                   value="@currentUser?.FullName"
+                                   readonly />
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Email Address
+                            </label>
+
+                            <input type="email"
+                                   class="form-control readonly-field"
+                                   value="@currentUser?.Email"
+                                   readonly />
+
+                        </div>
+
+
+                        <!-- MOBILE -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Mobile Number
+                            </label>
+
+                            <input type="text"
+                                   class="form-control readonly-field"
+                                   value="@currentUser?.Mobile"
+                                   readonly />
+
+                        </div>
+
+
+                        <!-- USER ID -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                User ID
+                            </label>
+
+                            <input type="text"
+                                   class="form-control readonly-field"
+                                   value="@currentUser?.UserId"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="alert alert-info border-0 mb-5">
+
+                        <i class="bi bi-info-circle-fill me-2"></i>
+
+                        These details are taken from your logged-in account
+                        and cannot be changed during the application.
+
+                    </div>
+
+
+                    <!-- =================================================
+                     PROPERTY
+                ================================================== -->
+
+                    <h5 class="section-title">
+
+                        <i class="bi bi-house-fill me-2"></i>
+
+                        Select Property
+
+                    </h5>
+
+
+                    @if (properties != null && properties.Any())
+                    {
+
+                        <div class="mb-4">
+
+                            <label asp-for="PropertyId"
+                                   class="form-label">
+
+                                Available Property
+
+                            </label>
+
+                            <select asp-for="PropertyId"
+                                    class="form-select">
+
+                                <option value="0">
+                                    -- Select Available Property --
+                                </option>
+
+                                @foreach (var property in properties)
+                                {
+                                    <option value="@property.PropertyId">
+
+                                        Unit @property.UnitNumber
+                                        -
+                                        @(property.PropertyType ?? "Property")
+                                        -
+                                        ₹@(property.Price?.ToString("N2") ?? "0.00")
+
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="PropertyId"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    }
+                    else
+                    {
+
+                        <div class="alert alert-warning">
+
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+                            There are currently no available properties
+                            in this housing scheme.
+
+                        </div>
+
+                    }
+
+
+                    <!-- =================================================
+                     EMPLOYMENT
+                ================================================== -->
+
+                    <h5 class="section-title mt-5">
+
+                        <i class="bi bi-briefcase-fill me-2"></i>
+
+                        Employment & Financial Information
+
+                    </h5>
+
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <label asp-for="EmploymentType"
+                                   class="form-label">
+
+                                Employment Type
+
+                            </label>
+
+                            <select asp-for="EmploymentType"
+                                    class="form-select">
+
+                                <option value="">
+                                    -- Select Employment Type --
+                                </option>
+
+                                <option value="Government">
+                                    Government
+                                </option>
+
+                                <option value="Private">
+                                    Private
+                                </option>
+
+                                <option value="Business">
+                                    Business
+                                </option>
+
+                                <option value="Self Employed">
+                                    Self Employed
+                                </option>
+
+                                <option value="Retired">
+                                    Retired
+                                </option>
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="EmploymentType"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label asp-for="AnnualIncome"
+                                   class="form-label">
+
+                                Annual Income
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    ₹
+                                </span>
+
+                                <input asp-for="AnnualIncome"
+                                       type="number"
+                                       min="0"
+                                       step="0.01"
+                                       class="form-control"
+                                       placeholder="Enter annual income" />
+
+                            </div>
+
+                            <span asp-validation-for="AnnualIncome"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                     NOMINEE
+                ================================================== -->
+
+                    <h5 class="section-title mt-5">
+
+                        <i class="bi bi-people-fill me-2"></i>
+
+                        Nominee Information
+
+                    </h5>
+
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <label asp-for="NomineeName"
+                                   class="form-label">
+
+                                Nominee Name
+
+                            </label>
+
+                            <input asp-for="NomineeName"
+                                   class="form-control"
+                                   placeholder="Enter nominee name" />
+
+                            <span asp-validation-for="NomineeName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label asp-for="NomineeRelation"
+                                   class="form-label">
+
+                                Nominee Relation
+
+                            </label>
+
+                            <input asp-for="NomineeRelation"
+                                   class="form-control"
+                                   placeholder="Father, Mother, Spouse..." />
+
+                            <span asp-validation-for="NomineeRelation"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                     REMARKS
+                ================================================== -->
+
+                    <h5 class="section-title mt-5">
+
+                        <i class="bi bi-chat-left-text-fill me-2"></i>
+
+                        Additional Information
+
+                    </h5>
+
+
+                    <div class="mb-4">
+
+                        <label asp-for="Remarks"
+                               class="form-label">
+
+                            Remarks
+
+                        </label>
+
+                        <textarea asp-for="Remarks"
+                                  rows="4"
+                                  class="form-control"
+                                  placeholder="Enter any additional information..."></textarea>
+
+                        <span asp-validation-for="Remarks"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- =================================================
+                     BUTTONS
+                ================================================== -->
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+
+                        <a asp-controller="Home"
+                           asp-action="SchemeDetails"
+                           asp-route-id="@scheme?.SchemeId"
+                           class="btn btn-outline-secondary back-btn">
+
+                            <i class="bi bi-arrow-left me-1"></i>
+
+                            Back
+
+                        </a>
+
+
+                        @if (properties != null && properties.Any())
+                        {
+                            <button type="submit"
+                                    class="submit-btn">
+
+                                <i class="bi bi-check-circle-fill me-1"></i>
+
+                                Submit Application
+
+                            </button>
+                        }
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,150 @@
+@model HousingAllotmentManagementSystem.Models.Loan
+
+@{
+    ViewData["Title"] = "Loan Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-10">
+
+            <div class="card shadow border-0">
+
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        Loan Details
+                    </h4>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-4">
+                            <label class="fw-bold text-muted">Loan Number</label>
+                            <div class="form-control bg-light">
+                                @Model.LoanNumber
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="fw-bold text-muted">Allotment ID</label>
+                            <div class="form-control bg-light">
+                                @Model.AllotmentId
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="fw-bold text-muted">Loan Amount</label>
+                            <div class="form-control bg-light">
+                                ₹ @Model.LoanAmount.ToString("N2")
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="fw-bold text-muted">Down Payment</label>
+                            <div class="form-control bg-light">
+                                ₹ @Model.DownPayment.ToString("N2")
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="fw-bold text-muted">Interest Rate</label>
+                            <div class="form-control bg-light">
+                                @Model.InterestRate %
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="fw-bold text-muted">Loan Tenure</label>
+                            <div class="form-control bg-light">
+                                @Model.LoanTenure Months
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="fw-bold text-muted">EMI Amount</label>
+                            <div class="form-control bg-light">
+                                ₹ @Model.Emiamount.ToString("N2")
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="fw-bold text-muted">Sanction Date</label>
+                            <div class="form-control bg-light">
+                                @Model.SanctionDate.ToString("dd-MMM-yyyy")
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="fw-bold text-muted">Loan Status</label>
+
+                            <div>
+
+                                @if (Model.LoanStatus == "Active")
+                                {
+                                    <span class="badge bg-success fs-6 px-3 py-2">
+                                        Active
+                                    </span>
+                                }
+                                else if (Model.LoanStatus == "Pending")
+                                {
+                                    <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                        Pending
+                                    </span>
+                                }
+                                else if (Model.LoanStatus == "Closed")
+                                {
+                                    <span class="badge bg-secondary fs-6 px-3 py-2">
+                                        Closed
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger fs-6 px-3 py-2">
+                                        @Model.LoanStatus
+                                    </span>
+                                }
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="fw-bold text-muted">Created Date</label>
+                            <div class="form-control bg-light">
+                                @Model.CreatedDate.ToString("dd-MMM-yyyy hh:mm tt")
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="card-footer bg-white">
+
+                    <a asp-action="Edit"
+                       asp-route-id="@Model.LoanId"
+                       class="btn btn-warning">
+                        <i class="fas fa-edit"></i>
+                        Edit
+                    </a>
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to List
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

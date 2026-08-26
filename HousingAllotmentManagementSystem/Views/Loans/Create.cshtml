@@ -1,0 +1,461 @@
+@model HousingAllotmentManagementSystem.Models.Loan
+
+@{
+    ViewData["Title"] = "Create Loan";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="fas fa-hand-holding-usd text-primary me-2"></i>
+                Create Loan
+            </h2>
+
+            <p class="text-muted mb-0">
+                Enter the loan details for the selected allotment.
+            </p>
+        </div>
+
+        <a asp-controller="Loans"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to Loans
+
+        </a>
+
+    </div>
+
+
+    <!-- FORM CARD -->
+    <div class="row justify-content-center">
+
+        <div class="col-xl-10 col-lg-11">
+
+            <div class="card shadow-sm border-0">
+
+                <!-- HEADER -->
+                <div class="card-header bg-primary text-white py-3">
+
+                    <h5 class="mb-0">
+
+                        <i class="fas fa-file-invoice-dollar me-2"></i>
+
+                        Loan Information
+
+                    </h5>
+
+                    <small class="opacity-75">
+                        Enter all required loan information
+                    </small>
+
+                </div>
+
+
+                <!-- BODY -->
+                <div class="card-body p-4">
+
+                    <form asp-controller="Loans"
+                          asp-action="Create"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+
+                        <!-- VALIDATION -->
+                        <div asp-validation-summary="All"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+
+                        <!-- ALLOTMENT & LOAN NUMBER -->
+                        <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">
+
+                            <i class="fas fa-link me-2"></i>
+
+                            Loan Reference
+
+                        </h6>
+
+
+                        <div class="row g-4">
+
+                            <!-- ALLOTMENT -->
+                            <div class="col-md-6">
+
+                                <label asp-for="AllotmentId"
+                                       class="form-label fw-semibold">
+
+                                    <i class="fas fa-home me-1"></i>
+
+                                    Allotment
+
+                                </label>
+
+                                <select asp-for="AllotmentId"
+                                        asp-items="ViewBag.AllotmentId"
+                                        class="form-select">
+
+                                    <option value="0">
+                                        -- Select Allotment --
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="AllotmentId"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <!-- LOAN NUMBER -->
+                            <div class="col-md-6">
+
+                                <label asp-for="LoanNumber"
+                                       class="form-label fw-semibold">
+
+                                    <i class="fas fa-hashtag me-1"></i>
+
+                                    Loan Number
+
+                                </label>
+
+                                <input asp-for="LoanNumber"
+                                       class="form-control"
+                                       placeholder="Example: LN-2026-001"
+                                       autocomplete="off" />
+
+                                <span asp-validation-for="LoanNumber"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- FINANCIAL DETAILS -->
+                        <h6 class="fw-bold text-primary border-bottom pb-2 mb-4 mt-5">
+
+                            <i class="fas fa-money-bill-wave me-2"></i>
+
+                            Financial Details
+
+                        </h6>
+
+
+                        <div class="row g-4">
+
+                            <!-- LOAN AMOUNT -->
+                            <div class="col-md-6">
+
+                                <label asp-for="LoanAmount"
+                                       class="form-label fw-semibold">
+
+                                    Loan Amount
+
+                                </label>
+
+                                <div class="input-group">
+
+                                    <span class="input-group-text">
+                                        ₹
+                                    </span>
+
+                                    <input asp-for="LoanAmount"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control"
+                                           placeholder="Enter loan amount" />
+
+                                </div>
+
+                                <span asp-validation-for="LoanAmount"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <!-- DOWN PAYMENT -->
+                            <div class="col-md-6">
+
+                                <label asp-for="DownPayment"
+                                       class="form-label fw-semibold">
+
+                                    Down Payment
+
+                                </label>
+
+                                <div class="input-group">
+
+                                    <span class="input-group-text">
+                                        ₹
+                                    </span>
+
+                                    <input asp-for="DownPayment"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control"
+                                           placeholder="Enter down payment" />
+
+                                </div>
+
+                                <span asp-validation-for="DownPayment"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <!-- INTEREST RATE -->
+                            <div class="col-md-6">
+
+                                <label asp-for="InterestRate"
+                                       class="form-label fw-semibold">
+
+                                    Interest Rate (%)
+
+                                </label>
+
+                                <div class="input-group">
+
+                                    <input asp-for="InterestRate"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control"
+                                           placeholder="Example: 7.50" />
+
+                                    <span class="input-group-text">
+                                        %
+                                    </span>
+
+                                </div>
+
+                                <span asp-validation-for="InterestRate"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <!-- TENURE -->
+                            <div class="col-md-6">
+
+                                <label asp-for="LoanTenure"
+                                       class="form-label fw-semibold">
+
+                                    Loan Tenure
+
+                                </label>
+
+                                <div class="input-group">
+
+                                    <input asp-for="LoanTenure"
+                                           type="number"
+                                           min="1"
+                                           class="form-control"
+                                           placeholder="Example: 120" />
+
+                                    <span class="input-group-text">
+                                        Months
+                                    </span>
+
+                                </div>
+
+                                <span asp-validation-for="LoanTenure"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <!-- EMI -->
+                            <div class="col-md-6">
+
+                                <label asp-for="Emiamount"
+                                       class="form-label fw-semibold">
+
+                                    EMI Amount
+
+                                </label>
+
+                                <div class="input-group">
+
+                                    <span class="input-group-text">
+                                        ₹
+                                    </span>
+
+                                    <input asp-for="Emiamount"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control"
+                                           placeholder="Enter EMI amount" />
+
+                                </div>
+
+                                <span asp-validation-for="Emiamount"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <!-- SANCTION DATE -->
+                            <div class="col-md-6">
+
+                                <label asp-for="SanctionDate"
+                                       class="form-label fw-semibold">
+
+                                    Sanction Date
+
+                                </label>
+
+                                <input asp-for="SanctionDate"
+                                       type="date"
+                                       class="form-control" />
+
+                                <span asp-validation-for="SanctionDate"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+                        <h6 class="fw-bold text-primary border-bottom pb-2 mb-4 mt-5">
+
+                            <i class="fas fa-tasks me-2"></i>
+
+                            Loan Status
+
+                        </h6>
+
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+
+                                <label asp-for="LoanStatus"
+                                       class="form-label fw-semibold">
+
+                                    Loan Status
+
+                                </label>
+
+                                <select asp-for="LoanStatus"
+                                        class="form-select">
+
+                                    <option value="">
+                                        -- Select Status --
+                                    </option>
+
+                                    <option value="Pending">
+                                        Pending
+                                    </option>
+
+                                    <option value="Active">
+                                        Active
+                                    </option>
+
+                                    <option value="Closed">
+                                        Closed
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="LoanStatus"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- INFORMATION -->
+                        <div class="alert alert-info border-0 mt-4">
+
+                            <i class="fas fa-info-circle me-2"></i>
+
+                            <strong>Important:</strong>
+
+                            Make sure the selected allotment exists and
+                            the loan number is unique before saving.
+
+                        </div>
+
+
+                        <!-- BUTTONS -->
+                        <div class="border-top pt-4 mt-4">
+
+                            <div class="d-flex justify-content-end gap-2">
+
+                                <a asp-controller="Loans"
+                                   asp-action="Index"
+                                   class="btn btn-outline-secondary">
+
+                                    <i class="fas fa-times me-1"></i>
+
+                                    Cancel
+
+                                </a>
+
+
+                                <button type="reset"
+                                        class="btn btn-outline-warning">
+
+                                    <i class="fas fa-redo me-1"></i>
+
+                                    Reset
+
+                                </button>
+
+
+                                <button type="submit"
+                                        class="btn btn-primary">
+
+                                    <i class="fas fa-save me-1"></i>
+
+                                    Save Loan
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+}

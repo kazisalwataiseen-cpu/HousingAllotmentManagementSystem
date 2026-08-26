@@ -1,0 +1,780 @@
+﻿@{
+    ViewData["Title"] = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- ========================================================= -->
+<!-- HERO SECTION -->
+<!-- ========================================================= -->
+
+<section class="hero-section">
+
+    <div class="hero-overlay"></div>
+
+    <div class="container hero-container">
+
+        <div class="row align-items-center g-5">
+
+            <!-- HERO CONTENT -->
+            <div class="col-lg-7">
+
+                <div class="hero-content">
+
+                    <div class="hero-badge">
+                        <i class="bi bi-house-heart-fill"></i>
+                        Housing Allotment Management System
+                    </div>
+
+                    <h1 class="hero-title">
+                        Find a Place You Can
+                        <span>Call Home.</span>
+                    </h1>
+
+                    <p class="hero-description">
+                        Discover housing schemes, explore available properties,
+                        submit applications and manage your complete housing
+                        journey through one simple and secure platform.
+                    </p>
+
+                    <div class="hero-buttons">
+
+                        <!-- PUBLIC HOUSING SCHEMES -->
+                        <a asp-controller="Home"
+                           asp-action="HousingSchemes"
+                           class="hero-primary-btn">
+
+                            <i class="bi bi-buildings"></i>
+                            Explore Housing Schemes
+
+                        </a>
+
+                        <!-- PROPERTIES -->
+                        <a asp-controller="Properties"
+                           asp-action="Index"
+                           class="hero-secondary-btn">
+
+                            <i class="bi bi-search"></i>
+                            Browse Properties
+
+                        </a>
+
+                    </div>
+
+                    <div class="hero-trust">
+
+                        <div class="trust-item">
+                            <i class="bi bi-shield-check"></i>
+                            <span>Secure Platform</span>
+                        </div>
+
+                        <div class="trust-item">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Transparent Process</span>
+                        </div>
+
+                        <div class="trust-item">
+                            <i class="bi bi-headset"></i>
+                            <span>Easy Management</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FEATURED PROPERTY CARD -->
+            <div class="col-lg-5">
+
+                <div class="hero-property-card">
+
+                    <!-- PROPERTY IMAGE -->
+                    <div class="property-image">
+
+                        <img src="~/images/affordable-housing.jpg"
+                             alt="Affordable Housing Scheme" />
+
+                        <div class="property-image-overlay"></div>
+
+                        <div class="available-badge">
+
+                            <span class="available-dot"></span>
+
+                            Available
+
+                        </div>
+
+                        <div class="featured-badge">
+
+                            <i class="bi bi-star-fill"></i>
+
+                            Featured
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PROPERTY DETAILS -->
+                    <div class="property-content">
+
+                        <div class="property-label">
+                            Featured Housing
+                        </div>
+
+                        <h2>
+                            Affordable Housing Scheme
+                        </h2>
+
+                        <div class="property-location">
+
+                            <i class="bi bi-geo-alt-fill"></i>
+
+                            Maharashtra
+
+                        </div>
+
+                        <div class="property-divider"></div>
+
+                        <div class="property-footer">
+
+                            <div>
+
+                                <span class="price-label">
+                                    Starting From
+                                </span>
+
+                                <strong class="property-price">
+                                    ₹12.50 Lakh
+                                </strong>
+
+                            </div>
+
+                            <!-- PUBLIC HOUSING SCHEMES -->
+                            <a asp-controller="Home"
+                               asp-action="HousingSchemes"
+                               class="property-view-btn">
+
+                                View
+
+                                <i class="bi bi-arrow-right"></i>
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- STATS SECTION -->
+<!-- ========================================================= -->
+
+<section class="stats-section">
+
+    <div class="container">
+
+        <div class="stats-wrapper">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="bi bi-buildings"></i>
+                </div>
+
+                <div>
+                    <h3>100+</h3>
+                    <p>Housing Units</p>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="bi bi-house-check"></i>
+                </div>
+
+                <div>
+                    <h3>50+</h3>
+                    <p>Properties</p>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="bi bi-file-earmark-check"></i>
+                </div>
+
+                <div>
+                    <h3>250+</h3>
+                    <p>Applications</p>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+
+                <div>
+                    <h3>500+</h3>
+                    <p>Registered Users</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- ABOUT SECTION -->
+<!-- ========================================================= -->
+
+<section class="about-section">
+
+    <div class="container">
+
+        <div class="row align-items-center g-5">
+
+            <div class="col-lg-6">
+
+                <div class="about-visual">
+
+                    <div class="about-main-image">
+
+                        <div class="about-image-overlay"></div>
+
+                        <div class="about-image-content">
+
+                            <i class="bi bi-buildings"></i>
+
+                            <h3>
+                                Better Housing.
+                            </h3>
+
+                            <p>
+                                Better Management.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="about-floating-card">
+
+                        <div class="floating-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Trusted Platform
+                            </strong>
+
+                            <span>
+                                Simple • Transparent • Secure
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-6">
+
+                <div class="about-content">
+
+                    <span class="section-label">
+                        ABOUT OUR SYSTEM
+                    </span>
+
+                    <h2 class="section-title">
+                        Making Housing Management
+                        <span>Simple & Transparent</span>
+                    </h2>
+
+                    <p class="section-description">
+
+                        The Housing Allotment Management System provides a
+                        centralized platform for managing housing schemes,
+                        properties, applications, allotments, loans,
+                        installments and payments.
+
+                    </p>
+
+                    <p class="section-description">
+
+                        Applicants can explore housing opportunities while
+                        administrators can efficiently manage the complete
+                        allotment lifecycle from one platform.
+
+                    </p>
+
+
+                    <div class="about-features">
+
+                        <div class="about-feature">
+
+                            <div class="feature-check">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+
+                            <span>
+                                Easy housing scheme discovery
+                            </span>
+
+                        </div>
+
+
+                        <div class="about-feature">
+
+                            <div class="feature-check">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+
+                            <span>
+                                Transparent application management
+                            </span>
+
+                        </div>
+
+
+                        <div class="about-feature">
+
+                            <div class="feature-check">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+
+                            <span>
+                                Secure property and payment management
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- HOW IT WORKS -->
+<!-- ========================================================= -->
+
+<section class="process-section">
+
+    <div class="container">
+
+        <div class="section-heading text-center">
+
+            <span class="section-label">
+                SIMPLE PROCESS
+            </span>
+
+            <h2 class="section-title">
+                How It Works
+            </h2>
+
+            <p class="section-description">
+                Complete your housing journey in four simple steps.
+            </p>
+
+        </div>
+
+
+        <div class="process-grid">
+
+            <div class="process-card">
+
+                <div class="process-top">
+
+                    <span class="process-number">
+                        01
+                    </span>
+
+                    <div class="process-icon">
+                        <i class="bi bi-search"></i>
+                    </div>
+
+                </div>
+
+                <h4>
+                    Explore
+                </h4>
+
+                <p>
+                    Browse available housing schemes and properties.
+                </p>
+
+            </div>
+
+
+            <div class="process-card">
+
+                <div class="process-top">
+
+                    <span class="process-number">
+                        02
+                    </span>
+
+                    <div class="process-icon">
+                        <i class="bi bi-person-plus"></i>
+                    </div>
+
+                </div>
+
+                <h4>
+                    Apply
+                </h4>
+
+                <p>
+                    Submit your housing application online.
+                </p>
+
+            </div>
+
+
+            <div class="process-card">
+
+                <div class="process-top">
+
+                    <span class="process-number">
+                        03
+                    </span>
+
+                    <div class="process-icon">
+                        <i class="bi bi-clipboard-check"></i>
+                    </div>
+
+                </div>
+
+                <h4>
+                    Get Allotted
+                </h4>
+
+                <p>
+                    Track your application and allotment status.
+                </p>
+
+            </div>
+
+
+            <div class="process-card">
+
+                <div class="process-top">
+
+                    <span class="process-number">
+                        04
+                    </span>
+
+                    <div class="process-icon">
+                        <i class="bi bi-house-check"></i>
+                    </div>
+
+                </div>
+
+                <h4>
+                    Own Your Home
+                </h4>
+
+                <p>
+                    Complete payments and manage your allotment.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- FEATURES SECTION -->
+<!-- ========================================================= -->
+
+<section class="features-section">
+
+    <div class="container">
+
+        <div class="section-heading text-center">
+
+            <span class="section-label">
+                PLATFORM FEATURES
+            </span>
+
+            <h2 class="section-title">
+                Everything You Need in One Place
+            </h2>
+
+            <p class="section-description">
+                Manage every part of the housing allotment process
+                through one centralized platform.
+            </p>
+
+        </div>
+
+
+        <div class="features-grid">
+
+            <!-- Housing Schemes -->
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    <i class="bi bi-buildings"></i>
+                </div>
+
+                <h4>
+                    Housing Schemes
+                </h4>
+
+                <p>
+                    Explore available housing schemes and find
+                    opportunities suitable for you.
+                </p>
+
+                <!-- PUBLIC HOUSING SCHEMES -->
+                <a asp-controller="Home"
+                   asp-action="HousingSchemes">
+
+                    Explore Schemes
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+
+            <!-- Properties -->
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    <i class="bi bi-house"></i>
+                </div>
+
+                <h4>
+                    Properties
+                </h4>
+
+                <p>
+                    Browse properties and view important
+                    property information.
+                </p>
+
+                <a asp-controller="Properties"
+                   asp-action="Index">
+
+                    Browse Properties
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+
+            <!-- Applications -->
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+
+                <h4>
+                    Applications
+                </h4>
+
+                <p>
+                    Manage applications and track your
+                    housing application status.
+                </p>
+
+                <a asp-controller="Applications"
+                   asp-action="Index">
+
+                    View Applications
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+
+            <!-- Allotments -->
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    <i class="bi bi-house-check"></i>
+                </div>
+
+                <h4>
+                    Allotments
+                </h4>
+
+                <p>
+                    Manage property allotments and
+                    housing allocation details.
+                </p>
+
+                <a asp-controller="Allotments"
+                   asp-action="Index">
+
+                    View Allotments
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+
+            <!-- Loans -->
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    <i class="bi bi-bank"></i>
+                </div>
+
+                <h4>
+                    Loans & EMI
+                </h4>
+
+                <p>
+                    Manage housing loans, EMI plans,
+                    installments and payment schedules.
+                </p>
+
+                <a asp-controller="Loans"
+                   asp-action="Index">
+
+                    View Loans
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+
+            <!-- Payments -->
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    <i class="bi bi-credit-card"></i>
+                </div>
+
+                <h4>
+                    Payments
+                </h4>
+
+                <p>
+                    Track installment payments and
+                    transaction information.
+                </p>
+
+                <a asp-controller="Payments"
+                   asp-action="Index">
+
+                    View Payments
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- CTA SECTION -->
+<!-- ========================================================= -->
+
+<section class="cta-section">
+
+    <div class="container">
+
+        <div class="cta-card">
+
+            <div class="cta-content">
+
+                <span class="cta-label">
+                    READY TO GET STARTED?
+                </span>
+
+                <h2>
+                    Find Your Next Home Today.
+                </h2>
+
+                <p>
+                    Explore housing schemes and discover
+                    opportunities available for you.
+                </p>
+
+            </div>
+
+
+            <div class="cta-action">
+
+                <!-- PUBLIC HOUSING SCHEMES -->
+                <a asp-controller="Home"
+                   asp-action="HousingSchemes"
+                   class="cta-button">
+
+                    Explore Schemes
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+

@@ -1,0 +1,302 @@
+@model HousingAllotmentManagementSystem.Models.Emiplan
+
+@{
+    ViewData["Title"] = "Edit EMI Plan";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-pencil-square text-primary me-2"></i>
+                Edit EMI Plan
+            </h2>
+
+            <p class="text-muted mb-0">
+                Update EMI plan information.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back
+
+        </a>
+
+    </div>
+
+
+    <div class="row justify-content-center">
+
+        <div class="col-xl-9 col-lg-10">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-primary text-white">
+
+                    <h5 class="mb-0">
+                        EMI Plan Information
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <form asp-action="Edit"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               asp-for="EmiplanId" />
+
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger">
+                        </div>
+
+
+                        <div class="row g-4">
+
+                            <div class="col-md-6">
+
+                                <label asp-for="LoanId"
+                                       class="form-label fw-semibold">
+
+                                    Loan
+
+                                </label>
+
+                                <select asp-for="LoanId"
+                                        asp-items="ViewBag.LoanId"
+                                        class="form-select">
+
+                                    <option value="0">
+                                        -- Select Loan --
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="LoanId"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label asp-for="PlanStatus"
+                                       class="form-label fw-semibold">
+
+                                    Plan Status
+
+                                </label>
+
+                                <select asp-for="PlanStatus"
+                                        class="form-select">
+
+                                    <option value="Active">
+                                        Active
+                                    </option>
+
+                                    <option value="Pending">
+                                        Pending
+                                    </option>
+
+                                    <option value="Completed">
+                                        Completed
+                                    </option>
+
+                                    <option value="Closed">
+                                        Closed
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="PlanStatus"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label asp-for="EmistartDate"
+                                       class="form-label fw-semibold">
+
+                                    EMI Start Date
+
+                                </label>
+
+                                <input asp-for="EmistartDate"
+                                       type="date"
+                                       class="form-control" />
+
+                                <span asp-validation-for="EmistartDate"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label asp-for="TotalEmis"
+                                       class="form-label fw-semibold">
+
+                                    Total EMIs
+
+                                </label>
+
+                                <input asp-for="TotalEmis"
+                                       type="number"
+                                       min="1"
+                                       class="form-control" />
+
+                                <span asp-validation-for="TotalEmis"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label asp-for="MonthlyEmi"
+                                       class="form-label fw-semibold">
+
+                                    Monthly EMI
+
+                                </label>
+
+                                <div class="input-group">
+
+                                    <span class="input-group-text">
+                                        ₹
+                                    </span>
+
+                                    <input asp-for="MonthlyEmi"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control" />
+
+                                </div>
+
+                                <span asp-validation-for="MonthlyEmi"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label asp-for="OutstandingBalance"
+                                       class="form-label fw-semibold">
+
+                                    Outstanding Balance
+
+                                </label>
+
+                                <div class="input-group">
+
+                                    <span class="input-group-text">
+                                        ₹
+                                    </span>
+
+                                    <input asp-for="OutstandingBalance"
+                                           type="number"
+                                           step="0.01"
+                                           class="form-control" />
+
+                                </div>
+
+                                <span asp-validation-for="OutstandingBalance"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label asp-for="NextDueDate"
+                                       class="form-label fw-semibold">
+
+                                    Next Due Date
+
+                                </label>
+
+                                <input asp-for="NextDueDate"
+                                       type="date"
+                                       class="form-control" />
+
+                                <span asp-validation-for="NextDueDate"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="alert alert-warning mt-4">
+
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+                            If this EMI Plan has no payments yet, changing the
+                            EMI count or start date will regenerate its installments.
+
+                        </div>
+
+
+                        <div class="border-top pt-4 mt-4 text-end">
+
+                            <a asp-action="Index"
+                               class="btn btn-secondary me-2">
+
+                                Cancel
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+
+                                <i class="bi bi-save me-1"></i>
+
+                                Save Changes
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial");
+    }
+
+}

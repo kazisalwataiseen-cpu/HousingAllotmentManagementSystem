@@ -1,0 +1,195 @@
+@model HousingAllotmentManagementSystem.Models.Property
+
+@{
+    ViewData["Title"] = "Edit Property";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-header bg-warning text-dark">
+            <h3 class="mb-0">
+                <i class="bi bi-pencil-square"></i>
+                Edit Property
+            </h3>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Edit">
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <input asp-for="PropertyId" type="hidden" />
+
+                <div class="row">
+
+                    <!-- Scheme -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SchemeId" class="form-label fw-bold"></label>
+
+                        <select asp-for="SchemeId"
+                                asp-items="ViewBag.Schemes"
+                                class="form-select">
+                        </select>
+
+                        <span asp-validation-for="SchemeId" class="text-danger"></span>
+                    </div>
+
+                    <!-- Unit Number -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="UnitNumber" class="form-label fw-bold"></label>
+                        <input asp-for="UnitNumber" class="form-control" />
+                        <span asp-validation-for="UnitNumber" class="text-danger"></span>
+                    </div>
+
+                    <!-- Plot Number -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PlotNumber" class="form-label fw-bold"></label>
+                        <input asp-for="PlotNumber" class="form-control" />
+                        <span asp-validation-for="PlotNumber" class="text-danger"></span>
+                    </div>
+
+                    <!-- Property Type -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PropertyType" class="form-label fw-bold"></label>
+
+                        <select asp-for="PropertyType" class="form-select">
+                            <option value="">Select Type</option>
+                            <option>Apartment</option>
+                            <option>Villa</option>
+                            <option>Flat</option>
+                            <option>Plot</option>
+                            <option>Commercial</option>
+                        </select>
+
+                        <span asp-validation-for="PropertyType" class="text-danger"></span>
+                    </div>
+
+                    <!-- Bedrooms -->
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="Bedrooms" class="form-label fw-bold"></label>
+                        <input asp-for="Bedrooms" class="form-control" />
+                        <span asp-validation-for="Bedrooms" class="text-danger"></span>
+                    </div>
+
+                    <!-- Bathrooms -->
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="Bathrooms" class="form-label fw-bold"></label>
+                        <input asp-for="Bathrooms" class="form-control" />
+                        <span asp-validation-for="Bathrooms" class="text-danger"></span>
+                    </div>
+
+                    <!-- Carpet Area -->
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="CarpetArea" class="form-label fw-bold"></label>
+                        <input asp-for="CarpetArea" class="form-control" />
+                        <span asp-validation-for="CarpetArea" class="text-danger"></span>
+                    </div>
+
+                    <!-- Built-up Area -->
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="BuiltupArea" class="form-label fw-bold"></label>
+                        <input asp-for="BuiltupArea" class="form-control" />
+                        <span asp-validation-for="BuiltupArea" class="text-danger"></span>
+                    </div>
+
+                    <!-- Facing -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Facing" class="form-label fw-bold"></label>
+
+                        <select asp-for="Facing" class="form-select">
+                            <option value="">Select Facing</option>
+                            <option>East</option>
+                            <option>West</option>
+                            <option>North</option>
+                            <option>South</option>
+                        </select>
+
+                        <span asp-validation-for="Facing" class="text-danger"></span>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Status" class="form-label fw-bold"></label>
+
+                        <select asp-for="Status" class="form-select">
+                            <option value="">Select Status</option>
+                            <option>Available</option>
+                            <option>Booked</option>
+                            <option>Sold</option>
+                        </select>
+
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Price" class="form-label fw-bold"></label>
+                        <input asp-for="Price" class="form-control" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+
+                    <!-- Booking Amount -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="BookingAmount" class="form-label fw-bold"></label>
+                        <input asp-for="BookingAmount" class="form-control" />
+                        <span asp-validation-for="BookingAmount" class="text-danger"></span>
+                    </div>
+
+                    <!-- Floor Plan -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="FloorPlanImage" class="form-label fw-bold"></label>
+                        <input asp-for="FloorPlanImage" class="form-control" />
+                        <span asp-validation-for="FloorPlanImage" class="text-danger"></span>
+                    </div>
+
+                    <!-- Created Date -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="CreatedDate" class="form-label fw-bold"></label>
+                        <input asp-for="CreatedDate" type="datetime-local" class="form-control" />
+                        <span asp-validation-for="CreatedDate" class="text-danger"></span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12 mb-3">
+                        <label asp-for="Description" class="form-label fw-bold"></label>
+                        <textarea asp-for="Description"
+                                  rows="5"
+                                  class="form-control"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <hr />
+
+                <div class="d-flex justify-content-between">
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i>
+                        Back
+                    </a>
+
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-save"></i>
+                        Update Property
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

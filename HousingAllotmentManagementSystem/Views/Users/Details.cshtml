@@ -1,0 +1,150 @@
+@model HousingAllotmentManagementSystem.Models.User
+
+@{
+    ViewData["Title"] = "User Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-header bg-info text-white py-3">
+            <h3 class="mb-0">
+                <i class="bi bi-person-vcard-fill"></i>
+                User Details
+            </h3>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <strong>Role ID</strong><br />
+                    @Model.RoleId
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Full Name</strong><br />
+                    @Model.FullName
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Email</strong><br />
+                    @Model.Email
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Mobile</strong><br />
+                    @Model.Mobile
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Gender</strong><br />
+                    @Model.Gender
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Date of Birth</strong><br />
+                    @Model.Dob
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Occupation</strong><br />
+                    @Model.Occupation
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Annual Income</strong><br />
+                    ₹ @Model.AnnualIncome
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Aadhaar Number</strong><br />
+                    @Model.AadhaarNumber
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>PAN Number</strong><br />
+                    @Model.Pannumber
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>City</strong><br />
+                    @Model.City
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>State</strong><br />
+                    @Model.State
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Pincode</strong><br />
+                    @Model.Pincode
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <strong>Address</strong><br />
+                    @Model.Address
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Verified</strong><br />
+
+                    @if (Model.IsVerified == true)
+                    {
+                        <span class="badge bg-success">Yes</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">No</span>
+                    }
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Status</strong><br />
+
+                    @if (Model.Status == true)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Inactive</span>
+                    }
+
+                </div>
+
+            </div>
+
+            <hr />
+
+            <div class="text-end">
+
+                <a asp-action="Edit"
+                   asp-route-userid="@Model.UserId"
+                   class="btn btn-warning">
+
+                    <i class="bi bi-pencil-square"></i>
+                    Edit
+
+                </a>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    <i class="bi bi-arrow-left-circle"></i>
+                    Back
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

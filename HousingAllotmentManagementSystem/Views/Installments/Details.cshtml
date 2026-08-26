@@ -1,0 +1,477 @@
+@model HousingAllotmentManagementSystem.Models.Installment
+
+@{
+    ViewData["Title"] = "Installment Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold text-primary mb-1">
+                <i class="bi bi-calendar-check me-2"></i>
+                Installment Details
+            </h2>
+
+            <p class="text-muted mb-0">
+                View complete installment and payment information
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <a asp-action="Edit"
+               asp-route-id="@Model.InstallmentId"
+               class="btn btn-primary">
+
+                <i class="bi bi-pencil-square me-1"></i>
+                Edit
+
+            </a>
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+
+                <i class="bi bi-arrow-left me-1"></i>
+                Back
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- EMI Plan Information -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-primary text-white py-3">
+
+            <h5 class="mb-0">
+                <i class="bi bi-credit-card me-2"></i>
+                EMI Plan Information
+            </h5>
+
+        </div>
+
+        <div class="card-body p-4">
+
+            <div class="row g-4">
+
+                <div class="col-md-4">
+
+                    <div class="text-muted small">
+                        Installment ID
+                    </div>
+
+                    <div class="fw-bold fs-5">
+                        #@Model.InstallmentId
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="text-muted small">
+                        EMI Plan ID
+                    </div>
+
+                    <div class="fw-bold fs-5">
+                        @Model.EmiplanId
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="text-muted small">
+                        Installment Number
+                    </div>
+
+                    <div class="fw-bold fs-5">
+                        EMI #@Model.InstallmentNumber
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Installment Amount Details -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-light py-3">
+
+            <h5 class="mb-0 text-primary">
+                <i class="bi bi-currency-rupee me-2"></i>
+                Amount Details
+            </h5>
+
+        </div>
+
+        <div class="card-body p-4">
+
+            <div class="row g-4">
+
+                <!-- Installment Amount -->
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Installment Amount
+                    </div>
+
+                    <div class="fw-bold fs-4 text-primary">
+                        ₹ @Model.InstallmentAmount.ToString("N2")
+                    </div>
+
+                </div>
+
+
+                <!-- Principal -->
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Principal Amount
+                    </div>
+
+                    <div class="fw-bold fs-5">
+                        ₹ @Model.PrincipalAmount.ToString("N2")
+                    </div>
+
+                </div>
+
+
+                <!-- Interest -->
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Interest Amount
+                    </div>
+
+                    <div class="fw-bold fs-5">
+                        ₹ @Model.InterestAmount.ToString("N2")
+                    </div>
+
+                </div>
+
+
+                <!-- Late Fee -->
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Late Fee
+                    </div>
+
+                    <div class="fw-bold fs-5 text-danger">
+                        ₹ @Model.LateFee.ToString("N2")
+                    </div>
+
+                </div>
+
+
+                <!-- Paid Amount -->
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Paid Amount
+                    </div>
+
+                    <div class="fw-bold fs-5 text-success">
+                        ₹ @Model.PaidAmount.ToString("N2")
+                    </div>
+
+                </div>
+
+
+                <!-- Remaining -->
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Remaining Amount
+                    </div>
+
+                    <div class="fw-bold fs-5 text-warning">
+                        ₹ @((Model.InstallmentAmount - Model.PaidAmount).ToString("N2"))
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Payment Information -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-light py-3">
+
+            <h5 class="mb-0 text-primary">
+                <i class="bi bi-wallet2 me-2"></i>
+                Payment Information
+            </h5>
+
+        </div>
+
+        <div class="card-body p-4">
+
+            <div class="row g-4">
+
+                <!-- Due Date -->
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Due Date
+                    </div>
+
+                    <div class="fw-semibold">
+                        @Model.DueDate.ToString("dd MMM yyyy")
+                    </div>
+
+                </div>
+
+
+                <!-- Payment Date -->
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Payment Date
+                    </div>
+
+                    <div class="fw-semibold">
+
+                        @if (Model.PaymentDate.HasValue)
+                        {
+                            @Model.PaymentDate.Value.ToString("dd MMM yyyy")
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Not Paid
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Payment Method -->
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Payment Method
+                    </div>
+
+                    <div class="fw-semibold">
+
+                        @if (!string.IsNullOrEmpty(Model.PaymentMethod))
+                        {
+                            @Model.PaymentMethod
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Not Available
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Transaction Reference -->
+                <div class="col-md-6">
+
+                    <div class="text-muted small mb-1">
+                        Transaction Reference
+                    </div>
+
+                    <div class="fw-semibold">
+
+                        @if (!string.IsNullOrEmpty(Model.TransactionReference))
+                        {
+                            @Model.TransactionReference
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Not Available
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Payment Status -->
+                <div class="col-md-6">
+
+                    <div class="text-muted small mb-1">
+                        Payment Status
+                    </div>
+
+                    <div>
+
+                        @if (Model.PaymentStatus == "Paid")
+                        {
+                            <span class="badge bg-success px-3 py-2">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Paid
+                            </span>
+                        }
+                        else if (Model.PaymentStatus == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark px-3 py-2">
+                                <i class="bi bi-clock me-1"></i>
+                                Pending
+                            </span>
+                        }
+                        else if (Model.PaymentStatus == "Overdue")
+                        {
+                            <span class="badge bg-danger px-3 py-2">
+                                <i class="bi bi-exclamation-circle me-1"></i>
+                                Overdue
+                            </span>
+                        }
+                        else if (Model.PaymentStatus == "Partial")
+                        {
+                            <span class="badge bg-info text-dark px-3 py-2">
+                                <i class="bi bi-hourglass-split me-1"></i>
+                                Partial
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary px-3 py-2">
+                                @Model.PaymentStatus
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Remarks -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-light py-3">
+
+            <h5 class="mb-0 text-primary">
+                <i class="bi bi-chat-left-text me-2"></i>
+                Remarks
+            </h5>
+
+        </div>
+
+        <div class="card-body p-4">
+
+            @if (!string.IsNullOrWhiteSpace(Model.Remarks))
+            {
+                <p class="mb-0">
+                    @Model.Remarks
+                </p>
+            }
+            else
+            {
+                <span class="text-muted">
+                    No remarks available.
+                </span>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- Record Information -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-light py-3">
+
+            <h5 class="mb-0 text-primary">
+                <i class="bi bi-info-circle me-2"></i>
+                Record Information
+            </h5>
+
+        </div>
+
+        <div class="card-body p-4">
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <div class="text-muted small">
+                        Created Date
+                    </div>
+
+                    <div class="fw-semibold">
+                        @Model.CreatedDate.ToString("dd MMM yyyy hh:mm tt")
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="text-muted small">
+                        Installment ID
+                    </div>
+
+                    <div class="fw-semibold">
+                        @Model.InstallmentId
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Bottom Actions -->
+    <div class="d-flex justify-content-end gap-2 mb-4">
+
+        <a asp-action="Delete"
+           asp-route-id="@Model.InstallmentId"
+           class="btn btn-outline-danger">
+
+            <i class="bi bi-trash me-1"></i>
+            Delete
+
+        </a>
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.InstallmentId"
+           class="btn btn-primary">
+
+            <i class="bi bi-pencil-square me-1"></i>
+            Edit Installment
+
+        </a>
+
+    </div>
+
+</div>

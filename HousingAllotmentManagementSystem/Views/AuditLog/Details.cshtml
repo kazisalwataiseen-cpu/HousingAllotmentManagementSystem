@@ -1,0 +1,506 @@
+@model HousingAllotmentManagementSystem.Models.AuditLog
+
+@{
+    ViewData["Title"] = "Audit Log Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    ```
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-shield-check text-primary me-2"></i>
+                Audit Log Details
+            </h2>
+
+            <p class="text-muted mb-0">
+                View complete information about this system activity.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Audit Logs
+
+            </a>
+
+            <a asp-action="Edit"
+               asp-route-id="@Model.AuditLogId"
+               class="btn btn-primary">
+
+                <i class="bi bi-pencil me-1"></i>
+                Edit
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Main Content -->
+    <div class="row g-4">
+
+        <!-- Activity Summary -->
+        <div class="col-xl-4 col-lg-5">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header bg-primary text-white py-3">
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3">
+
+                            <i class="bi bi-activity fs-5"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h5 class="mb-0">
+                                Activity Summary
+                            </h5>
+
+                            <small class="opacity-75">
+                                Audit information
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <!-- Audit ID -->
+                    <div class="mb-4">
+
+                        <div class="text-muted small mb-1">
+                            <i class="bi bi-hash me-1"></i>
+                            Audit Log ID
+                        </div>
+
+                        <div class="fw-bold fs-4">
+                            #@Model.AuditLogId
+                        </div>
+
+                    </div>
+
+
+                    <!-- Action -->
+                    <div class="mb-4">
+
+                        <div class="text-muted small mb-2">
+                            <i class="bi bi-lightning-charge me-1"></i>
+                            Action
+                        </div>
+
+                        @{
+                            var action = Model.Action?.ToLower() ?? "";
+
+                            var badgeClass =
+                                "bg-secondary-subtle text-secondary";
+
+                            var icon = "bi-activity";
+
+                            if (action.Contains("create") ||
+                                action.Contains("add"))
+                            {
+                                badgeClass =
+                                    "bg-success-subtle text-success";
+
+                                icon = "bi-plus-circle";
+                            }
+                            else if (action.Contains("update") ||
+                                     action.Contains("edit"))
+                            {
+                                badgeClass =
+                                    "bg-primary-subtle text-primary";
+
+                                icon = "bi-pencil-square";
+                            }
+                            else if (action.Contains("delete") ||
+                                     action.Contains("remove"))
+                            {
+                                badgeClass =
+                                    "bg-danger-subtle text-danger";
+
+                                icon = "bi-trash";
+                            }
+                            else if (action.Contains("login"))
+                            {
+                                badgeClass =
+                                    "bg-info-subtle text-info";
+
+                                icon = "bi-box-arrow-in-right";
+                            }
+                            else if (action.Contains("logout"))
+                            {
+                                badgeClass =
+                                    "bg-warning-subtle text-warning";
+
+                                icon = "bi-box-arrow-right";
+                            }
+                        }
+
+                        <span class="badge @badgeClass px-3 py-2 fs-6">
+
+                            <i class="bi @icon me-1"></i>
+
+                            @Model.Action
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- Date -->
+                    <div class="mb-4">
+
+                        <div class="text-muted small mb-1">
+                            <i class="bi bi-calendar-event me-1"></i>
+                            Action Date
+                        </div>
+
+                        <div class="fw-semibold">
+                            @Model.ActionDate.ToString("dd MMM yyyy")
+                        </div>
+
+                        <small class="text-muted">
+                            @Model.ActionDate.ToString("hh:mm:ss tt")
+                        </small>
+
+                    </div>
+
+
+                    <!-- Table -->
+                    <div class="mb-4">
+
+                        <div class="text-muted small mb-1">
+                            <i class="bi bi-table me-1"></i>
+                            Table Name
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.TableName))
+                        {
+                            <span class="badge bg-light text-dark border px-3 py-2">
+                                @Model.TableName
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Not specified
+                            </span>
+                        }
+
+                    </div>
+
+
+                    <!-- Record -->
+                    <div>
+
+                        <div class="text-muted small mb-1">
+                            <i class="bi bi-database me-1"></i>
+                            Record ID
+                        </div>
+
+                        @if (Model.RecordId.HasValue)
+                        {
+                            <span class="fw-semibold">
+                                #@Model.RecordId
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Not specified
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Detailed Information -->
+        <div class="col-xl-8 col-lg-7">
+
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header bg-white py-3">
+
+                    <h5 class="fw-bold mb-0">
+
+                        <i class="bi bi-info-circle text-primary me-2"></i>
+                        Detailed Information
+
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <div class="row g-4">
+
+                        <!-- User -->
+                        <div class="col-md-6">
+
+                            <div class="border rounded p-3 h-100">
+
+                                <div class="text-muted small mb-2">
+                                    <i class="bi bi-person me-1"></i>
+                                    User
+                                </div>
+
+                                @if (Model.User != null)
+                                {
+                                    <div class="d-flex align-items-center">
+
+                                        <div class="rounded-circle bg-primary-subtle
+                                            text-primary d-flex
+                                            align-items-center
+                                            justify-content-center me-3"
+                                             style="width:42px;height:42px;">
+
+                                            <i class="bi bi-person-fill"></i>
+
+                                        </div>
+
+                                        <div>
+
+                                            <div class="fw-semibold">
+                                                @Model.User.FullName
+                                            </div>
+
+                                            <small class="text-muted">
+                                                User ID: @Model.UserId
+                                            </small>
+
+                                        </div>
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-muted">
+                                        <i class="bi bi-person-x me-1"></i>
+                                        System / Unknown User
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- IP Address -->
+                        <div class="col-md-6">
+
+                            <div class="border rounded p-3 h-100">
+
+                                <div class="text-muted small mb-2">
+                                    <i class="bi bi-globe me-1"></i>
+                                    IP Address
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(Model.Ipaddress))
+                                {
+                                    <code class="fs-6">
+                                        @Model.Ipaddress
+                                    </code>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        Not available
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Browser -->
+                        <div class="col-12">
+
+                            <div class="border rounded p-3">
+
+                                <div class="text-muted small mb-2">
+                                    <i class="bi bi-browser-chrome me-1"></i>
+                                    Browser Information
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(Model.BrowserInfo))
+                                {
+                                    <div class="fw-medium">
+                                        @Model.BrowserInfo
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        Browser information not available.
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Description -->
+                        <div class="col-12">
+
+                            <div class="border rounded p-3">
+
+                                <div class="text-muted small mb-2">
+                                    <i class="bi bi-card-text me-1"></i>
+                                    Description
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                                {
+                                    <p class="mb-0"
+                                       style="white-space: pre-line;">
+                                        @Model.Description
+                                    </p>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        No description available.
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Audit Information -->
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-light py-3">
+
+                    <h6 class="fw-bold mb-0">
+
+                        <i class="bi bi-shield-lock text-primary me-2"></i>
+                        Audit Information
+
+                    </h6>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Audit Log ID
+                            </small>
+
+                            <span class="fw-semibold">
+                                #@Model.AuditLogId
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Action Date
+                            </small>
+
+                            <span class="fw-semibold">
+                                @Model.ActionDate.ToString("dd MMM yyyy, hh:mm:ss tt")
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Bottom Actions -->
+    <div class="card border-0 shadow-sm mt-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <h6 class="fw-bold mb-1">
+                        Manage Audit Log
+                    </h6>
+
+                    <small class="text-muted">
+                        Edit or remove this audit record.
+                    </small>
+
+                </div>
+
+                <div class="d-flex gap-2">
+
+                    <a asp-action="Edit"
+                       asp-route-id="@Model.AuditLogId"
+                       class="btn btn-outline-primary">
+
+                        <i class="bi bi-pencil me-1"></i>
+                        Edit
+
+                    </a>
+
+                    <a asp-action="Delete"
+                       asp-route-id="@Model.AuditLogId"
+                       class="btn btn-outline-danger">
+
+                        <i class="bi bi-trash me-1"></i>
+                        Delete
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    ```
+
+</div>

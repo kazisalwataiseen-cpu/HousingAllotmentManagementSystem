@@ -1,0 +1,153 @@
+﻿<nav class="navbar navbar-expand-lg top-navbar shadow-sm">
+
+    <div class="container-fluid">
+
+        <!-- Left Side -->
+
+        <div>
+
+            <h3 class="page-title fw-bold text-primary mb-0">
+                <i class="bi bi-buildings-fill me-2"></i>
+                @ViewData["Title"]
+            </h3>
+
+            <small class="text-muted">
+                Housing Allotment Management System
+            </small>
+
+        </div>
+
+        <!-- Right Side -->
+
+        <div class="ms-auto d-flex align-items-center">
+
+            <!-- Search -->
+
+            <div class="search-box me-4 position-relative">
+
+                <i class="bi bi-search position-absolute"
+                   style="left:15px; top:12px; color:#6c757d;"></i>
+
+                <input type="text"
+                       class="form-control ps-5"
+                       placeholder="Search properties, users..." />
+
+            </div>
+
+            <!-- Notifications -->
+
+            <div class="icon-circle me-3 position-relative">
+
+                <i class="bi bi-bell-fill"></i>
+
+                <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle">
+                    3
+                </span>
+
+            </div>
+
+            <!-- Messages -->
+
+            <div class="icon-circle me-3 position-relative">
+
+                <i class="bi bi-envelope-fill"></i>
+
+                <span class="badge rounded-pill bg-success position-absolute top-0 start-100 translate-middle">
+                    5
+                </span>
+
+            </div>
+
+            <!-- Calendar -->
+
+            <div class="icon-circle me-3">
+
+                <i class="bi bi-calendar-event-fill"></i>
+
+            </div>
+
+            <!-- Dark Mode Icon -->
+
+            <div class="icon-circle me-4">
+
+                <i class="bi bi-moon-stars-fill"></i>
+
+            </div>
+
+            <!-- Profile -->
+
+            <div class="dropdown">
+
+                <a class="d-flex align-items-center text-decoration-none dropdown-toggle"
+                   href="#"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false">
+
+                    <img src="https://ui-avatars.com/api/?name=Administrator&background=2563eb&color=fff"
+                         width="45"
+                         height="45"
+                         class="rounded-circle border border-3 border-primary shadow" />
+
+                    <div class="ms-3">
+
+                        <strong class="d-block text-dark">
+                            Administrator
+                        </strong>
+
+                        <small class="text-muted">
+                            System Administrator
+                        </small>
+
+                    </div>
+
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3">
+
+                    <li>
+                        <h6 class="dropdown-header">
+                            Welcome Admin
+                        </h6>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-person-circle me-2"></i>
+                            My Profile
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-gear-fill me-2"></i>
+                            Settings
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-shield-lock-fill me-2"></i>
+                            Change Password
+                        </a>
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item text-danger" href="#">
+                            <i class="bi bi-box-arrow-right me-2"></i>
+                            Logout
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>

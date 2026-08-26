@@ -1,0 +1,115 @@
+@model HousingAllotmentManagementSystem.Models.User
+
+@{
+    ViewData["Title"] = "Delete User";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-header bg-danger text-white py-3">
+
+            <h3 class="mb-0">
+
+                <i class="bi bi-trash-fill"></i>
+
+                Delete User
+
+            </h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="alert alert-danger">
+
+                <h5>
+                    Are you sure you want to delete this user?
+                </h5>
+
+                <p class="mb-0">
+                    This action cannot be undone.
+                </p>
+
+            </div>
+
+            <table class="table table-bordered">
+
+                <tr>
+                    <th width="220">Full Name</th>
+                    <td>@Model.FullName</td>
+                </tr>
+
+                <tr>
+                    <th>Email</th>
+                    <td>@Model.Email</td>
+                </tr>
+
+                <tr>
+                    <th>Mobile</th>
+                    <td>@Model.Mobile</td>
+                </tr>
+
+                <tr>
+                    <th>Role ID</th>
+                    <td>@Model.RoleId</td>
+                </tr>
+
+                <tr>
+                    <th>City</th>
+                    <td>@Model.City</td>
+                </tr>
+
+                <tr>
+                    <th>Status</th>
+                    <td>
+
+                        @if (Model.Status == true)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+            <form asp-action="Delete">
+
+                <input type="hidden"
+                       asp-for="UserId" />
+
+                <div class="text-end">
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+
+                        <i class="bi bi-arrow-left-circle"></i>
+                        Cancel
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+
+                        <i class="bi bi-trash-fill"></i>
+                        Delete User
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

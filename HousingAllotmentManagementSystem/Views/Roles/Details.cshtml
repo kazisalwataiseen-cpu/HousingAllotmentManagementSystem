@@ -1,0 +1,116 @@
+@model HousingAllotmentManagementSystem.Models.Role
+
+@{
+    ViewData["Title"] = "Role Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-lg border-0 rounded-4">
+
+                <div class="card-header bg-info text-white py-3">
+
+                    <h3 class="mb-0">
+                        <i class="bi bi-eye-fill me-2"></i>
+                        Role Details
+                    </h3>
+
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="row mb-4">
+
+                        <div class="col-md-4 fw-bold">
+                            Role ID
+                        </div>
+
+                        <div class="col-md-8">
+                            @Model.RoleId
+                        </div>
+
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-4">
+
+                        <div class="col-md-4 fw-bold">
+                            Role Name
+                        </div>
+
+                        <div class="col-md-8">
+                            @Model.RoleName
+                        </div>
+
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-4">
+
+                        <div class="col-md-4 fw-bold">
+                            Description
+                        </div>
+
+                        <div class="col-md-8">
+
+                            @(string.IsNullOrWhiteSpace(Model.Description)
+                                ? "No Description"
+                                : Model.Description)
+
+                        </div>
+
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-4">
+
+                        <div class="col-md-4 fw-bold">
+                            Created Date
+                        </div>
+
+                        <div class="col-md-8">
+
+                            @(Model.CreatedDate?.ToString("dd MMM yyyy hh:mm tt"))
+
+                        </div>
+
+                    </div>
+
+                    <div class="text-end mt-4">
+
+                        <a asp-action="Edit"
+                           asp-route-id="@Model.RoleId"
+                           class="btn btn-warning">
+
+                            <i class="bi bi-pencil-square"></i>
+                            Edit
+
+                        </a>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+
+                            <i class="bi bi-arrow-left-circle"></i>
+                            Back to List
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
