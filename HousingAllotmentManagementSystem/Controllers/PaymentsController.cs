@@ -7,21 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HousingAllotmentManagementSystem.Controllers
 {
-    // =========================================================
-    // ADMIN ONLY CONTROLLER
-    // =========================================================
-    //
-    // Clients cannot access:
-    //
-    // /Payments
-    // /Payments/Details
-    // /Payments/Create
-    // /Payments/Edit
-    // /Payments/Delete
-    //
-    // =========================================================
+// =========================================================
+// ADMIN ONLY CONTROLLER
+// =========================================================
+//
+// Clients cannot access:
+//
+// /Payments
+// /Payments/Details
+// /Payments/Create
+// /Payments/Edit
+// /Payments/Delete
+//
+// Clients should use their own client-side payment controller.
+//
+// =========================================================
 
-    [Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin")]
     public class PaymentsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -36,15 +38,51 @@ namespace HousingAllotmentManagementSystem.Controllers
         // =========================================================
         // INDEX - ADMIN ONLY
         // =========================================================
+        //
+        // Loads:
+        //
+        // Payment
+        //   -> User
+        //
+        // Payment
+        //   -> Installment
+        //       -> EMI Plan
+        //           -> Loan
+        //               -> Allotment
+        //                   -> Application
+        //                       -> User
+        //                   -> Property
+        //
+        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var payments = await _context.Payments
+
+                // Direct payment user
                 .Include(p => p.User)
+
+                // Installment -> EMI -> Loan -> Allotment -> Application -> User
                 .Include(p => p.Installment)
+                    .ThenInclude(i => i.Emiplan)
+                        .ThenInclude(e => e.Loan)
+                            .ThenInclude(l => l.Allotment)
+                                .ThenInclude(a => a.Application)
+                                    .ThenInclude(app => app.User)
+
+                // Installment -> EMI -> Loan -> Allotment -> Property -> Scheme
+                .Include(p => p.Installment)
+                    .ThenInclude(i => i.Emiplan)
+                        .ThenInclude(e => e.Loan)
+                            .ThenInclude(l => l.Allotment)
+                                .ThenInclude(a => a.Property)
+                                    .ThenInclude(property => property.Scheme)
+
                 .OrderByDescending(p => p.PaymentId)
+
                 .AsNoTracking()
+
                 .ToListAsync();
 
             return View(payments);
@@ -56,7 +94,8 @@ namespace HousingAllotmentManagementSystem.Controllers
         // =========================================================
 
         [HttpGet]
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(
+            int? id)
         {
             if (id == null)
             {
@@ -64,11 +103,27 @@ namespace HousingAllotmentManagementSystem.Controllers
             }
 
             var payment = await _context.Payments
+
                 .Include(p => p.User)
+
                 .Include(p => p.Installment)
+                    .ThenInclude(i => i.Emiplan)
+                        .ThenInclude(e => e.Loan)
+                            .ThenInclude(l => l.Allotment)
+                                .ThenInclude(a => a.Application)
+                                    .ThenInclude(app => app.User)
+
+                .Include(p => p.Installment)
+                    .ThenInclude(i => i.Emiplan)
+                        .ThenInclude(e => e.Loan)
+                            .ThenInclude(l => l.Allotment)
+                                .ThenInclude(a => a.Property)
+                                    .ThenInclude(property => property.Scheme)
+
                 .AsNoTracking()
+
                 .FirstOrDefaultAsync(p =>
-                    p.PaymentId == id);
+                    p.PaymentId == id.Value);
 
             if (payment == null)
             {
@@ -80,52 +135,13 @@ namespace HousingAllotmentManagementSystem.Controllers
 
 
         // =========================================================
-        // CREATE - GET - ADMIN ONLY
+        // CREATE - GET
         // =========================================================
 
         [HttpGet]
         public IActionResult Create()
         {
-            var users = _context.Users
-                .AsNoTracking()
-                .OrderBy(u => u.FullName)
-                .ToList();
-
-            ViewBag.UserId =
-                new SelectList(
-                    users,
-                    "UserId",
-                    "FullName");
-
-
-            var installments = _context.Installments
-                .AsNoTracking()
-                .OrderBy(i => i.InstallmentNumber)
-                .ToList();
-
-            var installmentList =
-                installments.Select(i => new
-                {
-                    InstallmentId =
-                        i.InstallmentId,
-
-                    DisplayText =
-                        "Installment " +
-                        i.InstallmentNumber +
-                        " - ₹" +
-                        i.InstallmentAmount
-                            .ToString("N2") +
-                        " - Due: " +
-                        i.DueDate
-                            .ToString("dd-MM-yyyy")
-                }).ToList();
-
-            ViewBag.InstallmentId =
-                new SelectList(
-                    installmentList,
-                    "InstallmentId",
-                    "DisplayText");
-
+            LoadDropDowns();
 
             var payment = new Payment
             {
@@ -133,7 +149,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                     DateTime.Now,
 
                 PaymentStatus =
-                    "Paid",
+                    "Pending",
 
                 CreatedDate =
                     DateTime.Now
@@ -144,7 +160,7 @@ namespace HousingAllotmentManagementSystem.Controllers
 
 
         // =========================================================
-        // CREATE - POST - ADMIN ONLY
+        // CREATE - POST
         // =========================================================
 
         [HttpPost]
@@ -152,9 +168,9 @@ namespace HousingAllotmentManagementSystem.Controllers
         public async Task<IActionResult> Create(
             Payment payment)
         {
-            // Navigation properties are not submitted by form.
-            ModelState.Remove("User");
-            ModelState.Remove("Installment");
+            // Navigation properties are not submitted
+            ModelState.Remove(nameof(Payment.User));
+            ModelState.Remove(nameof(Payment.Installment));
 
 
             // -----------------------------------------------------
@@ -164,8 +180,8 @@ namespace HousingAllotmentManagementSystem.Controllers
             if (payment.UserId <= 0)
             {
                 ModelState.AddModelError(
-                    "UserId",
-                    "Please select a user.");
+                    nameof(payment.UserId),
+                    "Please select a client.");
             }
             else
             {
@@ -178,8 +194,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 if (!userExists)
                 {
                     ModelState.AddModelError(
-                        "UserId",
-                        "Selected user does not exist.");
+                        nameof(payment.UserId),
+                        "Selected client does not exist.");
                 }
             }
 
@@ -191,17 +207,44 @@ namespace HousingAllotmentManagementSystem.Controllers
             if (payment.InstallmentId.HasValue &&
                 payment.InstallmentId.Value > 0)
             {
-                bool installmentExists =
+                var installment =
                     await _context.Installments
-                        .AnyAsync(i =>
+
+                        .Include(i => i.Emiplan)
+                            .ThenInclude(e => e.Loan)
+                                .ThenInclude(l => l.Allotment)
+                                    .ThenInclude(a => a.Application)
+
+                        .FirstOrDefaultAsync(i =>
                             i.InstallmentId ==
                             payment.InstallmentId.Value);
 
-                if (!installmentExists)
+                if (installment == null)
                 {
                     ModelState.AddModelError(
-                        "InstallmentId",
+                        nameof(payment.InstallmentId),
                         "Selected installment does not exist.");
+                }
+                else
+                {
+                    // -------------------------------------------------
+                    // VERIFY CLIENT MATCHES INSTALLMENT'S LOAN CLIENT
+                    // -------------------------------------------------
+
+                    var installmentUserId =
+                        installment.Emiplan?
+                            .Loan?
+                            .Allotment?
+                            .Application?
+                            .UserId;
+
+                    if (installmentUserId.HasValue &&
+                        installmentUserId.Value != payment.UserId)
+                    {
+                        ModelState.AddModelError(
+                            nameof(payment.UserId),
+                            "Selected client does not belong to the selected installment.");
+                    }
                 }
             }
 
@@ -211,7 +254,7 @@ namespace HousingAllotmentManagementSystem.Controllers
             // -----------------------------------------------------
 
             if (!string.IsNullOrWhiteSpace(
-                    payment.TransactionId))
+                payment.TransactionId))
             {
                 bool transactionExists =
                     await _context.Payments
@@ -222,9 +265,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 if (transactionExists)
                 {
                     ModelState.AddModelError(
-                        "TransactionId",
-                        "This Transaction ID already exists. " +
-                        "Please enter a different Transaction ID.");
+                        nameof(payment.TransactionId),
+                        "This Transaction ID already exists.");
                 }
             }
 
@@ -234,7 +276,7 @@ namespace HousingAllotmentManagementSystem.Controllers
             // -----------------------------------------------------
 
             if (!string.IsNullOrWhiteSpace(
-                    payment.ReceiptNumber))
+                payment.ReceiptNumber))
             {
                 bool receiptExists =
                     await _context.Payments
@@ -245,9 +287,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 if (receiptExists)
                 {
                     ModelState.AddModelError(
-                        "ReceiptNumber",
-                        "This Receipt Number already exists. " +
-                        "Please enter a different Receipt Number.");
+                        nameof(payment.ReceiptNumber),
+                        "This Receipt Number already exists.");
                 }
             }
 
@@ -259,7 +300,7 @@ namespace HousingAllotmentManagementSystem.Controllers
             if (payment.Amount <= 0)
             {
                 ModelState.AddModelError(
-                    "Amount",
+                    nameof(payment.Amount),
                     "Payment amount must be greater than zero.");
             }
 
@@ -269,10 +310,10 @@ namespace HousingAllotmentManagementSystem.Controllers
             // -----------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(
-                    payment.PaymentType))
+                payment.PaymentType))
             {
                 ModelState.AddModelError(
-                    "PaymentType",
+                    nameof(payment.PaymentType),
                     "Please select payment type.");
             }
 
@@ -282,10 +323,10 @@ namespace HousingAllotmentManagementSystem.Controllers
             // -----------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(
-                    payment.PaymentMethod))
+                payment.PaymentMethod))
             {
                 ModelState.AddModelError(
-                    "PaymentMethod",
+                    nameof(payment.PaymentMethod),
                     "Please select payment method.");
             }
 
@@ -295,10 +336,9 @@ namespace HousingAllotmentManagementSystem.Controllers
             // -----------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(
-                    payment.PaymentStatus))
+                payment.PaymentStatus))
             {
-                payment.PaymentStatus =
-                    "Pending";
+                payment.PaymentStatus = "Pending";
             }
 
 
@@ -310,15 +350,15 @@ namespace HousingAllotmentManagementSystem.Controllers
             {
                 try
                 {
-                    payment.CreatedDate =
-                        DateTime.Now;
-
                     if (payment.PaymentDate ==
                         default)
                     {
                         payment.PaymentDate =
                             DateTime.Now;
                     }
+
+                    payment.CreatedDate =
+                        DateTime.Now;
 
                     _context.Payments.Add(
                         payment);
@@ -333,14 +373,11 @@ namespace HousingAllotmentManagementSystem.Controllers
                 }
                 catch (DbUpdateException ex)
                 {
-                    string errorMessage =
-                        ex.InnerException?.Message ??
-                        ex.Message;
-
                     ModelState.AddModelError(
                         "",
                         "Database error while saving payment: " +
-                        errorMessage);
+                        (ex.InnerException?.Message ??
+                         ex.Message));
                 }
                 catch (Exception ex)
                 {
@@ -365,11 +402,12 @@ namespace HousingAllotmentManagementSystem.Controllers
 
 
         // =========================================================
-        // EDIT - GET - ADMIN ONLY
+        // EDIT - GET
         // =========================================================
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(
+            int? id)
         {
             if (id == null)
             {
@@ -380,7 +418,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 await _context.Payments
                     .AsNoTracking()
                     .FirstOrDefaultAsync(p =>
-                        p.PaymentId == id);
+                        p.PaymentId ==
+                        id.Value);
 
             if (payment == null)
             {
@@ -396,7 +435,7 @@ namespace HousingAllotmentManagementSystem.Controllers
 
 
         // =========================================================
-        // EDIT - POST - ADMIN ONLY
+        // EDIT - POST
         // =========================================================
 
         [HttpPost]
@@ -410,8 +449,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return NotFound();
             }
 
-            ModelState.Remove("User");
-            ModelState.Remove("Installment");
+            ModelState.Remove(nameof(Payment.User));
+            ModelState.Remove(nameof(Payment.Installment));
 
 
             // -----------------------------------------------------
@@ -421,8 +460,23 @@ namespace HousingAllotmentManagementSystem.Controllers
             if (payment.UserId <= 0)
             {
                 ModelState.AddModelError(
-                    "UserId",
-                    "Please select a user.");
+                    nameof(payment.UserId),
+                    "Please select a client.");
+            }
+            else
+            {
+                bool userExists =
+                    await _context.Users
+                        .AnyAsync(u =>
+                            u.UserId ==
+                            payment.UserId);
+
+                if (!userExists)
+                {
+                    ModelState.AddModelError(
+                        nameof(payment.UserId),
+                        "Selected client does not exist.");
+                }
             }
 
 
@@ -433,29 +487,100 @@ namespace HousingAllotmentManagementSystem.Controllers
             if (payment.InstallmentId.HasValue &&
                 payment.InstallmentId.Value > 0)
             {
-                bool installmentExists =
+                var installment =
                     await _context.Installments
-                        .AnyAsync(i =>
+
+                        .Include(i => i.Emiplan)
+                            .ThenInclude(e => e.Loan)
+                                .ThenInclude(l => l.Allotment)
+                                    .ThenInclude(a => a.Application)
+
+                        .FirstOrDefaultAsync(i =>
                             i.InstallmentId ==
                             payment.InstallmentId.Value);
 
-                if (!installmentExists)
+                if (installment == null)
                 {
                     ModelState.AddModelError(
-                        "InstallmentId",
+                        nameof(payment.InstallmentId),
                         "Selected installment does not exist.");
+                }
+                else
+                {
+                    var installmentUserId =
+                        installment.Emiplan?
+                            .Loan?
+                            .Allotment?
+                            .Application?
+                            .UserId;
+
+                    if (installmentUserId.HasValue &&
+                        installmentUserId.Value != payment.UserId)
+                    {
+                        ModelState.AddModelError(
+                            nameof(payment.UserId),
+                            "Selected client does not belong to the selected installment.");
+                    }
                 }
             }
 
 
             // -----------------------------------------------------
-            // AMOUNT VALIDATION
+            // TRANSACTION ID DUPLICATE CHECK
+            // -----------------------------------------------------
+
+            if (!string.IsNullOrWhiteSpace(
+                payment.TransactionId))
+            {
+                bool transactionExists =
+                    await _context.Payments
+                        .AnyAsync(p =>
+                            p.TransactionId ==
+                            payment.TransactionId &&
+                            p.PaymentId !=
+                            payment.PaymentId);
+
+                if (transactionExists)
+                {
+                    ModelState.AddModelError(
+                        nameof(payment.TransactionId),
+                        "This Transaction ID already exists.");
+                }
+            }
+
+
+            // -----------------------------------------------------
+            // RECEIPT NUMBER DUPLICATE CHECK
+            // -----------------------------------------------------
+
+            if (!string.IsNullOrWhiteSpace(
+                payment.ReceiptNumber))
+            {
+                bool receiptExists =
+                    await _context.Payments
+                        .AnyAsync(p =>
+                            p.ReceiptNumber ==
+                            payment.ReceiptNumber &&
+                            p.PaymentId !=
+                            payment.PaymentId);
+
+                if (receiptExists)
+                {
+                    ModelState.AddModelError(
+                        nameof(payment.ReceiptNumber),
+                        "This Receipt Number already exists.");
+                }
+            }
+
+
+            // -----------------------------------------------------
+            // AMOUNT
             // -----------------------------------------------------
 
             if (payment.Amount <= 0)
             {
                 ModelState.AddModelError(
-                    "Amount",
+                    nameof(payment.Amount),
                     "Payment amount must be greater than zero.");
             }
 
@@ -465,10 +590,10 @@ namespace HousingAllotmentManagementSystem.Controllers
             // -----------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(
-                    payment.PaymentType))
+                payment.PaymentType))
             {
                 ModelState.AddModelError(
-                    "PaymentType",
+                    nameof(payment.PaymentType),
                     "Please select payment type.");
             }
 
@@ -478,10 +603,10 @@ namespace HousingAllotmentManagementSystem.Controllers
             // -----------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(
-                    payment.PaymentMethod))
+                payment.PaymentMethod))
             {
                 ModelState.AddModelError(
-                    "PaymentMethod",
+                    nameof(payment.PaymentMethod),
                     "Please select payment method.");
             }
 
@@ -509,7 +634,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 var existingPayment =
                     await _context.Payments
                         .FirstOrDefaultAsync(p =>
-                            p.PaymentId == id);
+                            p.PaymentId ==
+                            id);
 
                 if (existingPayment == null)
                 {
@@ -583,11 +709,12 @@ namespace HousingAllotmentManagementSystem.Controllers
 
 
         // =========================================================
-        // DELETE - GET - ADMIN ONLY
+        // DELETE - GET
         // =========================================================
 
         [HttpGet]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(
+            int? id)
         {
             if (id == null)
             {
@@ -596,11 +723,27 @@ namespace HousingAllotmentManagementSystem.Controllers
 
             var payment =
                 await _context.Payments
+
                     .Include(p => p.User)
+
                     .Include(p => p.Installment)
+                        .ThenInclude(i => i.Emiplan)
+                            .ThenInclude(e => e.Loan)
+                                .ThenInclude(l => l.Allotment)
+                                    .ThenInclude(a => a.Application)
+                                        .ThenInclude(app => app.User)
+
+                    .Include(p => p.Installment)
+                        .ThenInclude(i => i.Emiplan)
+                            .ThenInclude(e => e.Loan)
+                                .ThenInclude(l => l.Allotment)
+                                    .ThenInclude(a => a.Property)
+
                     .AsNoTracking()
+
                     .FirstOrDefaultAsync(p =>
-                        p.PaymentId == id);
+                        p.PaymentId ==
+                        id.Value);
 
             if (payment == null)
             {
@@ -612,7 +755,7 @@ namespace HousingAllotmentManagementSystem.Controllers
 
 
         // =========================================================
-        // DELETE - POST - ADMIN ONLY
+        // DELETE - POST
         // =========================================================
 
         [HttpPost]
@@ -624,12 +767,14 @@ namespace HousingAllotmentManagementSystem.Controllers
             var payment =
                 await _context.Payments
                     .FirstOrDefaultAsync(p =>
-                        p.PaymentId == id);
+                        p.PaymentId ==
+                        id);
 
             if (payment == null)
             {
                 return NotFound();
             }
+
 
             try
             {
@@ -644,10 +789,12 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return RedirectToAction(
                     nameof(Index));
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
                 TempData["ErrorMessage"] =
-                    "This payment cannot be deleted because it is linked with another record.";
+                    "This payment cannot be deleted because it is linked with another record. " +
+                    (ex.InnerException?.Message ??
+                     "");
 
                 return RedirectToAction(
                     nameof(Delete),
@@ -668,50 +815,136 @@ namespace HousingAllotmentManagementSystem.Controllers
             int? selectedInstallmentId = null)
         {
             // =====================================================
-            // USERS
+            // CLIENT DROPDOWN
             // =====================================================
 
             var users =
                 _context.Users
                     .AsNoTracking()
                     .OrderBy(u => u.FullName)
+                    .Select(u => new
+                    {
+                        u.UserId,
+                        u.FullName
+                    })
                     .ToList();
+
+            var userList =
+                users.Select(u =>
+                    new
+                    {
+                        u.UserId,
+
+                        DisplayText =
+                            "#" +
+                            u.UserId +
+                            " | " +
+                            u.FullName
+                    });
+
 
             ViewBag.UserId =
                 new SelectList(
-                    users,
+                    userList,
                     "UserId",
-                    "FullName",
+                    "DisplayText",
                     selectedUserId);
 
 
             // =====================================================
-            // INSTALLMENTS
+            // INSTALLMENT DROPDOWN
+            // =====================================================
+            //
+            // Shows:
+            //
+            // EMI #1 | Client | Property | Amount | Due Date
+            //
             // =====================================================
 
             var installments =
                 _context.Installments
+
+                    .Include(i => i.Emiplan)
+                        .ThenInclude(e => e.Loan)
+                            .ThenInclude(l => l.Allotment)
+                                .ThenInclude(a => a.Application)
+                                    .ThenInclude(app => app.User)
+
+                    .Include(i => i.Emiplan)
+                        .ThenInclude(e => e.Loan)
+                            .ThenInclude(l => l.Allotment)
+                                .ThenInclude(a => a.Property)
+
                     .AsNoTracking()
+
                     .OrderBy(i =>
-                        i.InstallmentNumber)
+                        i.DueDate)
+
                     .ToList();
 
-            var installmentList =
-                installments.Select(i => new
-                {
-                    InstallmentId =
-                        i.InstallmentId,
 
-                    DisplayText =
-                        "Installment " +
-                        i.InstallmentNumber +
-                        " - ₹" +
-                        i.InstallmentAmount
-                            .ToString("N2") +
-                        " - Due: " +
-                        i.DueDate
-                            .ToString("dd-MM-yyyy")
+            var installmentList =
+                installments.Select(i =>
+                {
+                    var clientName =
+                        i.Emiplan?
+                            .Loan?
+                            .Allotment?
+                            .Application?
+                            .User?
+                            .FullName
+                        ?? "Unknown Client";
+
+
+                    var clientId =
+                        i.Emiplan?
+                            .Loan?
+                            .Allotment?
+                            .Application?
+                            .UserId;
+
+
+                    var propertyId =
+                        i.Emiplan?
+                            .Loan?
+                            .Allotment?
+                            .PropertyId;
+
+
+                    var unitNumber =
+                        i.Emiplan?
+                            .Loan?
+                            .Allotment?
+                            .Property?
+                            .UnitNumber;
+
+
+                    return new
+                    {
+                        InstallmentId =
+                            i.InstallmentId,
+
+                        DisplayText =
+                            "EMI #" +
+                            i.InstallmentNumber +
+                            " | Client #" +
+                            (clientId?.ToString() ?? "-") +
+                            " " +
+                            clientName +
+                            " | Property " +
+                            (unitNumber ?? "#" +
+                                (propertyId?.ToString() ??
+                                 "-")) +
+                            " | ₹" +
+                            i.InstallmentAmount
+                                .ToString("N2") +
+                            " | Due: " +
+                            i.DueDate
+                                .ToString("dd-MM-yyyy")
+                    };
+
                 }).ToList();
+
 
             ViewBag.InstallmentId =
                 new SelectList(
@@ -720,17 +953,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "DisplayText",
                     selectedInstallmentId);
         }
-
-
-        // =========================================================
-        // CHECK EXISTENCE
-        // =========================================================
-
-        private bool PaymentExists(int id)
-        {
-            return _context.Payments
-                .Any(p =>
-                    p.PaymentId == id);
-        }
     }
+
+
 }

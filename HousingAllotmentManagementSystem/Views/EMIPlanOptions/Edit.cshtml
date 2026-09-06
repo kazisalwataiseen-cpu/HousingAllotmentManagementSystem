@@ -1,0 +1,253 @@
+﻿@model HousingAllotmentManagementSystem.Models.EMIPlanOption
+
+@{
+    ViewData["Title"] = "Edit EMI Plan";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-pencil-square me-2"></i>
+                Edit EMI Plan
+            </h2>
+
+            <p class="text-muted mb-0">
+                Update the EMI plan details.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back
+        </a>
+
+    </div>
+
+
+    <!-- FORM -->
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card border-0 shadow-sm">
+
+                <!-- CARD HEADER -->
+                <div class="card-header bg-primary text-white py-3">
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-calculator me-2"></i>
+                        EMI Plan Details
+                    </h5>
+
+                </div>
+
+
+                <!-- CARD BODY -->
+                <div class="card-body p-4">
+
+                    <form asp-action="Edit"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               asp-for="EMIPlanOptionId" />
+
+
+                        <!-- VALIDATION SUMMARY -->
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+
+                        <!-- HOUSING SCHEME -->
+                        <div class="mb-4">
+
+                            <label asp-for="SchemeId"
+                                   class="form-label fw-semibold">
+                                Housing Scheme
+                            </label>
+
+                            <select asp-for="SchemeId"
+                                    asp-items="ViewBag.SchemeId"
+                                    class="form-select">
+
+                                <option value="">
+                                    -- Select Housing Scheme --
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="SchemeId"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- PLAN NAME -->
+                        <div class="mb-4">
+
+                            <label asp-for="PlanName"
+                                   class="form-label fw-semibold">
+                                Plan Name
+                            </label>
+
+                            <input asp-for="PlanName"
+                                   class="form-control"
+                                   placeholder="Example: 10 Year Housing Loan Plan" />
+
+                            <span asp-validation-for="PlanName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- TENURE + INTEREST -->
+                        <div class="row">
+
+                            <!-- TENURE -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="TenureMonths"
+                                       class="form-label fw-semibold">
+                                    Tenure (Months)
+                                </label>
+
+                                <input asp-for="TenureMonths"
+                                       type="number"
+                                       min="1"
+                                       max="600"
+                                       class="form-control"
+                                       placeholder="Example: 120" />
+
+                                <span asp-validation-for="TenureMonths"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Example: 120 months = 10 years
+                                </small>
+
+                            </div>
+
+
+                            <!-- INTEREST -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="InterestRate"
+                                       class="form-label fw-semibold">
+                                    Interest Rate (%)
+                                </label>
+
+                                <input asp-for="InterestRate"
+                                       type="number"
+                                       step="0.01"
+                                       min="0"
+                                       max="100"
+                                       class="form-control"
+                                       placeholder="Example: 8.00" />
+
+                                <span asp-validation-for="InterestRate"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DESCRIPTION -->
+                        <div class="mb-4">
+
+                            <label asp-for="Description"
+                                   class="form-label fw-semibold">
+                                Description
+                            </label>
+
+                            <textarea asp-for="Description"
+                                      class="form-control"
+                                      rows="4"
+                                      maxlength="500"
+                                      placeholder="Enter details about this EMI plan"></textarea>
+
+                            <span asp-validation-for="Description"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+                        <div class="mb-4">
+
+                            <label asp-for="Status"
+                                   class="form-label fw-semibold">
+                                Status
+                            </label>
+
+                            <select asp-for="Status"
+                                    class="form-select">
+
+                                <option value="Active">
+                                    Active
+                                </option>
+
+                                <option value="Inactive">
+                                    Inactive
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="Status"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- BUTTONS -->
+                        <div class="d-flex justify-content-between mt-4">
+
+                            <a asp-action="Index"
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>
+                                Cancel
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+                                <i class="bi bi-save me-1"></i>
+                                Save Changes
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+}

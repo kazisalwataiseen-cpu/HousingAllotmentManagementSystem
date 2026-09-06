@@ -4,25 +4,42 @@
     ViewData["Title"] = "Allotments";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 
-    var allotments = Model?.ToList() ?? new List<HousingAllotmentManagementSystem.Models.Allotment>();
+var allotments =
+    Model?.ToList()
+    ?? new List<HousingAllotmentManagementSystem.Models.Allotment>();
 
     var totalAllotments = allotments.Count;
 
     var activeAllotments = allotments.Count(a =>
         !string.IsNullOrEmpty(a.AllotmentStatus) &&
-        a.AllotmentStatus.Equals("Active", StringComparison.OrdinalIgnoreCase));
+        a.AllotmentStatus.Equals(
+            "Active",
+            StringComparison.OrdinalIgnoreCase));
 
     var pendingAllotments = allotments.Count(a =>
         !string.IsNullOrEmpty(a.AllotmentStatus) &&
-        a.AllotmentStatus.Equals("Pending", StringComparison.OrdinalIgnoreCase));
+        a.AllotmentStatus.Equals(
+            "Pending",
+            StringComparison.OrdinalIgnoreCase));
 
-    var totalBookingAmount = allotments.Sum(a => a.BookingAmount);
+    var completedAllotments = allotments.Count(a =>
+        !string.IsNullOrEmpty(a.AllotmentStatus) &&
+        a.AllotmentStatus.Equals(
+            "Completed",
+            StringComparison.OrdinalIgnoreCase));
+
+    var totalBookingAmount =
+        allotments.Sum(a => a.BookingAmount);
+
 }
 
-
+<!-- ========================================================= -->
 <!-- PAGE HEADER -->
+<!-- ========================================================= -->
+
 <div class="d-flex justify-content-between align-items-center mb-4">
 
+  
     <div>
 
         <h2 class="fw-bold mb-1">
@@ -34,7 +51,10 @@
         </h2>
 
         <p class="text-muted mb-0">
-            Manage property allotments and booking information.
+
+            Manage property allotments with client and
+            property information.
+
         </p>
 
     </div>
@@ -48,19 +68,24 @@
         Create Allotment
 
     </a>
+   
 
 </div>
 
-
-<!-- SUCCESS MESSAGE -->
+<!-- ========================================================= -->
+<!-- ALERTS -->
+<!-- ========================================================= -->
 @if (TempData["SuccessMessage"] != null)
 {
     <div class="alert alert-success alert-dismissible fade show shadow-sm"
          role="alert">
 
+        ```
         <i class="bi bi-check-circle-fill me-2"></i>
 
-        @TempData["SuccessMessage"]
+        <strong>
+            @TempData["SuccessMessage"]
+        </strong>
 
         <button type="button"
                 class="btn-close"
@@ -68,18 +93,21 @@
         </button>
 
     </div>
+
+
 }
 
-
-<!-- ERROR MESSAGE -->
 @if (TempData["ErrorMessage"] != null)
 {
     <div class="alert alert-danger alert-dismissible fade show shadow-sm"
          role="alert">
 
+        
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
 
-        @TempData["ErrorMessage"]
+        <strong>
+            @TempData["ErrorMessage"]
+        </strong>
 
         <button type="button"
                 class="btn-close"
@@ -87,14 +115,19 @@
         </button>
 
     </div>
+
+
 }
 
-
+<!-- ========================================================= -->
 <!-- SUMMARY CARDS -->
+<!-- ========================================================= -->
+
 <div class="row g-4 mb-4">
 
-
+   
     <!-- TOTAL -->
+
     <div class="col-xl-3 col-md-6">
 
         <div class="card border-0 shadow-sm h-100">
@@ -131,6 +164,7 @@
 
 
     <!-- ACTIVE -->
+
     <div class="col-xl-3 col-md-6">
 
         <div class="card border-0 shadow-sm h-100">
@@ -167,6 +201,7 @@
 
 
     <!-- PENDING -->
+
     <div class="col-xl-3 col-md-6">
 
         <div class="card border-0 shadow-sm h-100">
@@ -203,6 +238,7 @@
 
 
     <!-- BOOKING AMOUNT -->
+
     <div class="col-xl-3 col-md-6">
 
         <div class="card border-0 shadow-sm h-100">
@@ -214,11 +250,13 @@
                     <div>
 
                         <span class="text-muted small">
-                            Booking Amount
+                            Total Booking Amount
                         </span>
 
                         <h4 class="fw-bold mb-0 mt-1">
+
                             ₹@totalBookingAmount.ToString("N2")
+
                         </h4>
 
                     </div>
@@ -236,14 +274,19 @@
         </div>
 
     </div>
+    ```
 
 </div>
 
-
+<!-- ========================================================= -->
 <!-- ALLOTMENT TABLE -->
+<!-- ========================================================= -->
+
 <div class="card border-0 shadow-sm">
 
+   
     <!-- HEADER -->
+
     <div class="card-header bg-white border-0 py-3">
 
         <div class="d-flex justify-content-between align-items-center">
@@ -251,11 +294,15 @@
             <div>
 
                 <h5 class="fw-bold mb-1">
+
                     Allotment Records
+
                 </h5>
 
                 <small class="text-muted">
-                    List of all property allotments
+
+                    Client, property and allotment information
+
                 </small>
 
             </div>
@@ -273,6 +320,7 @@
 
 
     <!-- BODY -->
+
     <div class="card-body p-0">
 
         @if (allotments.Any())
@@ -281,37 +329,74 @@
 
                 <table class="table table-hover align-middle mb-0">
 
-                    <thead class="table-light">
+                    <thead class="table-dark">
 
                         <tr>
 
+                            <!-- ALLOTMENT ID -->
+
                             <th class="ps-4">
-                                #
+                                Allotment ID
                             </th>
 
-                            <th>
-                                Allotment Number
-                            </th>
+
+                            <!-- CLIENT ID -->
 
                             <th>
-                                Application
+                                Client ID
                             </th>
+
+
+                            <!-- CLIENT NAME -->
+
+                            <th>
+                                Client Name
+                            </th>
+
+
+                            <!-- PROPERTY -->
 
                             <th>
                                 Property
                             </th>
 
+
+                            <!-- APPLICATION -->
+
+                            <th>
+                                Application
+                            </th>
+
+
+                            <!-- ALLOTMENT NUMBER -->
+
+                            <th>
+                                Allotment Number
+                            </th>
+
+
+                            <!-- DATE -->
+
                             <th>
                                 Allotment Date
                             </th>
+
+
+                            <!-- BOOKING AMOUNT -->
 
                             <th>
                                 Booking Amount
                             </th>
 
+
+                            <!-- STATUS -->
+
                             <th>
                                 Status
                             </th>
+
+
+                            <!-- ACTIONS -->
 
                             <th class="text-center">
                                 Actions
@@ -326,22 +411,205 @@
 
                         @foreach (var item in allotments)
                         {
+                            var client =
+                                item.Application?.User;
+
+                            var property =
+                                item.Property;
+
+
                             <tr>
 
-                                <!-- ID -->
+                                <!-- ================================================= -->
+                                <!-- ALLOTMENT ID -->
+                                <!-- ================================================= -->
+
                                 <td class="ps-4">
 
-                                    <span class="text-muted">
+                                    <span class="fw-semibold">
+
                                         #@item.AllotmentId
+
                                     </span>
 
                                 </td>
 
 
-                                <!-- ALLOTMENT NUMBER -->
+                                <!-- ================================================= -->
+                                <!-- CLIENT ID -->
+                                <!-- ================================================= -->
+
                                 <td>
 
-                                    <span class="fw-semibold">
+                                    @if (client != null)
+                                    {
+                                        <span class="badge bg-primary-subtle text-primary">
+
+                                            #@client.UserId
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+
+                                            #@item.Application?.UserId
+
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- ================================================= -->
+                                <!-- CLIENT NAME -->
+                                <!-- ================================================= -->
+
+                                <td>
+
+                                    @if (client != null)
+                                    {
+                                        <div class="d-flex align-items-center">
+
+                                            <div class="bg-primary-subtle text-primary rounded-circle p-2 me-2">
+
+                                                <i class="bi bi-person-fill"></i>
+
+                                            </div>
+
+                                            <div>
+
+                                                <div class="fw-semibold">
+
+                                                    @client.FullName
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger fw-semibold">
+
+                                            Client not found
+
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- ================================================= -->
+                                <!-- PROPERTY -->
+                                <!-- ================================================= -->
+                                <!-- ================================================= -->
+                                <!-- PROPERTY -->
+                                <!-- ================================================= -->
+
+                                <td>
+
+                                    @if (item.Property != null)
+                                    {
+                                        <div>
+
+                                            <!-- SCHEME / PROPERTY NAME -->
+
+                                            <div class="fw-semibold text-primary">
+
+                                                <i class="bi bi-house-fill me-1"></i>
+
+                                                @(item.Property.Scheme?.SchemeName ?? "Property")
+
+                                            </div>
+
+
+                                            <!-- UNIT NUMBER -->
+                                            @if (!string.IsNullOrWhiteSpace(item.Property.UnitNumber))
+                                            {
+                                                <div class="small text-muted">
+
+                                                    Unit:
+                                                    @item.Property.UnitNumber
+
+                                                </div>
+                                            }
+
+
+                                            <!-- PLOT NUMBER -->
+                                            @if (!string.IsNullOrWhiteSpace(item.Property.PlotNumber))
+                                            {
+                                                <div class="small text-muted">
+
+                                                    Plot:
+                                                    @item.Property.PlotNumber
+
+                                                </div>
+                                            }
+
+
+                                            <!-- PROPERTY TYPE -->
+                                            @if (!string.IsNullOrWhiteSpace(item.Property.PropertyType))
+                                            {
+                                                <div class="small text-muted">
+
+                                                    Type:
+                                                    @item.Property.PropertyType
+
+                                                </div>
+                                            }
+
+
+                                            <!-- PROPERTY ID -->
+
+                                            <div class="small text-muted">
+
+                                                Property ID:
+                                                @item.PropertyId
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger fw-semibold">
+                                            Property not found
+                                        </span>
+
+                                        <div class="small text-muted">
+                                            Property ID: @item.PropertyId
+                                        </div>
+                                    }
+
+                                </td>
+
+
+                                <!-- ================================================= -->
+                                <!-- APPLICATION -->
+                                <!-- ================================================= -->
+
+                                <td>
+
+                                    <span class="badge bg-light text-dark border">
+
+                                        <i class="bi bi-file-earmark-text me-1"></i>
+
+                                        #@item.ApplicationId
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- ================================================= -->
+                                <!-- ALLOTMENT NUMBER -->
+                                <!-- ================================================= -->
+
+                                <td>
+
+                                    <span class="fw-bold">
 
                                         @item.AllotmentNumber
 
@@ -350,46 +618,25 @@
                                 </td>
 
 
-                                <!-- APPLICATION -->
-                                <td>
-
-                                    <span class="badge bg-light text-dark border">
-
-                                        <i class="bi bi-file-earmark-text me-1"></i>
-
-                                        Application #@item.ApplicationId
-
-                                    </span>
-
-                                </td>
-
-
-                                <!-- PROPERTY -->
-                                <td>
-
-                                    <span class="badge bg-light text-dark border">
-
-                                        <i class="bi bi-house me-1"></i>
-
-                                        Property #@item.PropertyId
-
-                                    </span>
-
-                                </td>
-
-
+                                <!-- ================================================= -->
                                 <!-- DATE -->
+                                <!-- ================================================= -->
+
                                 <td>
 
-                                    @item.AllotmentDate.ToString("dd MMM yyyy")
+                                    @item.AllotmentDate.ToString(
+                                        "dd MMM yyyy")
 
                                 </td>
 
 
-                                <!-- AMOUNT -->
+                                <!-- ================================================= -->
+                                <!-- BOOKING AMOUNT -->
+                                <!-- ================================================= -->
+
                                 <td>
 
-                                    <span class="fw-semibold">
+                                    <span class="fw-semibold text-success">
 
                                         ₹@item.BookingAmount.ToString("N2")
 
@@ -398,15 +645,18 @@
                                 </td>
 
 
+                                <!-- ================================================= -->
                                 <!-- STATUS -->
+                                <!-- ================================================= -->
+
                                 <td>
 
-                                    @if (!string.IsNullOrEmpty(item.AllotmentStatus) &&
-                                   item.AllotmentStatus.Equals(
-                                   "Active",
-                                   StringComparison.OrdinalIgnoreCase))
+                                    @if (string.Equals(
+                                        item.AllotmentStatus,
+                                        "Active",
+                                        StringComparison.OrdinalIgnoreCase))
                                     {
-                                        <span class="badge bg-success-subtle text-success px-3 py-2">
+                                        <span class="badge bg-success">
 
                                             <i class="bi bi-check-circle-fill me-1"></i>
 
@@ -414,12 +664,12 @@
 
                                         </span>
                                     }
-                                    else if (!string.IsNullOrEmpty(item.AllotmentStatus) &&
-                                    item.AllotmentStatus.Equals(
-                                    "Pending",
-                                    StringComparison.OrdinalIgnoreCase))
+                                    else if (string.Equals(
+                                        item.AllotmentStatus,
+                                        "Pending",
+                                        StringComparison.OrdinalIgnoreCase))
                                     {
-                                        <span class="badge bg-warning-subtle text-warning px-3 py-2">
+                                        <span class="badge bg-warning text-dark">
 
                                             <i class="bi bi-hourglass-split me-1"></i>
 
@@ -427,12 +677,12 @@
 
                                         </span>
                                     }
-                                    else if (!string.IsNullOrEmpty(item.AllotmentStatus) &&
-                                    item.AllotmentStatus.Equals(
-                                    "Completed",
-                                    StringComparison.OrdinalIgnoreCase))
+                                    else if (string.Equals(
+                                        item.AllotmentStatus,
+                                        "Completed",
+                                        StringComparison.OrdinalIgnoreCase))
                                     {
-                                        <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                                        <span class="badge bg-primary">
 
                                             <i class="bi bi-check2-all me-1"></i>
 
@@ -440,12 +690,12 @@
 
                                         </span>
                                     }
-                                    else if (!string.IsNullOrEmpty(item.AllotmentStatus) &&
-                                    item.AllotmentStatus.Equals(
-                                    "Cancelled",
-                                    StringComparison.OrdinalIgnoreCase))
+                                    else if (string.Equals(
+                                        item.AllotmentStatus,
+                                        "Cancelled",
+                                        StringComparison.OrdinalIgnoreCase))
                                     {
-                                        <span class="badge bg-danger-subtle text-danger px-3 py-2">
+                                        <span class="badge bg-danger">
 
                                             <i class="bi bi-x-circle-fill me-1"></i>
 
@@ -455,7 +705,7 @@
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary-subtle text-secondary px-3 py-2">
+                                        <span class="badge bg-secondary">
 
                                             @item.AllotmentStatus
 
@@ -465,23 +715,24 @@
                                 </td>
 
 
+                                <!-- ================================================= -->
                                 <!-- ACTIONS -->
+                                <!-- ================================================= -->
+
                                 <td class="text-center">
 
                                     <div class="btn-group">
 
-                                        <!-- DETAILS -->
                                         <a asp-action="Details"
                                            asp-route-id="@item.AllotmentId"
                                            class="btn btn-sm btn-outline-info"
-                                           title="Details">
+                                           title="View Details">
 
                                             <i class="bi bi-eye"></i>
 
                                         </a>
 
 
-                                        <!-- EDIT -->
                                         <a asp-action="Edit"
                                            asp-route-id="@item.AllotmentId"
                                            class="btn btn-sm btn-outline-primary"
@@ -492,7 +743,6 @@
                                         </a>
 
 
-                                        <!-- DELETE -->
                                         <a asp-action="Delete"
                                            asp-route-id="@item.AllotmentId"
                                            class="btn btn-sm btn-outline-danger"
@@ -517,18 +767,27 @@
         }
         else
         {
+            <!-- ================================================= -->
             <!-- EMPTY STATE -->
+            <!-- ================================================= -->
+
             <div class="text-center py-5">
 
                 <i class="bi bi-house-x display-4 text-muted"></i>
 
                 <h5 class="fw-bold mt-3">
+
                     No Allotments Found
+
                 </h5>
 
                 <p class="text-muted mb-4">
-                    There are currently no property allotment records.
+
+                    There are currently no property allotment
+                    records.
+
                 </p>
+
 
                 <a asp-action="Create"
                    class="btn btn-primary">
@@ -543,5 +802,6 @@
         }
 
     </div>
+    
 
 </div>

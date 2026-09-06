@@ -1,0 +1,567 @@
+﻿@model IEnumerable<HousingAllotmentManagementSystem.Models.Loan>
+
+@{
+    ViewData["Title"] = "My Loans";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+var loanApplications =
+    ViewBag.LoanApplications as
+    IEnumerable<HousingAllotmentManagementSystem.Models.LoanApplication>
+    ?? Enumerable.Empty<HousingAllotmentManagementSystem.Models.LoanApplication>();
+
+
+}
+
+@if (ViewBag.HasActiveAllotment == true &&
+     ViewBag.HasPendingApplication != true &&
+     (Model == null || !Model.Any()))
+{
+    <a asp-controller="ClientLoan"
+       asp-action="Apply"
+       class="btn btn-primary">
+
+        <i class="bi bi-plus-circle me-1"></i>
+        Apply for a Loan
+
+    </a>
+}
+
+
+
+
+<div class="container py-5">
+
+    
+    <!-- ========================================================= -->
+    <!-- ALERT MESSAGES -->
+    <!-- ========================================================= -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm mb-4"
+             role="alert">
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+
+            <strong>
+                @TempData["Success"]
+            </strong>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show shadow-sm mb-4"
+             role="alert">
+
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+            <strong>
+                @TempData["Error"]
+            </strong>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+    <!-- ========================================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ========================================================= -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-bank me-2"></i>
+                My Loans
+            </h2>
+
+            <p class="text-muted mb-0">
+                View your loan applications, approved loans and EMI details.
+            </p>
+
+        </div>
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Home
+
+        </a>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- LOAN APPLICATION HISTORY -->
+    <!-- ========================================================= -->
+    @if (loanApplications.Any())
+    {
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-dark text-white py-3">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        My Loan Applications
+                    </h5>
+
+                    <span class="badge bg-light text-dark">
+                        @loanApplications.Count() Application(s)
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>
+                                    Application ID
+                                </th>
+
+                                <th>
+                                    Allotment
+                                </th>
+
+                                <th>
+                                    Requested Amount
+                                </th>
+
+                                <th>
+                                    Interest
+                                </th>
+
+                                <th>
+                                    Tenure
+                                </th>
+
+                                <th>
+                                    Application Date
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var application in loanApplications)
+                            {
+                                <tr>
+
+                                    <td class="fw-semibold">
+                                        #@application.LoanApplicationId
+                                    </td>
+
+
+                                    <td>
+
+                                        @(application.Allotment?.AllotmentNumber ?? "N/A")
+
+                                    </td>
+
+
+                                    <td>
+
+                                        ₹@application.RequestedLoanAmount.ToString("N2")
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @application.InterestRate.ToString("0.00")%
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @application.LoanTenure months
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @application.ApplicationDate.ToString("dd-MM-yyyy")
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @if (application.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark">
+
+                                                <i class="bi bi-clock me-1"></i>
+                                                Pending
+
+                                            </span>
+                                        }
+                                        else if (application.Status == "Approved")
+                                        {
+                                            <span class="badge bg-success">
+
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                Approved
+
+                                            </span>
+                                        }
+                                        else if (application.Status == "Rejected")
+                                        {
+                                            <span class="badge bg-danger">
+
+                                                <i class="bi bi-x-circle me-1"></i>
+                                                Rejected
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+
+                                                @application.Status
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <a asp-controller="ClientLoan"
+                                           asp-action="ApplicationDetails"
+                                           asp-route-id="@application.LoanApplicationId"
+                                           class="btn btn-sm btn-outline-primary">
+
+                                            <i class="bi bi-eye me-1"></i>
+                                            View
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+
+    <!-- ========================================================= -->
+    <!-- ACTUAL LOANS -->
+    <!-- ========================================================= -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="mb-3">
+
+            <h4 class="fw-bold">
+
+                <i class="bi bi-bank me-2"></i>
+                My Approved Loans
+
+            </h4>
+
+            <p class="text-muted">
+                Loans approved by the administration.
+            </p>
+
+        </div>
+
+
+        <div class="row g-4">
+
+            @foreach (var loan in Model)
+            {
+                <div class="col-lg-6">
+
+                    <div class="card border-0 shadow-sm h-100">
+
+                        <!-- HEADER -->
+
+                        <div class="card-header bg-primary text-white p-3">
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <div>
+
+                                    <small class="opacity-75">
+                                        Loan Number
+                                    </small>
+
+                                    <h5 class="mb-0 fw-bold">
+                                        @loan.LoanNumber
+                                    </h5>
+
+                                </div>
+
+
+                                @if (loan.LoanStatus == "Active")
+                                {
+                                    <span class="badge bg-success">
+                                        Active
+                                    </span>
+                                }
+                                else if (loan.LoanStatus == "Completed")
+                                {
+                                    <span class="badge bg-light text-success">
+                                        Completed
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        @loan.LoanStatus
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- BODY -->
+
+                        <div class="card-body p-4">
+
+                            <div class="row g-4">
+
+                                <!-- LOAN AMOUNT -->
+
+                                <div class="col-md-6">
+
+                                    <small class="text-muted d-block">
+                                        Loan Amount
+                                    </small>
+
+                                    <h5 class="fw-bold mt-1">
+                                        ₹@loan.LoanAmount.ToString("N2")
+                                    </h5>
+
+                                </div>
+
+
+                                <!-- DOWN PAYMENT -->
+
+                                <div class="col-md-6">
+
+                                    <small class="text-muted d-block">
+                                        Down Payment
+                                    </small>
+
+                                    <h5 class="fw-bold mt-1">
+                                        ₹@loan.DownPayment.ToString("N2")
+                                    </h5>
+
+                                </div>
+
+
+                                <!-- INTEREST -->
+
+                                <div class="col-md-6">
+
+                                    <small class="text-muted d-block">
+                                        Interest Rate
+                                    </small>
+
+                                    <h5 class="fw-bold mt-1">
+                                        @loan.InterestRate.ToString("0.00")%
+                                    </h5>
+
+                                </div>
+
+
+                                <!-- TENURE -->
+
+                                <div class="col-md-6">
+
+                                    <small class="text-muted d-block">
+                                        Loan Tenure
+                                    </small>
+
+                                    <h5 class="fw-bold mt-1">
+                                        @loan.LoanTenure Months
+                                    </h5>
+
+                                </div>
+
+
+                                <!-- EMI -->
+
+                                <div class="col-md-6">
+
+                                    <small class="text-muted d-block">
+                                        Monthly EMI
+                                    </small>
+
+                                    <h5 class="fw-bold text-primary mt-1">
+                                        ₹@loan.Emiamount.ToString("N2")
+                                    </h5>
+
+                                </div>
+
+
+                                <!-- SANCTION DATE -->
+
+                                <div class="col-md-6">
+
+                                    <small class="text-muted d-block">
+                                        Sanction Date
+                                    </small>
+
+                                    <h6 class="fw-semibold mt-1">
+                                        @loan.SanctionDate.ToString("dd MMM yyyy")
+                                    </h6>
+
+                                </div>
+
+                            </div>
+
+
+                            <hr class="my-4" />
+
+
+                            <!-- BUTTONS -->
+
+                            <div class="d-flex gap-2 flex-wrap">
+
+                                <a asp-controller="ClientLoan"
+                                   asp-action="Details"
+                                   asp-route-id="@loan.LoanId"
+                                   class="btn btn-primary">
+
+                                    <i class="bi bi-eye me-1"></i>
+                                    View Details
+
+                                </a>
+
+
+                                @if (loan.Emiplans != null &&
+                                     loan.Emiplans.Any())
+                                {
+                                    <a asp-controller="ClientEmi"
+                                       asp-action="Details"
+                                       asp-route-id="@loan.Emiplans.First().EmiplanId"
+                                       class="btn btn-outline-primary">
+
+                                        <i class="bi bi-calculator me-1"></i>
+                                        View EMI
+
+                                    </a>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+
+    <!-- ========================================================= -->
+    <!-- NO APPLICATION + NO LOAN -->
+    <!-- ========================================================= -->
+    @if ((Model == null || !Model.Any()) &&
+         !loanApplications.Any())
+    {
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body text-center py-5">
+
+                <i class="bi bi-bank display-1 text-muted"></i>
+
+                <h4 class="fw-bold mt-3">
+                    No Loans or Applications Found
+                </h4>
+
+                <p class="text-muted mb-4">
+                    You currently do not have any housing loans
+                    or loan applications.
+                </p>
+
+                <a asp-controller="ClientLoan"
+                   asp-action="Apply"
+                   class="btn btn-primary">
+
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Apply for a Loan
+
+                </a>
+
+            </div>
+
+        </div>
+    }
+
+
+    <!-- ========================================================= -->
+    <!-- APPLICATION EXISTS BUT NO APPROVED LOAN -->
+    <!-- ========================================================= -->
+    @if (loanApplications.Any() &&
+         (Model == null || !Model.Any()))
+    {
+        <div class="text-center mt-4">
+
+            <a asp-controller="ClientLoan"
+               asp-action="Apply"
+               class="btn btn-outline-primary">
+
+                <i class="bi bi-plus-circle me-1"></i>
+                Apply for Another Loan
+
+            </a>
+
+        </div>
+    }
+    ```
+
+</div>

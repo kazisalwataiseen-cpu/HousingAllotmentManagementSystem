@@ -328,8 +328,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                 "Index",
                 "Home");
         }
-
-
         // =========================================================
         // REGISTER - GET
         // =========================================================
@@ -347,126 +345,26 @@ namespace HousingAllotmentManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(
-            RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            // -----------------------------------------------------
-            // MODEL VALIDATION
-            // -----------------------------------------------------
-
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // -----------------------------------------------------
-            // NORMALIZE VALUES
-            // -----------------------------------------------------
+            // Normalize email
+            string email = model.Email.Trim().ToLower();
 
-            string fullName =
-                model.FullName?.Trim() ?? string.Empty;
+            // Normalize phone number
+            string mobile = NormalizePhoneNumber(model.Mobile);
 
-            string email =
-                model.Email?.Trim() ?? string.Empty;
 
-            string mobile =
-                NormalizePhoneNumber(model.Mobile);
-
-            string password =
-                model.Password ?? string.Empty;
-
-            // -----------------------------------------------------
-            // FULL NAME
-            // -----------------------------------------------------
-
-            if (string.IsNullOrWhiteSpace(fullName))
-            {
-                ModelState.AddModelError(
-                    "FullName",
-                    "Please enter your full name.");
-
-                return View(model);
-            }
-
-            // -----------------------------------------------------
-            // EMAIL
-            // -----------------------------------------------------
-
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                ModelState.AddModelError(
-                    "Email",
-                    "Please enter your email address.");
-
-                return View(model);
-            }
-
-            var emailValidator =
-                new System.ComponentModel.DataAnnotations
-                    .EmailAddressAttribute();
-
-            if (!emailValidator.IsValid(email))
-            {
-                ModelState.AddModelError(
-                    "Email",
-                    "Please enter a valid email address.");
-
-                return View(model);
-            }
-
-            // -----------------------------------------------------
-            // MOBILE
-            // -----------------------------------------------------
-
-            if (string.IsNullOrWhiteSpace(mobile))
-            {
-                ModelState.AddModelError(
-                    "Mobile",
-                    "Please enter your phone number.");
-
-                return View(model);
-            }
-
-            if (mobile.Length != 10 ||
-                !mobile.All(char.IsDigit))
-            {
-                ModelState.AddModelError(
-                    "Mobile",
-                    "Please enter a valid 10-digit phone number.");
-
-                return View(model);
-            }
-
-            // -----------------------------------------------------
-            // PASSWORD
-            // -----------------------------------------------------
-
-            if (string.IsNullOrWhiteSpace(password))
-            {
-                ModelState.AddModelError(
-                    "Password",
-                    "Please enter a password.");
-
-                return View(model);
-            }
-
-            if (password.Length < 6)
-            {
-                ModelState.AddModelError(
-                    "Password",
-                    "Password must contain at least 6 characters.");
-
-                return View(model);
-            }
-
-            // -----------------------------------------------------
+            // =====================================================
             // CHECK EMAIL
-            // -----------------------------------------------------
+            // =====================================================
 
-            bool emailExists =
-                await _context.Users
-                    .AnyAsync(u =>
-                        u.Email == email);
+            bool emailExists = await _context.Users
+                .AnyAsync(u => u.Email == email);
 
             if (emailExists)
             {
@@ -477,14 +375,13 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return View(model);
             }
 
-            // -----------------------------------------------------
-            // CHECK MOBILE
-            // -----------------------------------------------------
 
-            bool mobileExists =
-                await _context.Users
-                    .AnyAsync(u =>
-                        u.Mobile == mobile);
+            // =====================================================
+            // CHECK MOBILE
+            // =====================================================
+
+            bool mobileExists = await _context.Users
+                .AnyAsync(u => u.Mobile == mobile);
 
             if (mobileExists)
             {
@@ -495,14 +392,14 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return View(model);
             }
 
+
             // =====================================================
-            // GET CLIENT ROLE
+            // FIND CLIENT ROLE
             // =====================================================
 
-            var clientRole =
-                await _context.Roles
-                    .FirstOrDefaultAsync(r =>
-                        r.RoleName == "Client");
+            var clientRole = await _context.Roles
+                .FirstOrDefaultAsync(r =>
+                    r.RoleName == "Client");
 
             if (clientRole == null)
             {
@@ -513,6 +410,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return View(model);
             }
 
+
             // =====================================================
             // CREATE USER
             // =====================================================
@@ -521,15 +419,14 @@ namespace HousingAllotmentManagementSystem.Controllers
             {
                 RoleId = clientRole.RoleId,
 
-                FullName = fullName,
+                FullName = model.FullName.Trim(),
 
                 Email = email,
 
                 Mobile = mobile,
 
-                // Matches the existing login implementation.
-                // Password hashing can be added later.
-                PasswordHash = password,
+                // Matches your current login system
+                PasswordHash = model.Password,
 
                 IsVerified = true,
 
@@ -537,6 +434,7 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                 CreatedDate = DateTime.Now
             };
+
 
             // =====================================================
             // SAVE USER
@@ -551,34 +449,25 @@ namespace HousingAllotmentManagementSystem.Controllers
                 TempData["SuccessMessage"] =
                     "Registration successful! You can now login using your email or phone number.";
 
-                return RedirectToAction(
-                    nameof(Login));
+                return RedirectToAction(nameof(Login));
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
-                string errorMessage =
-                    ex.InnerException?.Message ??
-                    ex.Message;
-
                 ModelState.AddModelError(
                     "",
-                    "Unable to create your account. " +
-                    errorMessage);
+                    "Unable to create your account. Email or phone number may already exist.");
 
                 return View(model);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError(
                     "",
-                    "An unexpected error occurred while creating your account. " +
-                    ex.Message);
+                    "An unexpected error occurred while creating your account.");
 
                 return View(model);
             }
         }
-
-
         // =========================================================
         // CLIENT RETURN URL VALIDATION
         // =========================================================

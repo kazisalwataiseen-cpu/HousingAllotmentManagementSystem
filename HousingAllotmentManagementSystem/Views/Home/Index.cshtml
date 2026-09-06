@@ -1,6 +1,10 @@
 ﻿@{
     ViewData["Title"] = "Home";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+bool isAuthenticated = User.Identity?.IsAuthenticated == true;
+    bool isAdmin = User.IsInRole("Admin");
+
 }
 
 <!-- ========================================================= -->
@@ -9,6 +13,7 @@
 
 <section class="hero-section">
 
+    
     <div class="hero-overlay"></div>
 
     <div class="container hero-container">
@@ -38,7 +43,7 @@
 
                     <div class="hero-buttons">
 
-                        <!-- PUBLIC HOUSING SCHEMES -->
+                        <!-- HOUSING SCHEMES -->
                         <a asp-controller="Home"
                            asp-action="HousingSchemes"
                            class="hero-primary-btn">
@@ -47,6 +52,7 @@
                             Explore Housing Schemes
 
                         </a>
+
 
                         <!-- PROPERTIES -->
                         <a asp-controller="Properties"
@@ -59,6 +65,7 @@
                         </a>
 
                     </div>
+
 
                     <div class="hero-trust">
 
@@ -89,7 +96,6 @@
 
                 <div class="hero-property-card">
 
-                    <!-- PROPERTY IMAGE -->
                     <div class="property-image">
 
                         <img src="~/images/affordable-housing.jpg"
@@ -100,7 +106,6 @@
                         <div class="available-badge">
 
                             <span class="available-dot"></span>
-
                             Available
 
                         </div>
@@ -108,7 +113,6 @@
                         <div class="featured-badge">
 
                             <i class="bi bi-star-fill"></i>
-
                             Featured
 
                         </div>
@@ -116,7 +120,6 @@
                     </div>
 
 
-                    <!-- PROPERTY DETAILS -->
                     <div class="property-content">
 
                         <div class="property-label">
@@ -130,7 +133,6 @@
                         <div class="property-location">
 
                             <i class="bi bi-geo-alt-fill"></i>
-
                             Maharashtra
 
                         </div>
@@ -151,7 +153,7 @@
 
                             </div>
 
-                            <!-- PUBLIC HOUSING SCHEMES -->
+
                             <a asp-controller="Home"
                                asp-action="HousingSchemes"
                                class="property-view-btn">
@@ -173,9 +175,9 @@
         </div>
 
     </div>
+   
 
 </section>
-
 
 <!-- ========================================================= -->
 <!-- STATS SECTION -->
@@ -183,6 +185,7 @@
 
 <section class="stats-section">
 
+    
     <div class="container">
 
         <div class="stats-wrapper">
@@ -245,9 +248,9 @@
         </div>
 
     </div>
+    
 
 </section>
-
 
 <!-- ========================================================= -->
 <!-- ABOUT SECTION -->
@@ -255,6 +258,7 @@
 
 <section class="about-section">
 
+    
     <div class="container">
 
         <div class="row align-items-center g-5">
@@ -389,9 +393,9 @@
         </div>
 
     </div>
+    
 
 </section>
-
 
 <!-- ========================================================= -->
 <!-- HOW IT WORKS -->
@@ -399,6 +403,7 @@
 
 <section class="process-section">
 
+   
     <div class="container">
 
         <div class="section-heading text-center">
@@ -522,9 +527,9 @@
         </div>
 
     </div>
+    
 
 </section>
-
 
 <!-- ========================================================= -->
 <!-- FEATURES SECTION -->
@@ -532,6 +537,7 @@
 
 <section class="features-section">
 
+ 
     <div class="container">
 
         <div class="section-heading text-center">
@@ -545,8 +551,7 @@
             </h2>
 
             <p class="section-description">
-                Manage every part of the housing allotment process
-                through one centralized platform.
+                Access the services available for your account.
             </p>
 
         </div>
@@ -554,7 +559,11 @@
 
         <div class="features-grid">
 
-            <!-- Housing Schemes -->
+
+            <!-- ================================================= -->
+            <!-- HOUSING SCHEMES -->
+            <!-- ================================================= -->
+
             <div class="feature-card">
 
                 <div class="feature-icon">
@@ -570,7 +579,6 @@
                     opportunities suitable for you.
                 </p>
 
-                <!-- PUBLIC HOUSING SCHEMES -->
                 <a asp-controller="Home"
                    asp-action="HousingSchemes">
 
@@ -583,7 +591,10 @@
             </div>
 
 
-            <!-- Properties -->
+            <!-- ================================================= -->
+            <!-- PROPERTIES -->
+            <!-- ================================================= -->
+
             <div class="feature-card">
 
                 <div class="feature-icon">
@@ -611,123 +622,366 @@
             </div>
 
 
-            <!-- Applications -->
-            <div class="feature-card">
+            @if (isAuthenticated)
+            {
 
-                <div class="feature-icon">
-                    <i class="bi bi-file-earmark-text"></i>
+                <!-- ============================================= -->
+                <!-- MY APPLICATIONS -->
+                <!-- ============================================= -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+
+                    <h4>
+                        My Applications
+                    </h4>
+
+                    <p>
+                        View your housing applications and
+                        track their current status.
+                    </p>
+
+                    <a asp-controller="Applications"
+                       asp-action="Index">
+
+                        View My Applications
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
                 </div>
 
-                <h4>
-                    Applications
-                </h4>
 
-                <p>
-                    Manage applications and track your
-                    housing application status.
-                </p>
+                <!-- ============================================= -->
+                <!-- MY ALLOTMENTS -->
+                <!-- ============================================= -->
 
-                <a asp-controller="Applications"
-                   asp-action="Index">
+                <div class="feature-card">
 
-                    View Applications
+                    <div class="feature-icon">
+                        <i class="bi bi-house-check"></i>
+                    </div>
 
-                    <i class="bi bi-arrow-right"></i>
+                    <h4>
+                        My Allotments
+                    </h4>
 
-                </a>
+                    <p>
+                        View your property allotments and
+                        allocation details.
+                    </p>
 
-            </div>
+                    <!-- CLIENT-SIDE ALLOTMENTS -->
+                    <a asp-controller="ClientAllotment"
+                       asp-action="Index">
 
+                        View My Allotments
 
-            <!-- Allotments -->
-            <div class="feature-card">
+                        <i class="bi bi-arrow-right"></i>
 
-                <div class="feature-icon">
-                    <i class="bi bi-house-check"></i>
+                    </a>
+
                 </div>
 
-                <h4>
-                    Allotments
-                </h4>
 
-                <p>
-                    Manage property allotments and
-                    housing allocation details.
-                </p>
+                <!-- ============================================= -->
+                <!-- HOUSING LOANS -->
+                <!-- ============================================= -->
 
-                <a asp-controller="Allotments"
-                   asp-action="Index">
+                <div class="feature-card">
 
-                    View Allotments
+                    <div class="feature-icon">
+                        <i class="bi bi-bank"></i>
+                    </div>
 
-                    <i class="bi bi-arrow-right"></i>
+                    <h4>
+                        Housing Loans
+                    </h4>
 
-                </a>
+                    <p>
+                        View your housing loans and apply for
+                        a loan for your allotted property.
+                    </p>
 
-            </div>
+                    <a asp-controller="ClientLoan"
+                       asp-action="Index">
 
+                        View My Loans
 
-            <!-- Loans -->
-            <div class="feature-card">
+                        <i class="bi bi-arrow-right"></i>
 
-                <div class="feature-icon">
-                    <i class="bi bi-bank"></i>
+                    </a>
+
                 </div>
 
-                <h4>
-                    Loans & EMI
-                </h4>
 
-                <p>
-                    Manage housing loans, EMI plans,
-                    installments and payment schedules.
-                </p>
+                <!-- ============================================= -->
+                <!-- EMIs -->
+                <!-- ============================================= -->
 
-                <a asp-controller="Loans"
-                   asp-action="Index">
+                <div class="feature-card">
 
-                    View Loans
+                    <div class="feature-icon">
+                        <i class="bi bi-calculator"></i>
+                    </div>
 
-                    <i class="bi bi-arrow-right"></i>
+                    <h4>
+                        EMIs
+                    </h4>
 
-                </a>
+                    <p>
+                        View your EMI plans, monthly EMI,
+                        outstanding balance and payment schedule.
+                    </p>
 
-            </div>
+                    <a asp-controller="ClientEmi"
+                       asp-action="Index">
 
+                        View My EMIs
 
-            <!-- Payments -->
-            <div class="feature-card">
+                        <i class="bi bi-arrow-right"></i>
 
-                <div class="feature-icon">
-                    <i class="bi bi-credit-card"></i>
+                    </a>
+
                 </div>
 
-                <h4>
-                    Payments
-                </h4>
 
-                <p>
-                    Track installment payments and
-                    transaction information.
-                </p>
+                <!-- ============================================= -->
+                <!-- MY PAYMENTS -->
+                <!-- ============================================= -->
+                <!-- ============================================= -->
+                <!-- MY PAYMENTS -->
+                <!-- ============================================= -->
 
-                <a asp-controller="Payments"
-                   asp-action="Index">
+                <div class="feature-card">
 
-                    View Payments
+                    <div class="feature-icon">
+                        <i class="bi bi-credit-card"></i>
+                    </div>
 
-                    <i class="bi bi-arrow-right"></i>
+                    <h4>
+                        My Payments
+                    </h4>
 
-                </a>
+                    <p>
+                        Track your installment payments and
+                        transaction information.
+                    </p>
 
-            </div>
+                    <a asp-controller="ClientPayment"
+                       asp-action="Index">
+
+                        View My Payments
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+            }
+
+
+            @if (isAdmin)
+            {
+
+                <!-- ================================================= -->
+                <!-- ADMIN APPLICATIONS -->
+                <!-- ================================================= -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        <i class="bi bi-file-earmark-check"></i>
+                    </div>
+
+                    <h4>
+                        Manage Applications
+                    </h4>
+
+                    <p>
+                        Review and manage housing applications
+                        submitted by users.
+                    </p>
+
+                    <a asp-controller="Applications"
+                       asp-action="Index">
+
+                        Manage Applications
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- ADMIN ALLOTMENTS -->
+                <!-- ================================================= -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        <i class="bi bi-house-check"></i>
+                    </div>
+
+                    <h4>
+                        Manage Allotments
+                    </h4>
+
+                    <p>
+                        Manage property allotments and allocation
+                        records.
+                    </p>
+
+                    <a asp-controller="Allotments"
+                       asp-action="Index">
+
+                        Manage Allotments
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- ADMIN LOAN APPLICATIONS -->
+                <!-- ================================================= -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+
+                    <h4>
+                        Loan Applications
+                    </h4>
+
+                    <p>
+                        Review, approve or reject housing loan
+                        applications submitted by clients.
+                    </p>
+
+                    <a asp-controller="LoanApplications"
+                       asp-action="Index">
+
+                        Manage Loan Applications
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- ADMIN LOANS -->
+                <!-- ================================================= -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        <i class="bi bi-bank"></i>
+                    </div>
+
+                    <h4>
+                        Manage Loans
+                    </h4>
+
+                    <p>
+                        Create, update and manage approved
+                        housing loans.
+                    </p>
+
+                    <a asp-controller="Loans"
+                       asp-action="Index">
+
+                        Manage Loans
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- ADMIN EMI PLANS -->
+                <!-- ================================================= -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        <i class="bi bi-calculator"></i>
+                    </div>
+
+                    <h4>
+                        EMI Plans
+                    </h4>
+
+                    <p>
+                        Manage EMI plans and automatically generated
+                        installment schedules.
+                    </p>
+
+                    <a asp-controller="Emiplans"
+                       asp-action="Index">
+
+                        Manage EMI Plans
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- ADMIN PAYMENTS -->
+                <!-- ================================================= -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        <i class="bi bi-credit-card"></i>
+                    </div>
+
+                    <h4>
+                        Manage Payments
+                    </h4>
+
+                    <p>
+                        Manage installment payments and
+                        transaction information.
+                    </p>
+
+                    <a asp-controller="Payments"
+                       asp-action="Index">
+
+                        Manage Payments
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+            }
 
         </div>
 
     </div>
+   
 
 </section>
-
 
 <!-- ========================================================= -->
 <!-- CTA SECTION -->
@@ -735,6 +989,7 @@
 
 <section class="cta-section">
 
+   
     <div class="container">
 
         <div class="cta-card">
@@ -759,7 +1014,6 @@
 
             <div class="cta-action">
 
-                <!-- PUBLIC HOUSING SCHEMES -->
                 <a asp-controller="Home"
                    asp-action="HousingSchemes"
                    class="cta-button">
@@ -775,6 +1029,6 @@
         </div>
 
     </div>
+    
 
 </section>
-

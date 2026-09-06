@@ -36,12 +36,24 @@ namespace HousingAllotmentManagementSystem.Controllers
         // =========================================================
         // INDEX - ADMIN ONLY
         // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var installments = await _context.Installments
+
                 .Include(i => i.Emiplan)
+                    .ThenInclude(e => e.Loan)
+                        .ThenInclude(l => l.Allotment)
+                            .ThenInclude(a => a.Application)
+                                .ThenInclude(app => app.User)
+
+                .Include(i => i.Emiplan)
+                    .ThenInclude(e => e.Loan)
+                        .ThenInclude(l => l.Allotment)
+                            .ThenInclude(a => a.Property)
+                                .ThenInclude(p => p.Scheme)
+
+                .OrderBy(i => i.DueDate)
                 .AsNoTracking()
                 .ToListAsync();
 

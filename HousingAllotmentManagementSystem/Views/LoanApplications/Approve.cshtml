@@ -1,0 +1,188 @@
+﻿@model HousingAllotmentManagementSystem.Models.LoanApplication
+
+@{
+    ViewData["Title"] = "Approve Loan Application";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-xl-8">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-success text-white py-3">
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Approve Loan Application
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <div class="alert alert-success">
+
+                        <i class="bi bi-info-circle me-2"></i>
+
+                        You are about to approve this loan application.
+                        An actual loan record will be created.
+
+                    </div>
+
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Application ID
+                            </small>
+
+                            <strong>
+                                #@Model.LoanApplicationId
+                            </strong>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Client
+                            </small>
+
+                            <strong>
+                                @(Model.User?.FullName ?? "N/A")
+                            </strong>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Allotment
+                            </small>
+
+                            <strong>
+                                @(Model.Allotment?.AllotmentNumber ?? "N/A")
+                            </strong>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Requested Amount
+                            </small>
+
+                            <strong>
+                                ₹@Model.RequestedLoanAmount.ToString("N2")
+                            </strong>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Down Payment
+                            </small>
+
+                            <strong>
+                                ₹@Model.DownPayment.ToString("N2")
+                            </strong>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Interest Rate
+                            </small>
+
+                            <strong>
+                                @Model.InterestRate.ToString("0.00")%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Loan Tenure
+                            </small>
+
+                            <strong>
+                                @Model.LoanTenure months
+                            </strong>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Status
+                            </small>
+
+                            <span class="badge bg-warning text-dark">
+                                Pending
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <hr class="my-4" />
+
+
+                    <div class="d-flex justify-content-between">
+
+                        <a asp-action="Details"
+                           asp-route-id="@Model.LoanApplicationId"
+                           class="btn btn-outline-secondary">
+
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Cancel
+
+                        </a>
+
+
+                        <form asp-action="Approve"
+                              asp-route-id="@Model.LoanApplicationId"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="btn btn-success"
+                                    onclick="return confirm('Are you sure you want to approve this loan application?');">
+
+                                <i class="bi bi-check-circle me-1"></i>
+                                Confirm Approval
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

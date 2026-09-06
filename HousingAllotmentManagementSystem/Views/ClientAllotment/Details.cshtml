@@ -1,0 +1,396 @@
+﻿@model HousingAllotmentManagementSystem.Models.Allotment
+
+@{
+    ViewData["Title"] = "Allotment Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+
+    <!-- ========================================================= -->
+    <!-- HEADER -->
+    <!-- ========================================================= -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold mb-1">
+
+                <i class="bi bi-house-check me-2"></i>
+
+                Allotment Details
+
+            </h2>
+
+            <p class="text-muted mb-0">
+
+                View your property allotment information.
+
+            </p>
+
+        </div>
+
+
+        <a asp-controller="ClientAllotment"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+
+            Back to My Allotments
+
+        </a>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- STATUS -->
+    <!-- ========================================================= -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body text-center py-4">
+
+            @if (Model.AllotmentStatus == "Active")
+            {
+                <i class="bi bi-check-circle-fill display-5 text-success"></i>
+
+                <h3 class="fw-bold mt-3">
+                    Property Allotted
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Your property allotment is currently active.
+                </p>
+            }
+            else if (Model.AllotmentStatus == "Completed")
+            {
+                <i class="bi bi-check-circle-fill display-5 text-primary"></i>
+
+                <h3 class="fw-bold mt-3">
+                    Allotment Completed
+                </h3>
+
+                <p class="text-muted mb-0">
+                    This allotment has been completed.
+                </p>
+            }
+            else if (Model.AllotmentStatus == "Pending")
+            {
+                <i class="bi bi-clock-history display-5 text-warning"></i>
+
+                <h3 class="fw-bold mt-3">
+                    Allotment Pending
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Your allotment is currently pending.
+                </p>
+            }
+            else
+            {
+                <i class="bi bi-info-circle display-5 text-secondary"></i>
+
+                <h3 class="fw-bold mt-3">
+                    @Model.AllotmentStatus
+                </h3>
+            }
+
+        </div>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <!-- ===================================================== -->
+        <!-- ALLOTMENT INFORMATION -->
+        <!-- ===================================================== -->
+
+        <div class="col-lg-7">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header bg-primary text-white">
+
+                    <h5 class="mb-0">
+
+                        <i class="bi bi-info-circle me-2"></i>
+
+                        Allotment Information
+
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <div class="row g-4">
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Allotment ID
+                            </small>
+
+                            <h5 class="fw-bold">
+                                @Model.AllotmentId
+                            </h5>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Allotment Number
+                            </small>
+
+                            <h5 class="fw-bold">
+                                @Model.AllotmentNumber
+                            </h5>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Application ID
+                            </small>
+
+                            <h6 class="fw-semibold">
+                                @Model.ApplicationId
+                            </h6>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Property ID
+                            </small>
+
+                            <h6 class="fw-semibold">
+                                @Model.PropertyId
+                            </h6>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Allotment Date
+                            </small>
+
+                            <h6 class="fw-semibold">
+                                @Model.AllotmentDate.ToString(
+                                    "dd MMMM yyyy")
+                            </h6>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Booking Amount
+                            </small>
+
+                            <h6 class="fw-bold text-primary">
+                                ₹@Model.BookingAmount.ToString("N2")
+                            </h6>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Status
+                            </small>
+
+                            @if (Model.AllotmentStatus == "Active")
+                            {
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
+                            }
+                            else if (Model.AllotmentStatus == "Completed")
+                            {
+                                <span class="badge bg-primary">
+                                    Completed
+                                </span>
+                            }
+                            else if (Model.AllotmentStatus == "Pending")
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    Pending
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    @Model.AllotmentStatus
+                                </span>
+                            }
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <small class="text-muted d-block mb-2">
+                                Remarks
+                            </small>
+
+                            @if (string.IsNullOrWhiteSpace(
+                                Model.Remarks))
+                            {
+                                <div class="border rounded p-3 text-muted">
+                                    No remarks available.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="border rounded p-3">
+                                    @Model.Remarks
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- PROPERTY INFORMATION -->
+        <!-- ===================================================== -->
+
+        <div class="col-lg-5">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header bg-success text-white">
+
+                    <h5 class="mb-0">
+
+                        <i class="bi bi-house me-2"></i>
+
+                        Property Information
+
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    @if (Model.Property != null)
+                    {
+                        <div class="row g-4">
+
+                            <div class="col-12">
+
+                                <small class="text-muted d-block">
+                                    Property ID
+                                </small>
+
+                                <h5 class="fw-bold">
+                                    @Model.PropertyId
+                                </h5>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="alert alert-success mt-4 mb-0">
+
+                            <i class="bi bi-check-circle me-2"></i>
+
+                            This property has been allotted to your
+                            account.
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+
+                            <i class="bi bi-house-x display-5 text-muted"></i>
+
+                            <p class="text-muted mt-3 mb-0">
+                                Property information is not available.
+                            </p>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- RELATED SERVICES -->
+    <!-- ========================================================= -->
+    @if (Model.AllotmentStatus == "Active")
+    {
+        <div class="card border-0 shadow-sm mt-4">
+
+            <div class="card-body text-center py-4">
+
+                <h5 class="fw-bold mb-2">
+                    Continue Your Housing Journey
+                </h5>
+
+                <p class="text-muted">
+                    Since your property allotment is active,
+                    you can proceed with available housing services.
+                </p>
+
+
+                <a asp-controller="ClientLoan"
+                   asp-action="Index"
+                   class="btn btn-primary me-2">
+
+                    <i class="bi bi-bank me-1"></i>
+
+                    Housing Loan
+
+                </a>
+
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+
+                    <i class="bi bi-house me-1"></i>
+
+                    Back to Home
+
+                </a>
+
+            </div>
+
+        </div>
+    }
+
+</div>

@@ -1,0 +1,382 @@
+﻿@model HousingAllotmentManagementSystem.Models.Payment
+
+@{
+    ViewData["Title"] = "Make Payment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+var installment =
+    ViewBag.Installment as HousingAllotmentManagementSystem.Models.Installment;
+
+    decimal payableAmount = 0;
+
+    if (installment != null)
+    {
+        payableAmount =
+            installment.InstallmentAmount +
+            installment.LateFee;
+    }
+
+}
+
+<div class="container py-5">
+
+    
+    <!-- PAGE HEADER -->
+    <div class="text-center mb-4">
+
+        <div class="mb-3">
+            <i class="bi bi-credit-card display-4 text-primary"></i>
+        </div>
+
+        <h2 class="fw-bold">
+            Make EMI Payment
+        </h2>
+
+        <p class="text-muted">
+            Complete your payment for the selected installment.
+        </p>
+
+    </div>
+
+
+    <!-- VALIDATION SUMMARY -->
+    <div asp-validation-summary="ModelOnly"
+         class="alert alert-danger"
+         role="alert">
+    </div>
+
+
+    @if (installment == null)
+    {
+        <div class="row justify-content-center">
+
+            <div class="col-lg-8">
+
+                <div class="alert alert-danger shadow-sm">
+
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+
+                    The selected installment could not be found.
+
+                </div>
+
+                <div class="text-center">
+
+                    <a asp-controller="ClientPayment"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary">
+
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Back to Payments
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <!-- INSTALLMENT INFORMATION -->
+        <div class="row justify-content-center">
+
+            <div class="col-lg-8">
+
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-header bg-primary text-white py-3">
+
+                        <h5 class="mb-0">
+
+                            <i class="bi bi-receipt me-2"></i>
+                            Installment Information
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row g-4">
+
+                            <!-- EMI NUMBER -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    EMI Number
+                                </small>
+
+                                <strong>
+                                    EMI #@installment.InstallmentNumber
+                                </strong>
+
+                            </div>
+
+
+                            <!-- LOAN NUMBER -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Loan Number
+                                </small>
+
+                                <strong>
+                                    @(installment.Emiplan?.Loan?.LoanNumber ?? "N/A")
+                                </strong>
+
+                            </div>
+
+
+                            <!-- DUE DATE -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Due Date
+                                </small>
+
+                                <strong>
+                                    @installment.DueDate.ToString("dd MMMM yyyy")
+                                </strong>
+
+                            </div>
+
+
+                            <!-- EMI AMOUNT -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    EMI Amount
+                                </small>
+
+                                <strong>
+                                    ₹@installment.InstallmentAmount.ToString("N2")
+                                </strong>
+
+                            </div>
+
+
+                            <!-- LATE FEE -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Late Fee
+                                </small>
+
+                                <strong class="text-danger">
+                                    ₹@installment.LateFee.ToString("N2")
+                                </strong>
+
+                            </div>
+
+
+                            <!-- TOTAL PAYABLE -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Total Payable
+                                </small>
+
+                                <h4 class="fw-bold text-primary mb-0">
+                                    ₹@payableAmount.ToString("N2")
+                                </h4>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PAYMENT CARD -->
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-header bg-dark text-white py-3">
+
+                        <h5 class="mb-0">
+
+                            <i class="bi bi-wallet2 me-2"></i>
+                            Payment Details
+
+                        </h5>
+
+                    </div>
+
+
+                    <div class="card-body p-4">
+
+                        <form asp-controller="ClientPayment"
+                              asp-action="Pay"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+
+                            <!-- INSTALLMENT ID -->
+                            <input type="hidden"
+                                   asp-for="InstallmentId" />
+
+
+                            <!-- PAYMENT METHOD -->
+                            <div class="mb-4">
+
+                                <label asp-for="PaymentMethod"
+                                       class="form-label fw-semibold">
+
+                                    Payment Method
+
+                                </label>
+
+                                <select asp-for="PaymentMethod"
+                                        class="form-select">
+
+                                    <option value="">
+                                        -- Select Payment Method --
+                                    </option>
+
+                                    <option value="UPI">
+                                        UPI
+                                    </option>
+
+                                    <option value="Card">
+                                        Debit / Credit Card
+                                    </option>
+
+                                    <option value="Net Banking">
+                                        Net Banking
+                                    </option>
+
+                                    <option value="Cash">
+                                        Cash
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="PaymentMethod"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <!-- TRANSACTION ID -->
+                            <div class="mb-4">
+
+                                <label asp-for="TransactionId"
+                                       class="form-label fw-semibold">
+
+                                    Transaction ID
+
+                                    <span class="text-muted fw-normal">
+                                        (Optional for Cash)
+                                    </span>
+
+                                </label>
+
+                                <input asp-for="TransactionId"
+                                       class="form-control"
+                                       maxlength="100"
+                                       placeholder="Enter transaction/reference ID" />
+
+                                <span asp-validation-for="TransactionId"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Enter the transaction/reference number
+                                    provided by your payment provider.
+                                </small>
+
+                            </div>
+
+
+                            <!-- REMARKS -->
+                            <div class="mb-4">
+
+                                <label asp-for="Remarks"
+                                       class="form-label fw-semibold">
+
+                                    Remarks
+
+                                </label>
+
+                                <textarea asp-for="Remarks"
+                                          class="form-control"
+                                          rows="3"
+                                          maxlength="500"
+                                          placeholder="Enter remarks (optional)"></textarea>
+
+                                <span asp-validation-for="Remarks"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+
+                            <!-- PAYMENT SUMMARY -->
+                            <div class="alert alert-info">
+
+                                <div class="d-flex justify-content-between">
+
+                                    <span>
+                                        Amount to Pay
+                                    </span>
+
+                                    <strong>
+                                        ₹@payableAmount.ToString("N2")
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- ACTION BUTTONS -->
+                            <div class="d-flex justify-content-between mt-4">
+
+                                <a asp-controller="ClientPayment"
+                                   asp-action="Index"
+                                   class="btn btn-outline-secondary">
+
+                                    <i class="bi bi-arrow-left me-1"></i>
+                                    Cancel
+
+                                </a>
+
+
+                                <button type="submit"
+                                        class="btn btn-primary px-4">
+
+                                    <i class="bi bi-credit-card me-1"></i>
+                                    Complete Payment
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+    
+
+</div>
+
+@section Scripts {
+
+    
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+   
+
+}

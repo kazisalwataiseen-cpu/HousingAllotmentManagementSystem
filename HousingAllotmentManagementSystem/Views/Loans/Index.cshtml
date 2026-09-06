@@ -1,161 +1,770 @@
-@model IEnumerable<HousingAllotmentManagementSystem.Models.Loan>
+﻿@model IEnumerable<HousingAllotmentManagementSystem.Models.Loan>
 
 @{
-    ViewData["Title"] = "Loan Management";
+    ViewData["Title"] = "Loans";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+var loans = Model?.ToList()
+    ?? new List<HousingAllotmentManagementSystem.Models.Loan>();
+
+    var totalLoans = loans.Count;
+
+    var activeLoans = loans.Count(l =>
+        !string.IsNullOrWhiteSpace(l.LoanStatus) &&
+        l.LoanStatus.Equals(
+            "Active",
+            StringComparison.OrdinalIgnoreCase));
+
+    var completedLoans = loans.Count(l =>
+        !string.IsNullOrWhiteSpace(l.LoanStatus) &&
+        l.LoanStatus.Equals(
+            "Completed",
+            StringComparison.OrdinalIgnoreCase));
+
+    var totalLoanAmount =
+        loans.Sum(l => l.LoanAmount);
+
+
 }
 
-<div class="container-fluid">
+<!-- ========================================================= -->
+<!-- PAGE HEADER -->
+<!-- ========================================================= -->
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-primary mb-0">Loan Management</h2>
-            <small class="text-muted">Manage all housing loans</small>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-        <a asp-action="Create" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus-circle"></i> Add Loan
-        </a>
+   
+    <div>
+
+        <h2 class="fw-bold mb-1">
+
+            <i class="bi bi-bank text-primary me-2"></i>
+
+            Loan Management
+
+        </h2>
+
+        <p class="text-muted mb-0">
+
+            Manage housing loans with client, property and
+            financial information.
+
+        </p>
+
     </div>
 
-    <div class="card shadow border-0">
 
-        <div class="card-header bg-white">
-            <h5 class="mb-0">
-                <i class="fas fa-hand-holding-usd text-primary"></i>
-                Loan List
-            </h5>
+    <a asp-controller="Loans"
+       asp-action="Create"
+       class="btn btn-primary">
+
+        <i class="bi bi-plus-circle me-1"></i>
+
+        Add Loan
+
+    </a>
+   
+
+</div>
+
+<!-- ========================================================= -->
+<!-- ALERTS -->
+<!-- ========================================================= -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm"
+         role="alert">
+
+       
+        <i class="bi bi-check-circle-fill me-2"></i>
+
+        <strong>
+            @TempData["SuccessMessage"]
+        </strong>
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+
+
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm"
+         role="alert">
+
+        
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+        <strong>
+            @TempData["ErrorMessage"]
+        </strong>
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+
+
+}
+
+<!-- ========================================================= -->
+<!-- SUMMARY CARDS -->
+<!-- ========================================================= -->
+
+<div class="row g-4 mb-4">
+
+    
+    <!-- TOTAL LOANS -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <span class="text-muted small">
+                            Total Loans
+                        </span>
+
+                        <h3 class="fw-bold mb-0 mt-1">
+                            @totalLoans
+                        </h3>
+
+                    </div>
+
+                    <div class="bg-primary-subtle text-primary rounded-circle p-3">
+
+                        <i class="bi bi-bank fs-4"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="card-body">
+    </div>
 
+
+    <!-- ACTIVE -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <span class="text-muted small">
+                            Active Loans
+                        </span>
+
+                        <h3 class="fw-bold mb-0 mt-1">
+                            @activeLoans
+                        </h3>
+
+                    </div>
+
+                    <div class="bg-success-subtle text-success rounded-circle p-3">
+
+                        <i class="bi bi-check-circle fs-4"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- COMPLETED -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <span class="text-muted small">
+                            Completed Loans
+                        </span>
+
+                        <h3 class="fw-bold mb-0 mt-1">
+                            @completedLoans
+                        </h3>
+
+                    </div>
+
+                    <div class="bg-info-subtle text-info rounded-circle p-3">
+
+                        <i class="bi bi-check2-all fs-4"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TOTAL LOAN AMOUNT -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <span class="text-muted small">
+                            Total Loan Amount
+                        </span>
+
+                        <h4 class="fw-bold mb-0 mt-1">
+                            ₹@totalLoanAmount.ToString("N2")
+                        </h4>
+
+                    </div>
+
+                    <div class="bg-warning-subtle text-warning rounded-circle p-3">
+
+                        <i class="bi bi-currency-rupee fs-4"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    
+
+</div>
+
+<!-- ========================================================= -->
+<!-- SEARCH -->
+<!-- ========================================================= -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    
+    <div class="card-body">
+
+        <div class="input-group">
+
+            <span class="input-group-text bg-white">
+
+                <i class="bi bi-search"></i>
+
+            </span>
+
+            <input type="text"
+                   id="loanSearch"
+                   class="form-control"
+                   placeholder="Search Client, Property, Unit, Loan Number or Status..." />
+
+        </div>
+
+    </div>
+    
+
+</div>
+
+<!-- ======================================================== -->
+<!-- LOAN TABLE -->
+<!-- ======================================================== -->
+
+
+<div class="card border-0 shadow-sm">
+
+    
+    <div class="card-header bg-white border-0 py-3">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+
+                    Loan Records
+
+                </h5>
+
+                <small class="text-muted">
+
+                    Client, property and loan information
+
+                </small>
+
+            </div>
+
+
+            <span class="badge bg-primary-subtle text-primary px-3 py-2">
+
+                @totalLoans Records
+
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="card-body p-0">
+
+        @if (loans.Any())
+        {
             <div class="table-responsive">
 
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle mb-0"
+                       id="loanTable">
 
                     <thead class="table-dark">
+
                         <tr>
-                            <th>Loan No.</th>
-                            <th>Allotment</th>
-                            <th>Loan Amount</th>
-                            <th>Down Payment</th>
-                            <th>Interest</th>
-                            <th>Tenure</th>
-                            <th>EMI</th>
-                            <th>Sanction Date</th>
-                            <th>Status</th>
-                            <th width="180">Action</th>
+
+                            <th class="ps-4">
+                                Loan ID
+                            </th>
+
+                            <th>
+                                Client
+                            </th>
+
+                            <th>
+                                Property
+                            </th>
+
+                            <th>
+                                Loan Number
+                            </th>
+
+                            <th>
+                                Loan Amount
+                            </th>
+
+                            <th>
+                                Down Payment
+                            </th>
+
+                            <th>
+                                Interest
+                            </th>
+
+                            <th>
+                                Tenure
+                            </th>
+
+                            <th>
+                                Monthly EMI
+                            </th>
+
+                            <th>
+                                Sanction Date
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th class="text-center">
+                                Actions
+                            </th>
+
                         </tr>
+
                     </thead>
+
 
                     <tbody>
 
-                        @if (Model.Any())
+                        @foreach (var loan in loans)
                         {
-                            foreach (var item in Model)
-                            {
-                                <tr>
+                            var allotment =
+                                loan.Allotment;
 
-                                    <td>
-                                        <strong>@item.LoanNumber</strong>
-                                    </td>
+                            var application =
+                                allotment?.Application;
 
-                                    <td>
-                                        @item.AllotmentId
-                                    </td>
+                            var client =
+                                application?.User;
 
-                                    <td>
-                                        ₹ @item.LoanAmount.ToString("N2")
-                                    </td>
+                            var property =
+                                allotment?.Property;
 
-                                    <td>
-                                        ₹ @item.DownPayment.ToString("N2")
-                                    </td>
 
-                                    <td>
-                                        @item.InterestRate %
-                                    </td>
-
-                                    <td>
-                                        @item.LoanTenure Months
-                                    </td>
-
-                                    <td>
-                                        ₹ @item.Emiamount.ToString("N2")
-                                    </td>
-
-                                    <td>
-                                        @item.SanctionDate.ToString("dd-MMM-yyyy")
-                                    </td>
-
-                                    <td>
-
-                                        @if (item.LoanStatus == "Active")
-                                        {
-                                            <span class="badge bg-success">
-                                                Active
-                                            </span>
-                                        }
-                                        else if (item.LoanStatus == "Pending")
-                                        {
-                                            <span class="badge bg-warning text-dark">
-                                                Pending
-                                            </span>
-                                        }
-                                        else if (item.LoanStatus == "Closed")
-                                        {
-                                            <span class="badge bg-secondary">
-                                                Closed
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-danger">
-                                                @item.LoanStatus
-                                            </span>
-                                        }
-
-                                    </td>
-
-                                    <td>
-
-                                        <a asp-action="Details"
-                                           asp-route-id="@item.LoanId"
-                                           class="btn btn-info btn-sm">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-
-                                        <a asp-action="Edit"
-                                           asp-route-id="@item.LoanId"
-                                           class="btn btn-warning btn-sm">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-
-                                        <a asp-action="Delete"
-                                           asp-route-id="@item.LoanId"
-                                           class="btn btn-danger btn-sm">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-                            }
-                        }
-                        else
-                        {
                             <tr>
 
-                                <td colspan="10" class="text-center text-muted py-5">
+                                <!-- ============================================= -->
+                                <!-- LOAN ID -->
+                                <!-- ============================================= -->
 
-                                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                <td class="ps-4">
 
-                                    <h5>No Loan Records Found</h5>
+                                    <span class="fw-semibold">
 
-                                    <a asp-action="Create"
-                                       class="btn btn-primary mt-3">
-                                        Add First Loan
-                                    </a>
+                                        #@loan.LoanId
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- ============================================= -->
+                                <!-- CLIENT -->
+                                <!-- ============================================= -->
+
+                                <td>
+
+                                    @if (client != null)
+                                    {
+                                        <div>
+
+                                            <div class="fw-semibold">
+
+                                                <i class="bi bi-person-fill text-primary me-1"></i>
+
+                                                @client.FullName
+
+                                            </div>
+
+                                            <div class="small text-muted">
+
+                                                Client ID:
+                                                #@client.UserId
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                    else if (application != null)
+                                    {
+                                        <div>
+
+                                            <div class="fw-semibold">
+
+                                                <i class="bi bi-person-fill text-primary me-1"></i>
+
+                                                Client
+
+                                            </div>
+
+                                            <div class="small text-muted">
+
+                                                Client ID:
+                                                #@application.UserId
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">
+
+                                            Client not found
+
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- ============================================= -->
+                                <!-- PROPERTY -->
+                                <!-- ============================================= -->
+
+                                <td>
+
+                                    @if (property != null)
+                                    {
+                                        <div>
+
+                                            <div class="fw-semibold text-primary">
+
+                                                <i class="bi bi-house-fill me-1"></i>
+
+                                                @(property.Scheme?.SchemeName ?? "Property")
+
+                                            </div>
+
+
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                property.UnitNumber))
+                                            {
+                                                <div class="small text-muted">
+
+                                                    Unit:
+                                                    @property.UnitNumber
+
+                                                </div>
+                                            }
+
+
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                property.PlotNumber))
+                                            {
+                                                <div class="small text-muted">
+
+                                                    Plot:
+                                                    @property.PlotNumber
+
+                                                </div>
+                                            }
+
+
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                property.PropertyType))
+                                            {
+                                                <div class="small text-muted">
+
+                                                    Type:
+                                                    @property.PropertyType
+
+                                                </div>
+                                            }
+
+
+                                            <div class="small text-muted">
+
+                                                Property ID:
+                                                @property.PropertyId
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">
+
+                                            Property not found
+
+                                        </span>
+
+                                    }
+
+                                </td>
+
+
+                                <!-- ============================================= -->
+                                <!-- LOAN NUMBER -->
+                                <!-- ============================================= -->
+
+                                <td>
+
+                                    <span class="fw-bold">
+
+                                        @loan.LoanNumber
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- ============================================= -->
+                                <!-- LOAN AMOUNT -->
+                                <!-- ============================================= -->
+
+                                <td>
+
+                                    <span class="fw-semibold">
+
+                                        ₹@loan.LoanAmount.ToString("N2")
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- ============================================= -->
+                                <!-- DOWN PAYMENT -->
+                                <!-- ============================================= -->
+
+                                <td>
+
+                                    ₹@loan.DownPayment.ToString("N2")
+
+                                </td>
+
+
+                                <!-- ============================================= -->
+                                <!-- INTEREST -->
+                                <!-- ============================================= -->
+
+                                <td>
+
+                                    @loan.InterestRate.ToString("0.00")%
+
+                                </td>
+
+
+                                <!-- ============================================= -->
+                                <!-- TENURE -->
+                                <!-- ============================================= -->
+
+                                <td>
+
+                                    @loan.LoanTenure months
+
+                                </td>
+
+
+                                <!-- ============================================= -->
+                                <!-- EMI -->
+                                <!-- ============================================= -->
+
+                                <td>
+
+                                    <span class="fw-bold text-primary">
+
+                                        ₹@loan.Emiamount.ToString("N2")
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- ============================================= -->
+                                <!-- SANCTION DATE -->
+                                <!-- ============================================= -->
+
+                                <td>
+
+                                    @loan.SanctionDate.ToString(
+                                        "dd MMM yyyy")
+
+                                </td>
+
+
+                                <!-- ============================================= -->
+                                <!-- STATUS -->
+                                <!-- ============================================= -->
+
+                                <td>
+
+                                    @if (string.Equals(
+                                        loan.LoanStatus,
+                                        "Active",
+                                        StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-success">
+
+                                            <i class="bi bi-check-circle-fill me-1"></i>
+
+                                            Active
+
+                                        </span>
+                                    }
+                                    else if (string.Equals(
+                                        loan.LoanStatus,
+                                        "Completed",
+                                        StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-primary">
+
+                                            <i class="bi bi-check2-all me-1"></i>
+
+                                            Completed
+
+                                        </span>
+                                    }
+                                    else if (string.Equals(
+                                        loan.LoanStatus,
+                                        "Pending",
+                                        StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-warning text-dark">
+
+                                            <i class="bi bi-clock me-1"></i>
+
+                                            Pending
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+
+                                            @loan.LoanStatus
+
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- ============================================= -->
+                                <!-- ACTIONS -->
+                                <!-- ============================================= -->
+
+                                <td class="text-center">
+
+                                    <div class="btn-group">
+
+                                        <a asp-controller="Loans"
+                                           asp-action="Details"
+                                           asp-route-id="@loan.LoanId"
+                                           class="btn btn-sm btn-outline-info"
+                                           title="View Details">
+
+                                            <i class="bi bi-eye"></i>
+
+                                        </a>
+
+
+                                        <a asp-controller="Loans"
+                                           asp-action="Edit"
+                                           asp-route-id="@loan.LoanId"
+                                           class="btn btn-sm btn-outline-warning"
+                                           title="Edit">
+
+                                            <i class="bi bi-pencil"></i>
+
+                                        </a>
+
+
+                                        <a asp-controller="Loans"
+                                           asp-action="Delete"
+                                           asp-route-id="@loan.LoanId"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Delete">
+
+                                            <i class="bi bi-trash"></i>
+
+                                        </a>
+
+                                    </div>
 
                                 </td>
 
@@ -167,9 +776,94 @@
                 </table>
 
             </div>
+        }
+        else
+        {
+            <!-- ================================================= -->
+            <!-- EMPTY STATE -->
+            <!-- ================================================= -->
 
-        </div>
+            <div class="text-center py-5">
+
+                <i class="bi bi-bank display-4 text-muted"></i>
+
+                <h5 class="fw-bold mt-3">
+
+                    No Loans Found
+
+                </h5>
+
+                <p class="text-muted mb-4">
+
+                    There are currently no housing loan records.
+
+                </p>
+
+
+                <a asp-controller="Loans"
+                   asp-action="Create"
+                   class="btn btn-primary">
+
+                    <i class="bi bi-plus-circle me-1"></i>
+
+                    Create First Loan
+
+                </a>
+
+            </div>
+        }
 
     </div>
+    
 
 </div>
+
+@section Scripts {
+
+    
+    <script>
+
+        const loanSearch =
+            document.getElementById("loanSearch");
+
+        const loanTable =
+            document.getElementById("loanTable");
+
+
+        if (loanSearch && loanTable) {
+
+            loanSearch.addEventListener(
+                "keyup",
+                function() {
+
+                    const value =
+                        this.value
+                            .toLowerCase()
+                            .trim();
+
+                    const rows =
+                        loanTable.querySelectorAll(
+                            "tbody tr");
+
+
+                    rows.forEach(function(row) {
+
+                        const text =
+                            row.innerText
+                                .toLowerCase();
+
+                        row.style.display =
+                            text.includes(value)
+                                ? ""
+                                : "none";
+
+                    });
+
+                });
+
+        }
+
+    </script>
+    
+
+}

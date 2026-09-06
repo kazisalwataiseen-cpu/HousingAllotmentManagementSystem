@@ -44,4 +44,9 @@ public partial class HousingScheme
 
     [InverseProperty("Scheme")]
     public virtual ICollection<Property> Properties { get; set; } = new List<Property>();
+
+    public virtual ICollection<EMIPlanOption> EMIPlanOptions { get; set; }
+    = new List<EMIPlanOption>();
 }
+
+

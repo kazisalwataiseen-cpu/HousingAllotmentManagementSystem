@@ -1,0 +1,251 @@
+﻿@model HousingAllotmentManagementSystem.Models.Installment
+
+@{
+    ViewData["Title"] = "Pay EMI";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+
+    ```
+    <div class="row justify-content-center">
+
+        <div class="col-lg-7 col-md-9">
+
+            <!-- PAGE HEADER -->
+            <div class="text-center mb-4">
+
+                <div class="mb-3">
+                    <i class="bi bi-credit-card display-4 text-primary"></i>
+                </div>
+
+                <h2 class="fw-bold">
+                    Pay EMI
+                </h2>
+
+                <p class="text-muted">
+                    Complete your payment for this EMI installment.
+                </p>
+
+            </div>
+
+
+            <!-- ALERT -->
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm"
+                     role="alert">
+
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+                    @TempData["Error"]
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                    </button>
+
+                </div>
+            }
+
+
+            <!-- PAYMENT CARD -->
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-primary text-white py-3">
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt me-2"></i>
+                        EMI Payment
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <!-- EMI INFORMATION -->
+
+                    <div class="row g-4 mb-4">
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                EMI Number
+                            </small>
+
+                            <h5 class="fw-bold">
+                                EMI #@Model.InstallmentNumber
+                            </h5>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Due Date
+                            </small>
+
+                            <h5 class="fw-bold">
+                                @Model.DueDate.ToString("dd MMM yyyy")
+                            </h5>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                EMI Amount
+                            </small>
+
+                            <h5 class="fw-bold text-primary">
+                                ₹@Model.InstallmentAmount.ToString("N2")
+                            </h5>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Late Fee
+                            </small>
+
+                            <h5 class="fw-bold text-danger">
+                                ₹@Model.LateFee.ToString("N2")
+                            </h5>
+
+                        </div>
+
+                    </div>
+
+
+                    <hr />
+
+
+                    <!-- TOTAL -->
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+
+                        <span class="fw-semibold">
+                            Total Amount Payable
+                        </span>
+
+                        <span class="fs-4 fw-bold text-primary">
+
+                            ₹@((Model.InstallmentAmount +
+                                                        Model.LateFee -
+                                                        Model.PaidAmount).ToString("N2"))
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- PAYMENT FORM -->
+
+                    <form asp-controller="ClientEmi"
+                          asp-action="Pay"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.InstallmentId" />
+
+
+                        <!-- PAYMENT METHOD -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label fw-semibold">
+                                Payment Method
+                            </label>
+
+                            <select name="paymentMethod"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    -- Select Payment Method --
+                                </option>
+
+                                <option value="UPI">
+                                    UPI
+                                </option>
+
+                                <option value="Credit Card">
+                                    Credit Card
+                                </option>
+
+                                <option value="Debit Card">
+                                    Debit Card
+                                </option>
+
+                                <option value="Net Banking">
+                                    Net Banking
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- INFORMATION -->
+
+                        <div class="alert alert-info">
+
+                            <i class="bi bi-info-circle me-2"></i>
+
+                            <strong>Demo Payment:</strong>
+
+                            This payment will be recorded as a successful
+                            payment in the system.
+
+                        </div>
+
+
+                        <!-- BUTTONS -->
+
+                        <div class="d-flex justify-content-between mt-4">
+
+                            <a asp-controller="ClientEmi"
+                               asp-action="Details"
+                               asp-route-id="@Model.EmiplanId"
+                               class="btn btn-outline-secondary">
+
+                                <i class="bi bi-arrow-left me-1"></i>
+
+                                Back
+
+                            </a>
+
+
+                            <button type="submit"
+                                    class="btn btn-success">
+
+                                <i class="bi bi-credit-card me-1"></i>
+
+                                Pay ₹@((Model.InstallmentAmount +
+                                                                Model.LateFee -
+                                                                Model.PaidAmount).ToString("N2"))
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    ```
+
+</div>

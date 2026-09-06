@@ -129,9 +129,10 @@
 
 
                                 <!-- PROPERTY -->
+                                <!-- PROPERTY -->
                                 <div class="col-md-6">
 
-                                    <label for="PropertyId"
+                                    <label asp-for="PropertyId"
                                            class="form-label fw-semibold">
 
                                         <i class="bi bi-house me-1"></i>
@@ -139,36 +140,28 @@
 
                                     </label>
 
-                                    <select id="PropertyId"
-                                            name="PropertyId"
-                                            class="form-select">
+
+                                    <select asp-for="PropertyId"
+                                            class="form-select"
+                                            asp-items="ViewBag.PropertyId">
 
                                         <option value="0">
                                             -- Select Property --
                                         </option>
 
-                                        @foreach (var property in ViewBag.PropertyId as SelectList)
-                                        {
-                                            <option value="@property.Value"
-                                                    selected="@(property.Selected ? "selected" : null)">
-
-                                                Property #@property.Value
-
-                                            </option>
-                                        }
-
                                     </select>
+
 
                                     <span asp-validation-for="PropertyId"
                                           class="text-danger">
                                     </span>
+
 
                                     <small class="text-muted">
                                         Select the property being allotted.
                                     </small>
 
                                 </div>
-
                         <!-- ALLOTMENT DETAILS -->
                         <div class="mb-4">
 

@@ -1,4 +1,3 @@
-
 @model IEnumerable<HousingAllotmentManagementSystem.Models.Application>
 
 @{
@@ -6,33 +5,53 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+<!-- ========================================================= -->
 <!-- PAGE HEADER -->
+<!-- ========================================================= -->
+
 <div class="d-flex justify-content-between align-items-center mb-4">
 
+   
     <div>
+
         <h2 class="fw-bold mb-1">
+
             <i class="bi bi-file-earmark-text text-primary me-2"></i>
+
             Applications
+
         </h2>
 
         <p class="text-muted mb-0">
-            Manage housing applications.
+
+            Manage housing applications and applicant information.
+
         </p>
+
     </div>
 
-    <a asp-action="Create" class="btn btn-primary">
+
+    <a asp-action="Create"
+       class="btn btn-primary">
+
         <i class="bi bi-plus-circle-fill me-1"></i>
+
         New Application
+
     </a>
+    
 
 </div>
 
-
+<!-- ========================================================= -->
 <!-- SUCCESS MESSAGE -->
+<!-- ========================================================= -->
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show"
+         role="alert">
 
+       
         <i class="bi bi-check-circle-fill me-2"></i>
 
         @TempData["SuccessMessage"]
@@ -43,14 +62,19 @@
         </button>
 
     </div>
+
+
 }
 
-
+<!-- ========================================================= -->
 <!-- ERROR MESSAGE -->
+<!-- ========================================================= -->
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show"
+         role="alert">
 
+       
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
 
         @TempData["ErrorMessage"]
@@ -61,13 +85,18 @@
         </button>
 
     </div>
+
 }
 
-
+<!-- ========================================================= -->
 <!-- STATISTICS -->
+<!-- ========================================================= -->
+
 <div class="row g-4 mb-4">
 
+    
     <!-- TOTAL -->
+
     <div class="col-md-4">
 
         <div class="card border-0 shadow-sm">
@@ -104,6 +133,7 @@
 
 
     <!-- PENDING -->
+
     <div class="col-md-4">
 
         <div class="card border-0 shadow-sm">
@@ -146,6 +176,7 @@
 
 
     <!-- APPROVED -->
+
     <div class="col-md-4">
 
         <div class="card border-0 shadow-sm">
@@ -185,14 +216,17 @@
         </div>
 
     </div>
+   
 
 </div>
 
-
+<!-- ========================================================= -->
 <!-- APPLICATION TABLE -->
+<!-- ========================================================= -->
+
 <div class="card border-0 shadow-sm">
 
-    <!-- CARD HEADER -->
+   
     <div class="card-header bg-white py-3">
 
         <div class="d-flex justify-content-between align-items-center">
@@ -204,7 +238,7 @@
                 </h5>
 
                 <small class="text-muted">
-                    All housing applications
+                    Client, property and application information
                 </small>
 
             </div>
@@ -218,7 +252,6 @@
     </div>
 
 
-    <!-- CARD BODY -->
     <div class="card-body p-0">
 
         @if (Model != null && Model.Any())
@@ -231,33 +264,63 @@
 
                         <tr>
 
+                            <!-- APPLICATION ID -->
+
                             <th class="ps-4">
-                                ID
+                                Application ID
                             </th>
 
+
+                            <!-- CLIENT ID -->
+
                             <th>
-                                Applicant
+                                Client ID
                             </th>
+
+
+                            <!-- CLIENT NAME -->
+
+                            <th>
+                                Client Name
+                            </th>
+
+
+                            <!-- PROPERTY -->
 
                             <th>
                                 Property
                             </th>
 
+
+                            <!-- EMPLOYMENT -->
+
                             <th>
                                 Employment
                             </th>
+
+
+                            <!-- INCOME -->
 
                             <th>
                                 Annual Income
                             </th>
 
+
+                            <!-- DATE -->
+
                             <th>
                                 Application Date
                             </th>
 
+
+                            <!-- STATUS -->
+
                             <th>
                                 Status
                             </th>
+
+
+                            <!-- ACTIONS -->
 
                             <th class="text-center">
                                 Actions
@@ -274,7 +337,10 @@
                         {
                             <tr>
 
-                                <!-- ID -->
+                                <!-- ================================================= -->
+                                <!-- APPLICATION ID -->
+                                <!-- ================================================= -->
+
                                 <td class="ps-4">
 
                                     <span class="fw-semibold">
@@ -284,7 +350,23 @@
                                 </td>
 
 
-                                <!-- APPLICANT -->
+                                <!-- ================================================= -->
+                                <!-- CLIENT ID -->
+                                <!-- ================================================= -->
+
+                                <td>
+
+                                    <span class="badge bg-primary-subtle text-primary">
+                                        #@item.UserId
+                                    </span>
+
+                                </td>
+
+
+                                <!-- ================================================= -->
+                                <!-- CLIENT NAME -->
+                                <!-- ================================================= -->
+
                                 <td>
 
                                     @if (item.User != null)
@@ -303,56 +385,52 @@
                                                     @item.User.FullName
                                                 </div>
 
-                                                <small class="text-muted">
-                                                    User #@item.UserId
-                                                </small>
-
                                             </div>
 
                                         </div>
                                     }
                                     else
                                     {
-                                        <div>
-
-                                            <span class="text-danger fw-semibold">
-                                                User not found
-                                            </span>
-
-                                            <div class="small text-muted">
-                                                User ID: @item.UserId
-                                            </div>
-
-                                        </div>
+                                        <span class="text-danger fw-semibold">
+                                            User not found
+                                        </span>
                                     }
 
                                 </td>
 
 
+                                <!-- ================================================= -->
                                 <!-- PROPERTY -->
+                                <!-- ================================================= -->
+
                                 <td>
 
                                     @if (item.Property != null)
                                     {
                                         <div>
 
-                                            <span class="badge bg-light text-dark border">
+                                            <div class="fw-semibold">
 
-                                                <i class="bi bi-house me-1"></i>
+                                                <i class="bi bi-house-fill text-primary me-1"></i>
 
                                                 @(item.Property.UnitNumber ?? "Property")
 
-                                            </span>
+                                            </div>
 
-                                            <div class="small text-muted mt-1">
 
-                                                Property #@item.PropertyId
+                                            <div class="small text-muted">
+
+                                                Property ID:
+                                                @item.PropertyId
 
                                             </div>
+
 
                                             @if (item.Property.Scheme != null)
                                             {
                                                 <div class="small text-muted">
+
+                                                    <i class="bi bi-buildings me-1"></i>
 
                                                     @item.Property.Scheme.SchemeName
 
@@ -379,10 +457,14 @@
                                 </td>
 
 
+                                <!-- ================================================= -->
                                 <!-- EMPLOYMENT -->
+                                <!-- ================================================= -->
+
                                 <td>
 
-                                    @if (!string.IsNullOrWhiteSpace(item.EmploymentType))
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        item.EmploymentType))
                                     {
                                         <span>
                                             @item.EmploymentType
@@ -398,7 +480,10 @@
                                 </td>
 
 
+                                <!-- ================================================= -->
                                 <!-- ANNUAL INCOME -->
+                                <!-- ================================================= -->
+
                                 <td>
 
                                     @if (item.AnnualIncome.HasValue)
@@ -419,21 +504,29 @@
                                 </td>
 
 
+                                <!-- ================================================= -->
                                 <!-- APPLICATION DATE -->
+                                <!-- ================================================= -->
+
                                 <td>
 
-                                    @item.ApplicationDate.ToString("dd MMM yyyy")
+                                    @item.ApplicationDate.ToString(
+                                        "dd MMM yyyy")
 
                                     <div class="small text-muted">
 
-                                        @item.ApplicationDate.ToString("hh:mm tt")
+                                        @item.ApplicationDate.ToString(
+                                            "hh:mm tt")
 
                                     </div>
 
                                 </td>
 
 
+                                <!-- ================================================= -->
                                 <!-- STATUS -->
+                                <!-- ================================================= -->
+
                                 <td>
 
                                     @if (!string.IsNullOrEmpty(item.Status) &&
@@ -478,10 +571,12 @@
                                 </td>
 
 
+                                <!-- ================================================= -->
                                 <!-- ACTIONS -->
+                                <!-- ================================================= -->
                                 <td class="text-center">
 
-                                    <div class="btn-group">
+                                    <div class="d-flex justify-content-center gap-1">
 
                                         <!-- DETAILS -->
                                         <a asp-action="Details"
@@ -492,6 +587,58 @@
                                             <i class="bi bi-eye"></i>
 
                                         </a>
+
+
+                                        @if (string.Equals(
+                                            item.Status,
+                                            "Pending",
+                                            StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <!-- APPROVE -->
+                                            <form asp-action="Approve"
+                                                  method="post"
+                                                  class="d-inline">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@item.ApplicationId" />
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-success"
+                                                        title="Approve Application"
+                                                        onclick="return confirm('Are you sure you want to approve this application?');">
+
+                                                    <i class="bi bi-check-lg"></i>
+
+                                                </button>
+
+                                            </form>
+
+
+                                            <!-- REJECT -->
+                                            <form asp-action="Reject"
+                                                  method="post"
+                                                  class="d-inline">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@item.ApplicationId" />
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        title="Reject Application"
+                                                        onclick="return confirm('Are you sure you want to reject this application?');">
+
+                                                    <i class="bi bi-x-lg"></i>
+
+                                                </button>
+
+                                            </form>
+                                        }
 
 
                                         <!-- EDIT -->
@@ -530,7 +677,9 @@
         }
         else
         {
+            <!-- ================================================= -->
             <!-- EMPTY STATE -->
+            <!-- ================================================= -->
 
             <div class="text-center py-5">
 
@@ -557,14 +706,16 @@
         }
 
     </div>
+    
 
 </div>
 
-
 @section Scripts {
 
+    
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    
 
 }

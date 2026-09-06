@@ -222,6 +222,47 @@ namespace HousingAllotmentManagementSystem.Migrations
                     b.ToTable("AuditLogs", "AITStudent");
                 });
 
+            modelBuilder.Entity("HousingAllotmentManagementSystem.Models.EMIPlanOption", b =>
+                {
+                    b.Property<int>("EMIPlanOptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EMIPlanOptionId"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("InterestRate")
+                        .HasColumnType("decimal(5, 2)");
+
+                    b.Property<string>("PlanName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("SchemeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("TenureMonths")
+                        .HasColumnType("int");
+
+                    b.HasKey("EMIPlanOptionId");
+
+                    b.HasIndex("SchemeId");
+
+                    b.ToTable("EMIPlanOptions", "AITStudent");
+                });
+
             modelBuilder.Entity("HousingAllotmentManagementSystem.Models.Emiplan", b =>
                 {
                     b.Property<int>("EmiplanId")
@@ -469,6 +510,65 @@ namespace HousingAllotmentManagementSystem.Migrations
                         .IsUnique();
 
                     b.ToTable("Loans", "AITStudent");
+                });
+
+            modelBuilder.Entity("HousingAllotmentManagementSystem.Models.LoanApplication", b =>
+                {
+                    b.Property<int>("LoanApplicationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LoanApplicationId"));
+
+                    b.Property<int>("AllotmentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ApplicationDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<decimal>("DownPayment")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<decimal>("InterestRate")
+                        .HasColumnType("decimal(5, 2)");
+
+                    b.Property<int>("LoanTenure")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("RequestedLoanAmount")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<DateTime?>("ReviewedDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasDefaultValue("Pending");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("LoanApplicationId");
+
+                    b.HasIndex("AllotmentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("LoanApplications", "AITStudent");
                 });
 
             modelBuilder.Entity("HousingAllotmentManagementSystem.Models.Notification", b =>
@@ -935,6 +1035,17 @@ namespace HousingAllotmentManagementSystem.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HousingAllotmentManagementSystem.Models.EMIPlanOption", b =>
+                {
+                    b.HasOne("HousingAllotmentManagementSystem.Models.HousingScheme", "HousingScheme")
+                        .WithMany("EMIPlanOptions")
+                        .HasForeignKey("SchemeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("HousingScheme");
+                });
+
             modelBuilder.Entity("HousingAllotmentManagementSystem.Models.Emiplan", b =>
                 {
                     b.HasOne("HousingAllotmentManagementSystem.Models.Loan", "Loan")
@@ -966,6 +1077,25 @@ namespace HousingAllotmentManagementSystem.Migrations
                         .HasConstraintName("FK_Loans_Allotments");
 
                     b.Navigation("Allotment");
+                });
+
+            modelBuilder.Entity("HousingAllotmentManagementSystem.Models.LoanApplication", b =>
+                {
+                    b.HasOne("HousingAllotmentManagementSystem.Models.Allotment", "Allotment")
+                        .WithMany()
+                        .HasForeignKey("AllotmentId")
+                        .IsRequired()
+                        .HasConstraintName("FK_LoanApplications_Allotments");
+
+                    b.HasOne("HousingAllotmentManagementSystem.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK_LoanApplications_Users");
+
+                    b.Navigation("Allotment");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HousingAllotmentManagementSystem.Models.Notification", b =>
@@ -1069,6 +1199,8 @@ namespace HousingAllotmentManagementSystem.Migrations
 
             modelBuilder.Entity("HousingAllotmentManagementSystem.Models.HousingScheme", b =>
                 {
+                    b.Navigation("EMIPlanOptions");
+
                     b.Navigation("Properties");
                 });
 

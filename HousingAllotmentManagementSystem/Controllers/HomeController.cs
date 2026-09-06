@@ -21,6 +21,7 @@ namespace HousingAllotmentManagementSystem.Controllers
             _emailService = emailService;
         }
 
+
         // =========================================================
         // HOME PAGE
         // =========================================================
@@ -37,6 +38,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return View();
             }
 
+
             // -----------------------------------------------------
             // GET LOGGED-IN USER ID
             // -----------------------------------------------------
@@ -48,6 +50,7 @@ namespace HousingAllotmentManagementSystem.Controllers
             {
                 return View();
             }
+
 
             // -----------------------------------------------------
             // GET CURRENT USER'S APPLICATIONS
@@ -72,11 +75,13 @@ namespace HousingAllotmentManagementSystem.Controllers
                 .OrderByDescending(a => a.ApplicationDate)
                 .ToListAsync();
 
+
             // -----------------------------------------------------
             // SEND APPLICATIONS TO VIEW
             // -----------------------------------------------------
 
             ViewBag.UserApplications = applications;
+
 
             // -----------------------------------------------------
             // GET ALL LOANS BELONGING TO CURRENT USER
@@ -87,10 +92,13 @@ namespace HousingAllotmentManagementSystem.Controllers
                 .SelectMany(a => a.Loans)
                 .ToList();
 
+
             ViewBag.UserLoans = loans;
+
 
             return View();
         }
+
 
         // =========================================================
         // PUBLIC HOUSING SCHEMES PAGE
@@ -99,15 +107,53 @@ namespace HousingAllotmentManagementSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> HousingSchemes()
         {
+            // -----------------------------------------------------
+            // GET ALL HOUSING SCHEMES
+            // -----------------------------------------------------
+
             var schemes = await _context.HousingSchemes
                 .AsNoTracking()
                 .OrderByDescending(x => x.SchemeId)
                 .ToListAsync();
 
+
+            // -----------------------------------------------------
+            // GET ACTIVE EMI PLANS
+            // -----------------------------------------------------
+            //
+            // EMIPlanOption.SchemeId
+            //          ↓
+            // HousingScheme.SchemeId
+            //
+            // Only Active EMI plans are shown to users.
+            //
+            // -----------------------------------------------------
+
+            var emiPlans = await _context.EMIPlanOptions
+                .AsNoTracking()
+                .Where(x => x.Status == "Active")
+                .OrderBy(x => x.SchemeId)
+                .ThenBy(x => x.TenureMonths)
+                .ThenBy(x => x.PlanName)
+                .ToListAsync();
+
+
+            // -----------------------------------------------------
+            // SEND EMI PLANS TO CLIENT VIEW
+            // -----------------------------------------------------
+
+            ViewBag.EMIPlanOptions = emiPlans;
+
+
+            // -----------------------------------------------------
+            // RETURN CLIENT HOUSING SCHEMES VIEW
+            // -----------------------------------------------------
+
             return View(
                 "~/Views/Home/HousingSchemes.cshtml",
                 schemes);
         }
+
 
         // =========================================================
         // PUBLIC SCHEME DETAILS
@@ -116,23 +162,66 @@ namespace HousingAllotmentManagementSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> SchemeDetails(int? id)
         {
+            // -----------------------------------------------------
+            // CHECK ID
+            // -----------------------------------------------------
+
             if (id == null)
             {
                 return NotFound();
             }
+
+
+            // -----------------------------------------------------
+            // GET HOUSING SCHEME
+            // -----------------------------------------------------
 
             var scheme = await _context.HousingSchemes
                 .AsNoTracking()
                 .FirstOrDefaultAsync(
                     x => x.SchemeId == id);
 
+
+            // -----------------------------------------------------
+            // SCHEME NOT FOUND
+            // -----------------------------------------------------
+
             if (scheme == null)
             {
                 return NotFound();
             }
 
-            return View(scheme);
+
+            // -----------------------------------------------------
+            // GET ACTIVE EMI PLANS FOR THIS SCHEME
+            // -----------------------------------------------------
+
+            var emiPlans = await _context.EMIPlanOptions
+                .AsNoTracking()
+                .Where(x =>
+                    x.SchemeId == scheme.SchemeId &&
+                    x.Status == "Active")
+                .OrderBy(x => x.TenureMonths)
+                .ThenBy(x => x.PlanName)
+                .ToListAsync();
+
+
+            // -----------------------------------------------------
+            // SEND EMI PLANS TO DETAILS VIEW
+            // -----------------------------------------------------
+
+            ViewBag.EMIPlanOptions = emiPlans;
+
+
+            // -----------------------------------------------------
+            // RETURN SCHEME DETAILS
+            // -----------------------------------------------------
+
+            return View(
+                "~/Views/Home/SchemeDetails.cshtml",
+                scheme);
         }
+
 
         // =========================================================
         // TEST EMAIL
@@ -147,6 +236,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                 "<h2>Email Test Successful!</h2>" +
                 "<p>Your Housing Allotment Management System is successfully connected to Gmail SMTP.</p>"
             );
+
 
             return Content(
                 "Test email sent successfully!");

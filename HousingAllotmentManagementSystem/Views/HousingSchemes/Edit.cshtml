@@ -1,3 +1,4 @@
+
 @model HousingAllotmentManagementSystem.Models.HousingScheme
 
 @{
@@ -7,114 +8,465 @@
 
 <div class="container-fluid">
 
-    <div class="card shadow-lg border-0">
+    <!-- PAGE HEADER -->
 
-        <div class="card-header bg-warning text-dark">
-            <h3 class="mb-0">
-                <i class="bi bi-pencil-square"></i>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold mb-1">
+
+                <i class="bi bi-pencil-square text-warning"></i>
+
                 Edit Housing Scheme
-            </h3>
+
+            </h2>
+
+            <p class="text-muted mb-0">
+
+                Update housing scheme details, image and brochure.
+
+            </p>
+
         </div>
 
-        <div class="card-body">
+        <a asp-action="Index"
+           class="btn btn-secondary">
 
-            <form asp-action="Edit">
+            <i class="bi bi-arrow-left-circle me-1"></i>
 
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            Back to List
 
-                <input type="hidden" asp-for="SchemeId" />
+        </a>
+
+    </div>
+
+
+    <!-- MAIN CARD -->
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-header bg-warning text-dark py-3">
+
+            <h4 class="mb-0">
+
+                <i class="bi bi-pencil-square me-2"></i>
+
+                Housing Scheme Information
+
+            </h4>
+
+        </div>
+
+
+        <div class="card-body p-4">
+
+            <form asp-action="Edit"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       asp-for="SchemeId" />
+
+                <input type="hidden"
+                       asp-for="CreatedDate" />
+
+                <input type="hidden"
+                       asp-for="BannerImage" />
+
+                <input type="hidden"
+                       asp-for="Brochure" />
+
+
+                <!-- VALIDATION -->
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger">
+                </div>
+
 
                 <div class="row">
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="SchemeName" class="form-label fw-bold"></label>
-                        <input asp-for="SchemeName" class="form-control" />
-                        <span asp-validation-for="SchemeName" class="text-danger"></span>
+
+                    <!-- SCHEME NAME -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="SchemeName"
+                               class="form-label fw-bold">
+
+                            <i class="bi bi-building me-1 text-primary"></i>
+
+                            Scheme Name
+
+                        </label>
+
+                        <input asp-for="SchemeName"
+                               class="form-control" />
+
+                        <span asp-validation-for="SchemeName"
+                              class="text-danger">
+                        </span>
+
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="City" class="form-label fw-bold"></label>
-                        <input asp-for="City" class="form-control" />
-                        <span asp-validation-for="City" class="text-danger"></span>
+
+                    <!-- CITY -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="City"
+                               class="form-label fw-bold">
+
+                            <i class="bi bi-geo-alt me-1 text-primary"></i>
+
+                            City
+
+                        </label>
+
+                        <input asp-for="City"
+                               class="form-control" />
+
+                        <span asp-validation-for="City"
+                              class="text-danger">
+                        </span>
+
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="State" class="form-label fw-bold"></label>
-                        <input asp-for="State" class="form-control" />
-                        <span asp-validation-for="State" class="text-danger"></span>
+
+                    <!-- STATE -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="State"
+                               class="form-label fw-bold">
+
+                            <i class="bi bi-map me-1 text-primary"></i>
+
+                            State
+
+                        </label>
+
+                        <input asp-for="State"
+                               class="form-control" />
+
+                        <span asp-validation-for="State"
+                              class="text-danger">
+                        </span>
+
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Location" class="form-label fw-bold"></label>
-                        <input asp-for="Location" class="form-control" />
-                        <span asp-validation-for="Location" class="text-danger"></span>
+
+                    <!-- LOCATION -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="Location"
+                               class="form-label fw-bold">
+
+                            <i class="bi bi-pin-map-fill me-1 text-primary"></i>
+
+                            Location
+
+                        </label>
+
+                        <input asp-for="Location"
+                               class="form-control" />
+
+                        <span asp-validation-for="Location"
+                              class="text-danger">
+                        </span>
+
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="LaunchDate" class="form-label fw-bold"></label>
-                        <input asp-for="LaunchDate" type="date" class="form-control" />
-                        <span asp-validation-for="LaunchDate" class="text-danger"></span>
+
+                    <!-- LAUNCH DATE -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="LaunchDate"
+                               class="form-label fw-bold">
+
+                            <i class="bi bi-calendar-event me-1 text-primary"></i>
+
+                            Launch Date
+
+                        </label>
+
+                        <input asp-for="LaunchDate"
+                               type="date"
+                               class="form-control" />
+
+                        <span asp-validation-for="LaunchDate"
+                              class="text-danger">
+                        </span>
+
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="LastApplicationDate" class="form-label fw-bold"></label>
-                        <input asp-for="LastApplicationDate" type="date" class="form-control" />
-                        <span asp-validation-for="LastApplicationDate" class="text-danger"></span>
+
+                    <!-- LAST APPLICATION DATE -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="LastApplicationDate"
+                               class="form-label fw-bold">
+
+                            <i class="bi bi-calendar-x me-1 text-danger"></i>
+
+                            Last Application Date
+
+                        </label>
+
+                        <input asp-for="LastApplicationDate"
+                               type="date"
+                               class="form-control" />
+
+                        <span asp-validation-for="LastApplicationDate"
+                              class="text-danger">
+                        </span>
+
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="TotalUnits" class="form-label fw-bold"></label>
-                        <input asp-for="TotalUnits" class="form-control" />
-                        <span asp-validation-for="TotalUnits" class="text-danger"></span>
+
+                    <!-- TOTAL UNITS -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="TotalUnits"
+                               class="form-label fw-bold">
+
+                            <i class="bi bi-houses me-1 text-primary"></i>
+
+                            Total Units
+
+                        </label>
+
+                        <input asp-for="TotalUnits"
+                               type="number"
+                               min="1"
+                               class="form-control" />
+
+                        <span asp-validation-for="TotalUnits"
+                              class="text-danger">
+                        </span>
+
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Status" class="form-label fw-bold"></label>
 
-                        <select asp-for="Status" class="form-select">
-                            <option value="">-- Select Status --</option>
-                            <option value="true">Active</option>
-                            <option value="false">Inactive</option>
+                    <!-- STATUS -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label asp-for="Status"
+                               class="form-label fw-bold">
+
+                            <i class="bi bi-toggle-on me-1 text-primary"></i>
+
+                            Status
+
+                        </label>
+
+                        <select asp-for="Status"
+                                class="form-select">
+
+                            <option value="">
+                                -- Select Status --
+                            </option>
+
+                            <option value="true">
+                                Active
+                            </option>
+
+                            <option value="false">
+                                Inactive
+                            </option>
+
                         </select>
 
-                        <span asp-validation-for="Status" class="text-danger"></span>
+                        <span asp-validation-for="Status"
+                              class="text-danger">
+                        </span>
+
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Brochure" class="form-label fw-bold"></label>
-                        <input asp-for="Brochure" class="form-control" />
-                        <span asp-validation-for="Brochure" class="text-danger"></span>
+
+                    <!-- ================================ -->
+                    <!-- BANNER IMAGE -->
+                    <!-- ================================ -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label class="form-label fw-bold">
+
+                            <i class="bi bi-image-fill me-1 text-primary"></i>
+
+                            Banner Image
+
+                        </label>
+
+
+                        <!-- CURRENT IMAGE -->
+
+                        @if (!string.IsNullOrWhiteSpace(Model.BannerImage))
+                        {
+                            <div class="mb-3">
+
+                                <p class="small text-muted mb-2">
+                                    Current Image
+                                </p>
+
+                                <img src="@Url.Content(Model.BannerImage)"
+                                     alt="@Model.SchemeName"
+                                     style="
+                                         width:100%;
+                                         max-height:220px;
+                                         object-fit:cover;
+                                         border-radius:10px;
+                                         border:1px solid #ddd;
+                                     " />
+
+                            </div>
+                        }
+
+
+                        <!-- NEW IMAGE -->
+
+                        <input type="file"
+                               name="BannerImageFile"
+                               id="BannerImageFile"
+                               class="form-control"
+                               accept="image/jpeg,image/jpg,image/png,image/webp" />
+
+                        <small class="text-muted">
+
+                            Select a new image only if you want to replace
+                            the current image.
+
+                        </small>
+
+
+                        <!-- NEW IMAGE PREVIEW -->
+
+                        <div class="mt-3">
+
+                            <img id="imagePreview"
+                                 src=""
+                                 alt="New Image Preview"
+                                 style="
+                                     display:none;
+                                     width:100%;
+                                     max-height:220px;
+                                     object-fit:cover;
+                                     border-radius:10px;
+                                     border:1px solid #ddd;
+                                 " />
+
+                        </div>
+
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="BannerImage" class="form-label fw-bold"></label>
-                        <input asp-for="BannerImage" class="form-control" />
-                        <span asp-validation-for="BannerImage" class="text-danger"></span>
+
+                    <!-- ================================ -->
+                    <!-- BROCHURE -->
+                    <!-- ================================ -->
+
+                    <div class="col-md-6 mb-4">
+
+                        <label class="form-label fw-bold">
+
+                            <i class="bi bi-file-earmark-pdf-fill me-1 text-danger"></i>
+
+                            Brochure
+
+                        </label>
+
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Brochure))
+                        {
+                            <div class="mb-3">
+
+                                <a href="@Url.Content(Model.Brochure)"
+                                   target="_blank"
+                                   class="btn btn-outline-danger">
+
+                                    <i class="bi bi-file-earmark-pdf me-1"></i>
+
+                                    View Current Brochure
+
+                                </a>
+
+                            </div>
+                        }
+
+
+                        <input type="file"
+                               name="BrochureFile"
+                               id="BrochureFile"
+                               class="form-control"
+                               accept=".pdf" />
+
+                        <small class="text-muted">
+
+                            Select a new PDF only if you want to replace
+                            the current brochure.
+
+                        </small>
+
                     </div>
 
-                    <div class="col-12 mb-3">
-                        <label asp-for="Description" class="form-label fw-bold"></label>
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="col-12 mb-4">
+
+                        <label asp-for="Description"
+                               class="form-label fw-bold">
+
+                            <i class="bi bi-card-text me-1 text-primary"></i>
+
+                            Description
+
+                        </label>
+
                         <textarea asp-for="Description"
-                                  rows="4"
+                                  rows="5"
                                   class="form-control"></textarea>
 
-                        <span asp-validation-for="Description" class="text-danger"></span>
+                        <span asp-validation-for="Description"
+                              class="text-danger">
+                        </span>
+
                     </div>
 
                 </div>
 
-                <hr />
+
+                <hr class="my-4" />
+
+
+                <!-- BUTTONS -->
 
                 <div class="d-flex justify-content-between">
 
-                    <a asp-action="Index" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i>
-                        Back
+                    <a asp-action="Index"
+                       class="btn btn-secondary px-4">
+
+                        <i class="bi bi-arrow-left-circle me-1"></i>
+
+                        Cancel
+
                     </a>
 
-                    <button type="submit" class="btn btn-warning">
-                        <i class="bi bi-save"></i>
+
+                    <button type="submit"
+                            class="btn btn-warning px-4">
+
+                        <i class="bi bi-save me-1"></i>
+
                         Update Scheme
+
                     </button>
 
                 </div>
@@ -127,8 +479,71 @@
 
 </div>
 
+
 @section Scripts {
+
     @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial");
     }
+
+
+    <script>
+
+        // ==========================================
+        // NEW BANNER IMAGE PREVIEW
+        // ==========================================
+
+        const imageInput =
+            document.getElementById("BannerImageFile");
+
+        const imagePreview =
+            document.getElementById("imagePreview");
+
+
+        if (imageInput) {
+
+            imageInput.addEventListener(
+                "change",
+                function (event) {
+
+                    const file =
+                        event.target.files[0];
+
+
+                    if (file) {
+
+                        const reader =
+                            new FileReader();
+
+
+                        reader.onload =
+                            function (e) {
+
+                                imagePreview.src =
+                                    e.target.result;
+
+                                imagePreview.style.display =
+                                    "block";
+
+                            };
+
+
+                        reader.readAsDataURL(file);
+
+                    }
+                    else {
+
+                        imagePreview.src = "";
+
+                        imagePreview.style.display =
+                            "none";
+
+                    }
+
+                });
+        }
+
+    </script>
 }
+

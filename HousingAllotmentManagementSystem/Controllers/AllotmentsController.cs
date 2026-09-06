@@ -7,21 +7,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HousingAllotmentManagementSystem.Controllers
 {
-    // =========================================================
-    // ADMIN ONLY CONTROLLER
-    // =========================================================
-    //
-    // Clients cannot access:
-    //
-    // /Allotments
-    // /Allotments/Details
-    // /Allotments/Create
-    // /Allotments/Edit
-    // /Allotments/Delete
-    //
-    // =========================================================
+// =========================================================
+// ADMIN ONLY CONTROLLER
+// =========================================================
+//
+// Clients cannot access:
+//
+// /Allotments
+// /Allotments/Details
+// /Allotments/Create
+// /Allotments/Edit
+// /Allotments/Delete
+//
+// Clients use:
+//
+// /ClientAllotment
+//
+// =========================================================
 
-    [Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin")]
     public class AllotmentsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -32,23 +36,40 @@ namespace HousingAllotmentManagementSystem.Controllers
             _context = context;
         }
 
+
         // =========================================================
         // INDEX - ADMIN ONLY
         // =========================================================
-
+        //
+        // Loads:
+        // Allotment
+        //   -> Application
+        //       -> User
+        //   -> Property
+        //
+        // This allows the view to display:
+        // Client ID
+        // Client Name
+        // Property ID
+        // Allotment Number
+        //
+        // =========================================================
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var allotments = await _context.Allotments
                 .Include(a => a.Application)
+                    .ThenInclude(app => app.User)
+
                 .Include(a => a.Property)
+                    .ThenInclude(p => p.Scheme)
+
                 .OrderByDescending(a => a.AllotmentId)
                 .AsNoTracking()
                 .ToListAsync();
 
             return View(allotments);
         }
-
         // =========================================================
         // DETAILS - ADMIN ONLY
         // =========================================================
@@ -62,11 +83,18 @@ namespace HousingAllotmentManagementSystem.Controllers
             }
 
             var allotment = await _context.Allotments
+
                 .Include(a => a.Application)
+                    .ThenInclude(app => app.User)
+
                 .Include(a => a.Property)
+
+                .Include(a => a.Loans)
+
                 .AsNoTracking()
+
                 .FirstOrDefaultAsync(a =>
-                    a.AllotmentId == id);
+                    a.AllotmentId == id.Value);
 
             if (allotment == null)
             {
@@ -76,8 +104,9 @@ namespace HousingAllotmentManagementSystem.Controllers
             return View(allotment);
         }
 
+
         // =========================================================
-        // CREATE - GET - ADMIN ONLY
+        // CREATE - GET
         // =========================================================
 
         [HttpGet]
@@ -95,28 +124,37 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "Pending",
 
                 BookingAmount =
-                    0
+                    0,
+
+                CreatedDate =
+                    DateTime.Now
             };
 
             return View(allotment);
         }
 
+
         // =========================================================
-        // CREATE - POST - ADMIN ONLY
+        // CREATE - POST
         // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             [Bind(
-                "ApplicationId,PropertyId,AllotmentNumber," +
-                "AllotmentDate,BookingAmount,AllotmentStatus," +
-                "Remarks")]
-            Allotment allotment)
+            "ApplicationId,PropertyId,AllotmentNumber," +
+            "AllotmentDate,BookingAmount,AllotmentStatus," +
+            "Remarks")]
+        Allotment allotment)
         {
+            // -----------------------------------------------------
+            // Remove navigation validation
+            // -----------------------------------------------------
+
             ModelState.Remove("Application");
             ModelState.Remove("Property");
             ModelState.Remove("Loans");
+
 
             // -----------------------------------------------------
             // APPLICATION VALIDATION
@@ -144,6 +182,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                 }
             }
 
+
             // -----------------------------------------------------
             // PROPERTY VALIDATION
             // -----------------------------------------------------
@@ -170,12 +209,19 @@ namespace HousingAllotmentManagementSystem.Controllers
                 }
             }
 
+
             // -----------------------------------------------------
             // ALLOTMENT NUMBER VALIDATION
             // -----------------------------------------------------
 
-            if (!string.IsNullOrWhiteSpace(
-                    allotment.AllotmentNumber))
+            if (string.IsNullOrWhiteSpace(
+                allotment.AllotmentNumber))
+            {
+                ModelState.AddModelError(
+                    "AllotmentNumber",
+                    "Please enter an allotment number.");
+            }
+            else
             {
                 bool allotmentNumberExists =
                     await _context.Allotments
@@ -191,6 +237,19 @@ namespace HousingAllotmentManagementSystem.Controllers
                 }
             }
 
+
+            // -----------------------------------------------------
+            // BOOKING AMOUNT
+            // -----------------------------------------------------
+
+            if (allotment.BookingAmount < 0)
+            {
+                ModelState.AddModelError(
+                    "BookingAmount",
+                    "Booking amount cannot be negative.");
+            }
+
+
             // -----------------------------------------------------
             // VALIDATION FAILED
             // -----------------------------------------------------
@@ -203,6 +262,7 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                 return View(allotment);
             }
+
 
             // -----------------------------------------------------
             // SAVE
@@ -240,12 +300,14 @@ namespace HousingAllotmentManagementSystem.Controllers
             }
         }
 
+
         // =========================================================
-        // EDIT - GET - ADMIN ONLY
+        // EDIT - GET
         // =========================================================
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(
+            int? id)
         {
             if (id == null)
             {
@@ -256,7 +318,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 await _context.Allotments
                     .AsNoTracking()
                     .FirstOrDefaultAsync(a =>
-                        a.AllotmentId == id);
+                        a.AllotmentId ==
+                        id.Value);
 
             if (allotment == null)
             {
@@ -270,8 +333,9 @@ namespace HousingAllotmentManagementSystem.Controllers
             return View(allotment);
         }
 
+
         // =========================================================
-        // EDIT - POST - ADMIN ONLY
+        // EDIT - POST
         // =========================================================
 
         [HttpPost]
@@ -279,10 +343,10 @@ namespace HousingAllotmentManagementSystem.Controllers
         public async Task<IActionResult> Edit(
             int id,
             [Bind(
-                "AllotmentId,ApplicationId,PropertyId," +
-                "AllotmentNumber,AllotmentDate,BookingAmount," +
-                "AllotmentStatus,Remarks")]
-            Allotment model)
+            "AllotmentId,ApplicationId,PropertyId," +
+            "AllotmentNumber,AllotmentDate,BookingAmount," +
+            "AllotmentStatus,Remarks")]
+        Allotment model)
         {
             if (id != model.AllotmentId)
             {
@@ -292,6 +356,7 @@ namespace HousingAllotmentManagementSystem.Controllers
             ModelState.Remove("Application");
             ModelState.Remove("Property");
             ModelState.Remove("Loans");
+
 
             // -----------------------------------------------------
             // APPLICATION VALIDATION
@@ -319,6 +384,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                 }
             }
 
+
             // -----------------------------------------------------
             // PROPERTY VALIDATION
             // -----------------------------------------------------
@@ -345,6 +411,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                 }
             }
 
+
             // -----------------------------------------------------
             // ALLOTMENT NUMBER DUPLICATE CHECK
             // -----------------------------------------------------
@@ -364,6 +431,19 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "This allotment number already exists.");
             }
 
+
+            // -----------------------------------------------------
+            // BOOKING AMOUNT
+            // -----------------------------------------------------
+
+            if (model.BookingAmount < 0)
+            {
+                ModelState.AddModelError(
+                    "BookingAmount",
+                    "Booking amount cannot be negative.");
+            }
+
+
             // -----------------------------------------------------
             // VALIDATION FAILED
             // -----------------------------------------------------
@@ -376,6 +456,7 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                 return View(model);
             }
+
 
             // -----------------------------------------------------
             // UPDATE
@@ -439,12 +520,14 @@ namespace HousingAllotmentManagementSystem.Controllers
             }
         }
 
+
         // =========================================================
-        // DELETE - GET - ADMIN ONLY
+        // DELETE - GET
         // =========================================================
 
         [HttpGet]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(
+            int? id)
         {
             if (id == null)
             {
@@ -453,12 +536,19 @@ namespace HousingAllotmentManagementSystem.Controllers
 
             var allotment =
                 await _context.Allotments
+
                     .Include(a => a.Application)
+                        .ThenInclude(app => app.User)
+
                     .Include(a => a.Property)
+
                     .Include(a => a.Loans)
+
                     .AsNoTracking()
+
                     .FirstOrDefaultAsync(a =>
-                        a.AllotmentId == id);
+                        a.AllotmentId ==
+                        id.Value);
 
             if (allotment == null)
             {
@@ -468,8 +558,9 @@ namespace HousingAllotmentManagementSystem.Controllers
             return View(allotment);
         }
 
+
         // =========================================================
-        // DELETE - POST - ADMIN ONLY
+        // DELETE - POST
         // =========================================================
 
         [HttpPost]
@@ -481,12 +572,42 @@ namespace HousingAllotmentManagementSystem.Controllers
             var allotment =
                 await _context.Allotments
                     .FirstOrDefaultAsync(a =>
-                        a.AllotmentId == id);
+                        a.AllotmentId ==
+                        id);
 
             if (allotment == null)
             {
                 return NotFound();
             }
+
+
+            // -----------------------------------------------------
+            // Check linked loans
+            // -----------------------------------------------------
+
+            bool hasLoans =
+                await _context.Loans
+                    .AnyAsync(l =>
+                        l.AllotmentId ==
+                        id);
+
+            if (hasLoans)
+            {
+                TempData["ErrorMessage"] =
+                    "This allotment cannot be deleted because it is linked with a loan.";
+
+                return RedirectToAction(
+                    nameof(Delete),
+                    new
+                    {
+                        id
+                    });
+            }
+
+
+            // -----------------------------------------------------
+            // DELETE
+            // -----------------------------------------------------
 
             try
             {
@@ -504,7 +625,7 @@ namespace HousingAllotmentManagementSystem.Controllers
             catch (DbUpdateException)
             {
                 TempData["ErrorMessage"] =
-                    "This allotment cannot be deleted because it is linked with another record such as a Loan.";
+                    "This allotment cannot be deleted because it is linked with another record.";
 
                 return RedirectToAction(
                     nameof(Delete),
@@ -514,6 +635,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                     });
             }
         }
+
 
         // =========================================================
         // LOAD DROPDOWNS
@@ -526,57 +648,107 @@ namespace HousingAllotmentManagementSystem.Controllers
             // -----------------------------------------------------
             // APPLICATION DROPDOWN
             // -----------------------------------------------------
+            //
+            // Show:
+            // Application ID + Client Name
+            //
+            // -----------------------------------------------------
 
             var applications =
                 _context.Applications
+                    .Include(a => a.User)
                     .AsNoTracking()
                     .OrderByDescending(a =>
                         a.ApplicationId)
-                    .Select(a => new
-                    {
-                        a.ApplicationId
-                    })
                     .ToList();
+
+            var applicationList =
+                applications.Select(a =>
+                    new
+                    {
+                        ApplicationId =
+                            a.ApplicationId,
+
+                        DisplayText =
+                            a.ApplicationId +
+                            " | " +
+                            (a.User?.FullName ??
+                             "Unknown Client")
+                    });
+
 
             ViewData["ApplicationId"] =
                 new SelectList(
-                    applications,
+                    applicationList,
                     "ApplicationId",
-                    "ApplicationId",
+                    "DisplayText",
                     selectedApplicationId);
+
 
             // -----------------------------------------------------
             // PROPERTY DROPDOWN
             // -----------------------------------------------------
+            //
+            // Currently using Property ID because the exact
+            // property-name field has not yet been provided.
+            //
+            // -----------------------------------------------------
 
-            var properties =
-                _context.Properties
-                    .AsNoTracking()
-                    .OrderBy(p =>
-                        p.PropertyId)
-                    .Select(p => new
-                    {
-                        p.PropertyId
-                    })
-                    .ToList();
+            var properties = _context.Properties
+        .Include(p => p.Scheme)
+        .AsNoTracking()
+        .OrderBy(p => p.Scheme.SchemeName)
+        .ThenBy(p => p.UnitNumber)
+        .ToList();
 
-            ViewData["PropertyId"] =
-                new SelectList(
-                    properties,
-                    "PropertyId",
-                    "PropertyId",
-                    selectedPropertyId);
+
+            var propertyList = properties.Select(p => new
+            {
+                PropertyId = p.PropertyId,
+
+                DisplayText =
+                    (p.Scheme?.SchemeName ?? "Unknown Scheme") +
+                    " | " +
+                    (
+                        !string.IsNullOrWhiteSpace(p.UnitNumber)
+                            ? "Unit " + p.UnitNumber
+                            : "No Unit"
+                    ) +
+                    (
+                        !string.IsNullOrWhiteSpace(p.PlotNumber)
+                            ? " | Plot " + p.PlotNumber
+                            : ""
+                    ) +
+                    (
+                        !string.IsNullOrWhiteSpace(p.PropertyType)
+                            ? " | " + p.PropertyType
+                            : ""
+                    ) +
+                    " | Property #" + p.PropertyId
+            });
+
+
+            ViewData["PropertyId"] = new SelectList(
+                propertyList,
+                "PropertyId",
+                "DisplayText",
+                selectedPropertyId);
         }
+
 
         // =========================================================
         // CHECK EXISTENCE
         // =========================================================
 
-        private bool AllotmentExists(int id)
+        private bool AllotmentExists(
+            int id)
         {
             return _context.Allotments
                 .Any(a =>
-                    a.AllotmentId == id);
+                    a.AllotmentId ==
+                    id);
         }
     }
+
+
 }

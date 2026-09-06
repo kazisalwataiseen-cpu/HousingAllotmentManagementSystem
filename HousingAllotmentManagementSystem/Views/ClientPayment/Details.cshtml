@@ -1,0 +1,515 @@
+﻿@model HousingAllotmentManagementSystem.Models.Payment
+
+@{
+    ViewData["Title"] = "Payment Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+
+var installment = Model.Installment;
+
+
+}
+
+<div class="container py-5">
+
+   
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-receipt me-2"></i>
+                Payment Details
+            </h2>
+
+            <p class="text-muted mb-0">
+                View complete information about your payment.
+            </p>
+        </div>
+
+        <a asp-controller="ClientPayment"
+           asp-action="Index"
+           class="btn btn-outline-primary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Payments
+
+        </a>
+
+    </div>
+
+
+    <!-- SUCCESS MESSAGE -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm"
+             role="alert">
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+
+            <strong>
+                @TempData["Success"]
+            </strong>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- PAYMENT RECEIPT -->
+    <div class="card border-0 shadow-sm">
+
+        <!-- RECEIPT HEADER -->
+        <div class="card-header bg-success text-white py-4">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <small class="opacity-75">
+                        Payment Receipt
+                    </small>
+
+                    <h3 class="fw-bold mb-0">
+
+                        @(Model.ReceiptNumber ?? "Payment Receipt")
+
+                    </h3>
+
+                </div>
+
+
+                @if (Model.PaymentStatus == "Completed")
+                {
+                    <span class="badge bg-light text-success fs-6">
+
+                        <i class="bi bi-check-circle me-1"></i>
+                        Completed
+
+                    </span>
+                }
+                else if (Model.PaymentStatus == "Pending")
+                {
+                    <span class="badge bg-warning text-dark fs-6">
+                        Pending
+                    </span>
+                }
+                else if (Model.PaymentStatus == "Failed")
+                {
+                    <span class="badge bg-danger fs-6">
+                        Failed
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-light text-dark fs-6">
+                        @Model.PaymentStatus
+                    </span>
+                }
+
+            </div>
+
+        </div>
+
+
+        <!-- RECEIPT BODY -->
+        <div class="card-body p-4">
+
+            <!-- PAYMENT INFORMATION -->
+            <div class="card border mb-4">
+
+                <div class="card-header bg-light">
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-credit-card me-2"></i>
+                        Payment Information
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-4">
+
+                        <!-- PAYMENT ID -->
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Payment ID
+                            </small>
+
+                            <strong>
+                                #@Model.PaymentId
+                            </strong>
+
+                        </div>
+
+
+                        <!-- PAYMENT TYPE -->
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Payment Type
+                            </small>
+
+                            <strong>
+                                @(Model.PaymentType ?? "N/A")
+                            </strong>
+
+                        </div>
+
+
+                        <!-- PAYMENT DATE -->
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Payment Date
+                            </small>
+
+                            <strong>
+                                @Model.PaymentDate.ToString("dd MMMM yyyy, hh:mm tt")
+                            </strong>
+
+                        </div>
+
+
+                        <!-- PAYMENT METHOD -->
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Payment Method
+                            </small>
+
+                            <strong>
+                                @(Model.PaymentMethod ?? "N/A")
+                            </strong>
+
+                        </div>
+
+
+                        <!-- AMOUNT -->
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Amount Paid
+                            </small>
+
+                            <h4 class="fw-bold text-success mb-0">
+
+                                ₹@Model.Amount.ToString("N2")
+
+                            </h4>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Payment Status
+                            </small>
+
+                            @if (Model.PaymentStatus == "Completed")
+                            {
+                                <span class="badge bg-success">
+
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Completed
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    @Model.PaymentStatus
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- INSTALLMENT INFORMATION -->
+            @if (installment != null)
+            {
+                <div class="card border mb-4">
+
+                    <div class="card-header bg-light">
+
+                        <h5 class="mb-0">
+                            <i class="bi bi-receipt me-2"></i>
+                            Installment Information
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row g-4">
+
+                            <!-- EMI NUMBER -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    EMI Number
+                                </small>
+
+                                <strong>
+                                    EMI #@installment.InstallmentNumber
+                                </strong>
+
+                            </div>
+
+
+                            <!-- LOAN NUMBER -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Loan Number
+                                </small>
+
+                                <strong>
+                                    @(installment.Emiplan?.Loan?.LoanNumber ?? "N/A")
+                                </strong>
+
+                            </div>
+
+
+                            <!-- DUE DATE -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Due Date
+                                </small>
+
+                                <strong>
+                                    @installment.DueDate.ToString("dd MMMM yyyy")
+                                </strong>
+
+                            </div>
+
+
+                            <!-- INSTALLMENT AMOUNT -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Installment Amount
+                                </small>
+
+                                <strong>
+                                    ₹@installment.InstallmentAmount.ToString("N2")
+                                </strong>
+
+                            </div>
+
+
+                            <!-- LATE FEE -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Late Fee
+                                </small>
+
+                                <strong class="@(installment.LateFee > 0 ? "text-danger" : "text-success")">
+
+                                    ₹@installment.LateFee.ToString("N2")
+
+                                </strong>
+
+                            </div>
+
+
+                            <!-- PAID AMOUNT -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Paid Amount
+                                </small>
+
+                                <strong class="text-success">
+
+                                    ₹@installment.PaidAmount.ToString("N2")
+
+                                </strong>
+
+                            </div>
+
+
+                            <!-- PAYMENT DATE -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Installment Payment Date
+                                </small>
+
+                                <strong>
+                                    @(installment.PaymentDate.HasValue
+                                        ? installment.PaymentDate.Value.ToString("dd MMMM yyyy")
+                                        : "N/A")
+                                </strong>
+
+                            </div>
+
+
+                            <!-- INSTALLMENT STATUS -->
+                            <div class="col-md-6">
+
+                                <small class="text-muted d-block">
+                                    Installment Status
+                                </small>
+
+                                <span class="badge bg-success">
+
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    @installment.PaymentStatus
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+
+            <!-- TRANSACTION INFORMATION -->
+            <div class="card border mb-4">
+
+                <div class="card-header bg-light">
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-upc-scan me-2"></i>
+                        Transaction Information
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-4">
+
+                        <!-- TRANSACTION ID -->
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Transaction ID
+                            </small>
+
+                            <strong>
+                                @(Model.TransactionId ?? "N/A")
+                            </strong>
+
+                        </div>
+
+
+                        <!-- RECEIPT NUMBER -->
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Receipt Number
+                            </small>
+
+                            <strong>
+                                @(Model.ReceiptNumber ?? "N/A")
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- REMARKS -->
+            @if (!string.IsNullOrWhiteSpace(Model.Remarks))
+            {
+                <div class="alert alert-secondary">
+
+                    <h6 class="fw-bold">
+
+                        <i class="bi bi-chat-left-text me-2"></i>
+                        Remarks
+
+                    </h6>
+
+                    <p class="mb-0">
+                        @Model.Remarks
+                    </p>
+
+                </div>
+            }
+
+
+            <!-- SUCCESS CONFIRMATION -->
+            @if (Model.PaymentStatus == "Completed")
+            {
+                <div class="alert alert-success">
+
+                    <div class="d-flex align-items-start">
+
+                        <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+
+                        <div>
+
+                            <h6 class="fw-bold mb-1">
+                                Payment Successfully Completed
+                            </h6>
+
+                            <p class="mb-0">
+                                Your EMI installment has been marked as paid
+                                and your EMI plan has been updated.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+
+            <!-- ACTIONS -->
+            <div class="d-flex justify-content-between mt-4">
+
+                <a asp-controller="ClientPayment"
+                   asp-action="Index"
+                   class="btn btn-outline-primary">
+
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Back to Payments
+
+                </a>
+
+
+                <a asp-controller="ClientEmi"
+                   asp-action="Index"
+                   class="btn btn-primary">
+
+                    <i class="bi bi-calendar-check me-1"></i>
+                    View EMI Plan
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+    
+
+</div>

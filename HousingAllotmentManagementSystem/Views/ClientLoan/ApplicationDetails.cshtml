@@ -1,0 +1,277 @@
+﻿@model HousingAllotmentManagementSystem.Models.LoanApplication
+
+@{
+    ViewData["Title"] = "My Loan Application";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-file-earmark-text me-2"></i>
+                Loan Application
+            </h2>
+
+            <p class="text-muted mb-0">
+                View the status and details of your loan application.
+            </p>
+        </div>
+
+        <a asp-controller="ClientLoan"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to My Loans
+
+        </a>
+
+    </div>
+
+
+    <!-- STATUS -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body text-center py-4">
+
+            @if (Model.Status == "Pending")
+            {
+                <i class="bi bi-clock-history display-5 text-warning"></i>
+
+                <h4 class="fw-bold mt-3">
+                    Application Under Review
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Your loan application is currently being reviewed by the administration.
+                </p>
+            }
+            else if (Model.Status == "Approved")
+            {
+                <i class="bi bi-check-circle-fill display-5 text-success"></i>
+
+                <h4 class="fw-bold mt-3 text-success">
+                    Application Approved
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Your loan application has been approved.
+                </p>
+            }
+            else if (Model.Status == "Rejected")
+            {
+                <i class="bi bi-x-circle-fill display-5 text-danger"></i>
+
+                <h4 class="fw-bold mt-3 text-danger">
+                    Application Rejected
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Your loan application was rejected.
+                </p>
+            }
+            else
+            {
+                <i class="bi bi-info-circle display-5 text-secondary"></i>
+
+                <h4 class="fw-bold mt-3">
+                    @Model.Status
+                </h4>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- APPLICATION INFORMATION -->
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+                <i class="bi bi-info-circle me-2"></i>
+                Application Information
+            </h5>
+
+        </div>
+
+        <div class="card-body p-4">
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Application ID
+                    </small>
+
+                    <strong>
+                        #@Model.LoanApplicationId
+                    </strong>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Application Date
+                    </small>
+
+                    <strong>
+                        @Model.ApplicationDate.ToString("dd MMMM yyyy, hh:mm tt")
+                    </strong>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Allotment Number
+                    </small>
+
+                    <strong>
+                        @(Model.Allotment?.AllotmentNumber ?? "N/A")
+                    </strong>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Requested Loan Amount
+                    </small>
+
+                    <strong class="text-primary">
+                        ₹@Model.RequestedLoanAmount.ToString("N2")
+                    </strong>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Down Payment
+                    </small>
+
+                    <strong>
+                        ₹@Model.DownPayment.ToString("N2")
+                    </strong>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Interest Rate
+                    </small>
+
+                    <strong>
+                        @Model.InterestRate.ToString("0.00")%
+                    </strong>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Loan Tenure
+                    </small>
+
+                    <strong>
+                        @Model.LoanTenure Months
+                    </strong>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Status
+                    </small>
+
+                    @if (Model.Status == "Pending")
+                    {
+                        <span class="badge bg-warning text-dark">
+                            Pending
+                        </span>
+                    }
+                    else if (Model.Status == "Approved")
+                    {
+                        <span class="badge bg-success">
+                            Approved
+                        </span>
+                    }
+                    else if (Model.Status == "Rejected")
+                    {
+                        <span class="badge bg-danger">
+                            Rejected
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">
+                            @Model.Status
+                        </span>
+                    }
+
+                </div>
+
+
+                <div class="col-12">
+
+                    <small class="text-muted d-block mb-2">
+                        Administrator Remarks
+                    </small>
+
+                    @if (string.IsNullOrWhiteSpace(Model.Remarks))
+                    {
+                        <div class="border rounded p-3 text-muted">
+                            No remarks have been provided.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="border rounded p-3">
+                            @Model.Remarks
+                        </div>
+                    }
+
+                </div>
+
+
+                @if (Model.ReviewedDate.HasValue)
+                {
+                    <div class="col-md-6">
+
+                        <small class="text-muted d-block">
+                            Reviewed Date
+                        </small>
+
+                        <strong>
+                            @Model.ReviewedDate.Value.ToString(
+                                "dd MMMM yyyy, hh:mm tt")
+                        </strong>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

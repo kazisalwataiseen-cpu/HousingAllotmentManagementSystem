@@ -126,6 +126,29 @@
 
         </li>
 
+        <!-- EMI PLAN OPTIONS -->
+
+        <li class="nav-item">
+
+            <a asp-controller="EMIPlanOptions"
+               asp-action="Index"
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "EMIPlanOptions" ? "active" : "")">
+
+                <i class="bi bi-credit-card-fill"></i>
+
+                <span>
+                    EMI Plan Options
+                </span>
+
+            </a>
+
+        </li>
+
+
+
+
+
+
 
         <!-- PROPERTIES -->
 
@@ -192,6 +215,42 @@
 
         </li>
 
+
+        <!-- ALLOTMENTS -->
+
+        <li class="nav-item">
+
+            <a asp-controller="Allotments"
+               asp-action="Index"
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Allotments" ? "active" : "")">
+
+                <i class="bi bi-house-check"></i>
+
+                <span>
+                    Allotments
+                </span>
+
+            </a>
+
+        </li>
+
+        <!-- LOAN APPLICATIONS -->
+
+        <li class="nav-item">
+
+            <a asp-controller="LoanApplications"
+               asp-action="Index"
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "LoanApplications" ? "active" : "")">
+
+                <i class="bi bi-file-earmark-text"></i>
+
+                <span>
+                    Loan Applications
+                </span>
+
+            </a>
+
+        </li>
 
         <!-- LOANS -->
 
@@ -273,6 +332,11 @@
             </a>
 
         </li>
+
+
+
+
+
 
     </ul>
 

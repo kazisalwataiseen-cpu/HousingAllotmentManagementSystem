@@ -2,124 +2,499 @@
 
 @{
     ViewData["Title"] = "Housing Scheme Details";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    Layout = User.IsInRole("Admin")
+        ? "~/Views/Shared/_AdminLayout.cshtml"
+        : "~/Views/Shared/_Layout.cshtml";
+
+    var emiPlans = ViewBag.EMIPlanOptions
+        as List<HousingAllotmentManagementSystem.Models.EMIPlanOption>;
 }
 
-<div class="container-fluid">
+<div class="container-fluid py-4">
 
-    <div class="card shadow-lg border-0">
+    <!-- ========================================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ========================================================= -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold mb-1">
+
+                <i class="bi bi-house-door-fill me-2"></i>
+
+                @Model.SchemeName
+
+            </h2>
+
+            <p class="text-muted mb-0">
+
+                Housing scheme details and available EMI options.
+
+            </p>
+
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+
+            Back
+
+        </a>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- HOUSING SCHEME INFORMATION -->
+    <!-- ========================================================= -->
+
+    <div class="card shadow-sm border-0">
 
         <div class="card-header bg-info text-white">
-            <h3 class="mb-0">
-                <i class="bi bi-info-circle-fill"></i>
-                Housing Scheme Details
-            </h3>
+
+            <h5 class="mb-0">
+
+                <i class="bi bi-info-circle-fill me-2"></i>
+
+                Scheme Information
+
+            </h5>
+
         </div>
+
 
         <div class="card-body">
 
             <div class="row">
 
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold">Scheme Name</label>
-                    <div class="form-control bg-light">@Model.SchemeName</div>
-                </div>
+                <!-- SCHEME NAME -->
 
                 <div class="col-md-6 mb-3">
-                    <label class="fw-bold">City</label>
-                    <div class="form-control bg-light">@Model.City</div>
-                </div>
 
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold">State</label>
-                    <div class="form-control bg-light">@Model.State</div>
-                </div>
+                    <label class="fw-bold">
 
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold">Location</label>
-                    <div class="form-control bg-light">@Model.Location</div>
-                </div>
+                        Scheme Name
 
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold">Launch Date</label>
+                    </label>
+
                     <div class="form-control bg-light">
+
+                        @Model.SchemeName
+
+                    </div>
+
+                </div>
+
+
+                <!-- CITY -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+
+                        City
+
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @Model.City
+
+                    </div>
+
+                </div>
+
+
+                <!-- STATE -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+
+                        State
+
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @Model.State
+
+                    </div>
+
+                </div>
+
+
+                <!-- LOCATION -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+
+                        Location
+
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @Model.Location
+
+                    </div>
+
+                </div>
+
+
+                <!-- LAUNCH DATE -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+
+                        Launch Date
+
+                    </label>
+
+                    <div class="form-control bg-light">
+
                         @(Model.LaunchDate?.ToString("dd-MM-yyyy"))
+
                     </div>
+
                 </div>
 
+
+                <!-- LAST APPLICATION DATE -->
+
                 <div class="col-md-6 mb-3">
-                    <label class="fw-bold">Last Application Date</label>
+
+                    <label class="fw-bold">
+
+                        Last Application Date
+
+                    </label>
+
                     <div class="form-control bg-light">
+
                         @(Model.LastApplicationDate?.ToString("dd-MM-yyyy"))
+
                     </div>
+
                 </div>
 
+
+                <!-- TOTAL UNITS -->
+
                 <div class="col-md-6 mb-3">
-                    <label class="fw-bold">Total Units</label>
+
+                    <label class="fw-bold">
+
+                        Total Units
+
+                    </label>
+
                     <div class="form-control bg-light">
+
                         @Model.TotalUnits
+
                     </div>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold">Status</label>
-
-                    @if (Model.Status == true)
-                    {
-                        <span class="badge bg-success fs-6">Active</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-danger fs-6">Inactive</span>
-                    }
 
                 </div>
 
+
+                <!-- STATUS -->
+
                 <div class="col-md-6 mb-3">
-                    <label class="fw-bold">Brochure</label>
+
+                    <label class="fw-bold">
+
+                        Status
+
+                    </label>
+
+                    <div class="mt-2">
+
+                        @if (Model.Status == true)
+                        {
+                            <span class="badge bg-success fs-6">
+
+                                Active
+
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger fs-6">
+
+                                Inactive
+
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- BROCHURE -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+
+                        Brochure
+
+                    </label>
+
                     <div class="form-control bg-light">
+
                         @Model.Brochure
+
                     </div>
+
                 </div>
 
+
+                <!-- BANNER IMAGE -->
+
                 <div class="col-md-6 mb-3">
-                    <label class="fw-bold">Banner Image</label>
+
+                    <label class="fw-bold">
+
+                        Banner Image
+
+                    </label>
+
                     <div class="form-control bg-light">
+
                         @Model.BannerImage
+
                     </div>
+
                 </div>
+
+
+                <!-- DESCRIPTION -->
 
                 <div class="col-12 mb-3">
-                    <label class="fw-bold">Description</label>
 
-                    <div class="form-control bg-light" style="min-height:120px;">
+                    <label class="fw-bold">
+
+                        Description
+
+                    </label>
+
+                    <div class="form-control bg-light"
+                         style="min-height:120px;">
+
                         @Model.Description
+
                     </div>
+
                 </div>
-
-            </div>
-
-            <hr />
-
-            <div class="d-flex justify-content-between">
-
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i>
-                    Back
-                </a>
-
-                <a asp-action="Edit"
-                   asp-route-id="@Model.SchemeId"
-                   class="btn btn-warning">
-
-                    <i class="bi bi-pencil-square"></i>
-                    Edit
-
-                </a>
 
             </div>
 
         </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- AVAILABLE EMI OPTIONS -->
+    <!-- ========================================================= -->
+
+    <div class="card shadow-sm border-0 mt-4">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+
+                <i class="bi bi-credit-card-2-front-fill me-2"></i>
+
+                Available EMI Options
+
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            @if (emiPlans != null && emiPlans.Any())
+            {
+                <div class="row g-4">
+
+                    @foreach (var plan in emiPlans)
+                    {
+                        <div class="col-md-6 col-lg-4">
+
+                            <div class="card h-100 border shadow-sm">
+
+                                <div class="card-body">
+
+                                    <!-- PLAN NAME -->
+
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+
+                                        <h5 class="fw-bold mb-0">
+
+                                            @plan.PlanName
+
+                                        </h5>
+
+
+                                        @if (plan.Status == "Active")
+                                        {
+                                            <span class="badge bg-success">
+
+                                                Active
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+
+                                                @plan.Status
+
+                                            </span>
+                                        }
+
+                                    </div>
+
+
+                                    <!-- TENURE -->
+
+                                    <div class="mb-3">
+
+                                        <div class="text-muted small mb-1">
+
+                                            <i class="bi bi-calendar3 me-1"></i>
+
+                                            Tenure
+
+                                        </div>
+
+
+                                        <div class="fw-semibold">
+
+                                            @plan.TenureMonths Months
+
+                                            @if (plan.TenureMonths >= 12)
+                                            {
+                                                <span class="text-muted">
+
+                                                    (@(plan.TenureMonths / 12) Years)
+
+                                                </span>
+                                            }
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- INTEREST RATE -->
+
+                                    <div class="mb-3">
+
+                                        <div class="text-muted small mb-1">
+
+                                            <i class="bi bi-percent me-1"></i>
+
+                                            Interest Rate
+
+                                        </div>
+
+
+                                        <div class="fw-bold text-primary fs-4">
+
+                                            @plan.InterestRate.ToString("0.00")%
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- DESCRIPTION -->
+                                    @if (!string.IsNullOrWhiteSpace(plan.Description))
+                                    {
+                                        <div class="mb-2">
+
+                                            <div class="text-muted small mb-1">
+
+                                                Description
+
+                                            </div>
+
+
+                                            <p class="text-muted mb-0">
+
+                                                @plan.Description
+
+                                            </p>
+
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mb-0">
+
+                    <i class="bi bi-info-circle me-2"></i>
+
+                    No EMI options have been created for this
+                    housing scheme yet.
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- BUTTONS -->
+    <!-- ========================================================= -->
+
+    <div class="d-flex justify-content-between mt-4">
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+
+            Back
+
+        </a>
+
+
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Edit"
+               asp-route-id="@Model.SchemeId"
+               class="btn btn-warning">
+
+                <i class="bi bi-pencil-square me-1"></i>
+
+                Edit
+
+            </a>
+        }
 
     </div>
 

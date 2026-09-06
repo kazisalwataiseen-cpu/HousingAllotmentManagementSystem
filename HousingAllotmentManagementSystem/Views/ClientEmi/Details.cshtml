@@ -1,0 +1,868 @@
+﻿@model HousingAllotmentManagementSystem.Models.Emiplan
+
+@{
+    ViewData["Title"] = "EMI Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+
+var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
+
+    var paidPercentage = Model.TotalEmis > 0
+        ? (decimal)Model.PaidEmis / Model.TotalEmis * 100
+        : 0;
+
+    var remainingPercentage = 100 - paidPercentage;
+
+    if (remainingPercentage < 0)
+    {
+        remainingPercentage = 0;
+    }
+
+    var installments = Model.Installments?
+        .OrderBy(i => i.InstallmentNumber)
+        .ToList()
+        ?? new List<HousingAllotmentManagementSystem.Models.Installment>();
+
+
+}
+
+<div class="container-fluid py-4">
+
+    
+    <!-- ========================================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ========================================================= -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-calculator me-2"></i>
+                EMI Details
+            </h2>
+
+            <p class="text-muted mb-0">
+                Complete details of your EMI plan and installments.
+            </p>
+
+        </div>
+
+        <a asp-controller="ClientEmi"
+           asp-action="Index"
+           class="btn btn-outline-primary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to EMIs
+
+        </a>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- SUMMARY CARDS -->
+    <!-- ========================================================= -->
+
+    <div class="row g-4 mb-4">
+
+        <!-- Monthly EMI -->
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Monthly EMI
+                            </small>
+
+                            <h4 class="fw-bold text-primary mt-2 mb-0">
+                                ₹@Model.MonthlyEmi.ToString("N2")
+                            </h4>
+
+                        </div>
+
+                        <i class="bi bi-cash-stack fs-2 text-primary"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Paid EMIs -->
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Paid EMIs
+                            </small>
+
+                            <h4 class="fw-bold text-success mt-2 mb-0">
+                                @Model.PaidEmis
+                            </h4>
+
+                        </div>
+
+                        <i class="bi bi-check-circle fs-2 text-success"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Remaining EMIs -->
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Remaining EMIs
+                            </small>
+
+                            <h4 class="fw-bold text-danger mt-2 mb-0">
+                                @Model.RemainingEmis
+                            </h4>
+
+                        </div>
+
+                        <i class="bi bi-hourglass-split fs-2 text-danger"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Outstanding -->
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Outstanding Balance
+                            </small>
+
+                            <h4 class="fw-bold mt-2 mb-0">
+                                ₹@Model.OutstandingBalance.ToString("N2")
+                            </h4>
+
+                        </div>
+
+                        <i class="bi bi-wallet2 fs-2 text-warning"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- EMI PROGRESS -->
+    <!-- ========================================================= -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between mb-2">
+
+                <span class="fw-semibold">
+                    EMI Repayment Progress
+                </span>
+
+                <span class="text-muted">
+                    @Model.PaidEmis / @Model.TotalEmis EMIs Paid
+                </span>
+
+            </div>
+
+
+            <div class="progress" style="height: 12px;">
+
+                <div class="progress-bar bg-success"
+                     role="progressbar"
+                     style="width: @paidPercentage.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)%"
+                     aria-valuenow="@paidPercentage"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+                </div>
+
+            </div>
+
+
+            <div class="text-end mt-2">
+
+                <small class="text-muted">
+                    @paidPercentage.ToString("0.00")% Completed
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- EMI PLAN + SCHEDULE -->
+    <!-- ========================================================= -->
+
+    <div class="row g-4">
+
+        <!-- ===================================================== -->
+        <!-- EMI PLAN INFORMATION -->
+        <!-- ===================================================== -->
+
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header bg-primary text-white">
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        EMI Plan Information
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-6 text-muted">
+                            EMI Plan ID
+                        </div>
+
+                        <div class="col-sm-6 fw-semibold">
+                            #@Model.EmiplanId
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-6 text-muted">
+                            Loan Number
+                        </div>
+
+                        <div class="col-sm-6 fw-semibold">
+
+                            @(Model.Loan?.LoanNumber ?? "N/A")
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-6 text-muted">
+                            Total EMIs
+                        </div>
+
+                        <div class="col-sm-6 fw-semibold">
+                            @Model.TotalEmis
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-6 text-muted">
+                            Monthly EMI
+                        </div>
+
+                        <div class="col-sm-6 fw-semibold">
+                            ₹@Model.MonthlyEmi.ToString("N2")
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-6 text-muted">
+                            Total Repayment
+                        </div>
+
+                        <div class="col-sm-6 fw-semibold">
+                            ₹@totalAmount.ToString("N2")
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mb-3">
+
+                        <div class="col-sm-6 text-muted">
+                            Outstanding Balance
+                        </div>
+
+                        <div class="col-sm-6 fw-semibold text-danger">
+                            ₹@Model.OutstandingBalance.ToString("N2")
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-sm-6 text-muted">
+                            Plan Status
+                        </div>
+
+                        <div class="col-sm-6">
+
+                            @if (Model.PlanStatus == "Active")
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Active
+                                </span>
+                            }
+                            else if (Model.PlanStatus == "Completed")
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Completed
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    @Model.PlanStatus
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- EMI SCHEDULE -->
+        <!-- ===================================================== -->
+
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header bg-dark text-white">
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-calendar3 me-2"></i>
+                        EMI Schedule
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <!-- Start Date -->
+
+                    <div class="row mb-4">
+
+                        <div class="col-2 text-primary fs-3">
+                            <i class="bi bi-calendar-plus"></i>
+                        </div>
+
+                        <div class="col-10">
+
+                            <small class="text-muted">
+                                EMI Start Date
+                            </small>
+
+                            <div class="fw-bold">
+                                @Model.EmistartDate.ToString("dd MMMM yyyy")
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- End Date -->
+
+                    <div class="row mb-4">
+
+                        <div class="col-2 text-danger fs-3">
+                            <i class="bi bi-calendar-x"></i>
+                        </div>
+
+                        <div class="col-10">
+
+                            <small class="text-muted">
+                                EMI End Date
+                            </small>
+
+                            <div class="fw-bold">
+                                @Model.EmiendDate.ToString("dd MMMM yyyy")
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Next Due Date -->
+
+                    <div class="row mb-4">
+
+                        <div class="col-2 text-warning fs-3">
+                            <i class="bi bi-calendar-event"></i>
+                        </div>
+
+                        <div class="col-10">
+
+                            <small class="text-muted">
+                                Next Due Date
+                            </small>
+
+                            <div class="fw-bold text-danger">
+                                @Model.NextDueDate.ToString("dd MMMM yyyy")
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Created Date -->
+
+                    <div class="row">
+
+                        <div class="col-2 text-success fs-3">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+
+                        <div class="col-10">
+
+                            <small class="text-muted">
+                                Plan Created
+                            </small>
+
+                            <div class="fw-bold">
+                                @Model.CreatedDate.ToString("dd MMMM yyyy")
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- RELATED LOAN -->
+    <!-- ========================================================= -->
+    @if (Model.Loan != null)
+    {
+        <div class="card border-0 shadow-sm mt-4">
+
+            <div class="card-header bg-success text-white">
+
+                <h5 class="mb-0">
+                    <i class="bi bi-bank me-2"></i>
+                    Related Loan Information
+                </h5>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="row g-4">
+
+                    <!-- Loan Number -->
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted d-block">
+                            Loan Number
+                        </small>
+
+                        <strong>
+                            @Model.Loan.LoanNumber
+                        </strong>
+
+                    </div>
+
+
+                    <!-- Loan Amount -->
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted d-block">
+                            Loan Amount
+                        </small>
+
+                        <strong>
+                            ₹@Model.Loan.LoanAmount.ToString("N2")
+                        </strong>
+
+                    </div>
+
+
+                    <!-- Down Payment -->
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted d-block">
+                            Down Payment
+                        </small>
+
+                        <strong>
+                            ₹@Model.Loan.DownPayment.ToString("N2")
+                        </strong>
+
+                    </div>
+
+
+                    <!-- Interest -->
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted d-block">
+                            Interest Rate
+                        </small>
+
+                        <strong>
+                            @Model.Loan.InterestRate.ToString("N2")%
+                        </strong>
+
+                    </div>
+
+
+                    <!-- Tenure -->
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted d-block">
+                            Loan Tenure
+                        </small>
+
+                        <strong>
+                            @Model.Loan.LoanTenure Months
+                        </strong>
+
+                    </div>
+
+
+                    <!-- Loan Status -->
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted d-block">
+                            Loan Status
+                        </small>
+
+                        @if (Model.Loan.LoanStatus == "Active")
+                        {
+                            <span class="badge bg-success">
+                                Active
+                            </span>
+                        }
+                        else if (Model.Loan.LoanStatus == "Completed")
+                        {
+                            <span class="badge bg-success">
+                                Completed
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">
+                                @Model.Loan.LoanStatus
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+
+    <!-- ========================================================= -->
+    <!-- INSTALLMENT SCHEDULE -->
+    <!-- ========================================================= -->
+
+    <div class="card border-0 shadow-sm mt-4">
+
+        <div class="card-header bg-light">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0 fw-bold">
+
+                    <i class="bi bi-list-check me-2"></i>
+                    Installment Schedule
+
+                </h5>
+
+
+                <span class="badge bg-primary">
+
+                    @installments.Count Installments
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+            @if (installments.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>Due Date</th>
+
+                                <th>Installment</th>
+
+                                <th>Principal</th>
+
+                                <th>Interest</th>
+
+                                <th>Late Fee</th>
+
+                                <th>Paid</th>
+
+                                <th>Payment Date</th>
+
+                                <th>Status</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var installment in installments)
+                            {
+                                <tr>
+
+                                    <td class="fw-semibold">
+                                        @installment.InstallmentNumber
+                                    </td>
+
+
+                                    <td>
+                                        @installment.DueDate.ToString("dd-MM-yyyy")
+                                    </td>
+
+
+                                    <td>
+                                        ₹@installment.InstallmentAmount.ToString("N2")
+                                    </td>
+
+
+                                    <td>
+                                        ₹@installment.PrincipalAmount.ToString("N2")
+                                    </td>
+
+
+                                    <td>
+                                        ₹@installment.InterestAmount.ToString("N2")
+                                    </td>
+
+
+                                    <td>
+                                        ₹@installment.LateFee.ToString("N2")
+                                    </td>
+
+
+                                    <td class="fw-semibold">
+                                        ₹@installment.PaidAmount.ToString("N2")
+                                    </td>
+
+
+                                    <td>
+
+                                        @if (installment.PaymentDate.HasValue)
+                                        {
+                                            @installment.PaymentDate.Value.ToString("dd-MM-yyyy")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Not Paid
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @if (installment.PaymentStatus == "Paid")
+                                        {
+                                            <span class="badge bg-success">
+
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                Paid
+
+                                            </span>
+                                        }
+                                        else if (installment.PaymentStatus == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark">
+
+                                                <i class="bi bi-clock me-1"></i>
+                                                Pending
+
+                                            </span>
+                                        }
+                                        else if (installment.PaymentStatus == "Overdue")
+                                        {
+                                            <span class="badge bg-danger">
+
+                                                <i class="bi bi-exclamation-circle me-1"></i>
+                                                Overdue
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                @installment.PaymentStatus
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+
+                    <i class="bi bi-inbox display-4 text-muted"></i>
+
+                    <h5 class="mt-3">
+                        No Installments Found
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        No installment records are currently available
+                        for this EMI plan.
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- BOTTOM ACTIONS -->
+    <!-- ========================================================= -->
+
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+
+        <a asp-controller="ClientEmi"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to EMI Plans
+
+        </a>
+
+
+        <a asp-controller="ClientLoan"
+           asp-action="Index"
+           class="btn btn-primary">
+
+            <i class="bi bi-bank me-1"></i>
+            View My Loans
+
+        </a>
+
+    </div>
+    
+
+</div>

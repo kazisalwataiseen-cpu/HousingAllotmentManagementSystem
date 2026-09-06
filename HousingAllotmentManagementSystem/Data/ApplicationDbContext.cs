@@ -26,11 +26,15 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<Emiplan> Emiplans { get; set; }
 
+
+    public DbSet<EMIPlanOption> EMIPlanOptions { get; set; }
     public virtual DbSet<HousingScheme> HousingSchemes { get; set; }
 
     public virtual DbSet<Installment> Installments { get; set; }
 
     public virtual DbSet<Loan> Loans { get; set; }
+
+    public virtual DbSet<LoanApplication> LoanApplications { get; set; }
 
     public virtual DbSet<Notification> Notifications { get; set; }
 
@@ -147,6 +151,34 @@ public partial class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Loans_Allotments");
         });
+
+
+        modelBuilder.Entity<LoanApplication>(entity =>
+        {
+            entity.HasKey(e => e.LoanApplicationId);
+
+            entity.Property(e => e.ApplicationDate)
+                .HasDefaultValueSql("(getdate())");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())");
+
+            entity.Property(e => e.Status)
+                .HasDefaultValue("Pending");
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LoanApplications_Users");
+
+            entity.HasOne(e => e.Allotment)
+                .WithMany()
+                .HasForeignKey(e => e.AllotmentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LoanApplications_Allotments");
+        });
+
 
         modelBuilder.Entity<Notification>(entity =>
         {

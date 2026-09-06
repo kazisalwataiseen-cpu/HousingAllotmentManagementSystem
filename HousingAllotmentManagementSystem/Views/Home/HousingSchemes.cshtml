@@ -1,16 +1,24 @@
-﻿@model IEnumerable<HousingAllotmentManagementSystem.Models.HousingScheme>
+﻿
+@model IEnumerable<HousingAllotmentManagementSystem.Models.HousingScheme>
 
 @{
     ViewData["Title"] = "Housing Schemes";
     Layout = null;
+
+    var emiPlans = ViewBag.EMIPlanOptions
+        as List<HousingAllotmentManagementSystem.Models.EMIPlanOption>
+        ?? new List<HousingAllotmentManagementSystem.Models.EMIPlanOption>();
 }
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
     <title>Housing Schemes</title>
 
@@ -18,717 +26,1007 @@
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
 
-    <!-- Bootstrap Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
     <style>
 
-            * {
-                box-sizing: border-box;
-            }
+        /* =========================================
+           GENERAL
+        ========================================= */
 
-            body {
-                margin: 0;
-                background: #f5f7fb;
-                font-family: Arial, Helvetica, sans-serif;
-                color: #263238;
-            }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1e293b;
+        }
 
-            /* =========================================
-                       NAVBAR
-             ========================================= */
+        .page-wrapper {
+            min-height: 100vh;
+            padding: 40px 20px 60px;
+        }
 
-            .public-navbar {
-                background: #ffffff;
-                border-bottom: 1px solid #e5e7eb;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-                padding: 15px 40px;
-            }
 
-            .brand {
-                font-size: 23px;
-                font-weight: 700;
-                color: #2563eb;
-                text-decoration: none;
-            }
+        /* =========================================
+           PAGE HEADER
+        ========================================= */
 
-                .brand i {
-                    margin-right: 8px;
-                }
+        .page-header {
+            max-width: 1200px;
+            margin: 0 auto 30px;
+        }
 
-            .nav-link-custom {
-                text-decoration: none;
-                color: #475569;
-                font-weight: 600;
-                margin-left: 25px;
-            }
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
 
-                .nav-link-custom:hover {
-                    color: #2563eb;
-                }
+        .page-title i {
+            color: #2563eb;
+            margin-right: 8px;
+        }
 
-            /* =========================================
-                       PAGE
-             ========================================= */
+        .page-subtitle {
+            color: #64748b;
+            font-size: 15px;
+            margin-bottom: 25px;
+        }
 
-            .housing-page {
-                width: 100%;
-                padding: 45px 50px 70px;
-            }
 
-            /* =========================================
-                       HEADER
-              ========================================= */
+        /* =========================================
+           SEARCH
+        ========================================= */
 
-            .page-header {
-                text-align: center;
-                margin-bottom: 35px;
-            }
+        .search-box {
+            position: relative;
+            max-width: 550px;
+        }
 
-                .page-header h1 {
-                    font-size: 40px;
-                    font-weight: 700;
-                    color: #1f2937;
-                    margin-bottom: 10px;
-                }
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
 
-                .page-header p {
-                    font-size: 17px;
-                    color: #6b7280;
-                    margin: 0;
-                }
+        .search-box input {
+            width: 100%;
+            padding: 13px 18px 13px 45px;
+            border: 1px solid #dbe3ec;
+            border-radius: 10px;
+            outline: none;
+            background: white;
+            font-size: 14px;
+            transition: 0.2s ease;
+        }
 
-            .header-icon {
-                color: #2563eb;
-                margin-right: 8px;
-            }
+        .search-box input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+        }
 
-            /* =========================================
-                       SEARCH
-            ========================================= */
 
-            .search-container {
-                max-width: 600px;
-                margin: 0 auto 40px;
-            }
+        /* =========================================
+           SCHEME GRID
+        ========================================= */
 
-            .search-box {
-                height: 52px;
-                border-radius: 26px;
-                border: 1px solid #dbe1ea;
-                padding: 0 22px;
-                font-size: 16px;
-                box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
-            }
+        .schemes-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-                .search-box:focus {
-                    border-color: #2563eb;
-                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-                }
+        .scheme-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
 
-            /* =========================================
-                       CARD GRID
-             ========================================= */
+
+        /* =========================================
+           SCHEME CARD
+        ========================================= */
+
+        .scheme-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 18px rgba(15, 23, 42, 0.06);
+            transition: all 0.25s ease;
+        }
+
+        .scheme-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+        }
+
+
+        /* =========================================
+           SCHEME IMAGE
+        ========================================= */
+
+        .scheme-image-wrapper {
+            height: 220px;
+            position: relative;
+            overflow: hidden;
+            background: #e2e8f0;
+        }
+
+        .scheme-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .scheme-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #dbeafe, #eff6ff);
+            color: #2563eb;
+            font-size: 55px;
+        }
+
+
+        /* =========================================
+           STATUS BADGE
+        ========================================= */
+
+        .scheme-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 12px;
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .scheme-status.inactive {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+
+        /* =========================================
+           SCHEME CONTENT
+        ========================================= */
+
+        .scheme-content {
+            padding: 22px;
+        }
+
+        .scheme-title {
+            margin: 0 0 8px;
+            font-size: 21px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .scheme-description {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+
+
+        /* =========================================
+           SCHEME INFORMATION
+        ========================================= */
+
+        .scheme-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 9px;
+        }
+
+        .info-item i {
+            color: #2563eb;
+            font-size: 16px;
+            width: 18px;
+            text-align: center;
+        }
+
+        .info-label {
+            display: block;
+            color: #94a3b8;
+            font-size: 10px;
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            display: block;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+
+        /* =========================================
+           EMI SECTION
+        ========================================= */
+
+        .emi-section {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .emi-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            color: #1f2937;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .emi-heading i {
+            color: #2563eb;
+            margin-right: 6px;
+        }
+
+        .emi-count {
+            background: #eff6ff;
+            color: #2563eb;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .emi-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .emi-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .emi-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .emi-card-header strong {
+            color: #1e293b;
+            font-size: 15px;
+        }
+
+        .emi-status {
+            color: #15803d;
+            background: #dcfce7;
+            border-radius: 15px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .emi-status i {
+            margin-right: 3px;
+        }
+
+        .emi-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .emi-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .emi-detail > i {
+            color: #2563eb;
+            font-size: 17px;
+        }
+
+        .emi-detail small {
+            display: block;
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .emi-detail strong {
+            display: block;
+            color: #334155;
+            font-size: 13px;
+        }
+
+        .emi-description {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .emi-description i {
+            color: #2563eb;
+            margin-right: 4px;
+        }
+
+        .no-emi {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 10px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .no-emi i {
+            color: #94a3b8;
+            font-size: 18px;
+        }
+
+
+        /* =========================================
+           VIEW SCHEME BUTTON
+        ========================================= */
+
+        .card-actions {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn-view {
+            display: block;
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            border-radius: 9px;
+            padding: 11px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .btn-view:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+
+        .btn-view i {
+            margin-left: 6px;
+        }
+
+
+        /* =========================================
+           EMPTY STATE
+        ========================================= */
+
+        .empty-state {
+            text-align: center;
+            padding: 70px 20px;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .empty-state i {
+            font-size: 50px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+        }
+
+        .empty-state h4 {
+            color: #334155;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            color: #64748b;
+        }
+
+
+        /* =========================================
+           NO SEARCH RESULTS
+        ========================================= */
+
+        .no-results {
+            display: none;
+            text-align: center;
+            padding: 50px 20px;
+            color: #64748b;
+        }
+
+        .no-results i {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @@media (max-width: 900px) {
 
             .scheme-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 30px;
-                width: 100%;
+                grid-template-columns: 1fr;
             }
 
-            /* =========================================
-                       CARD
-            ========================================= */
+            .page-title {
+                font-size: 28px;
+            }
+        }
 
-            .scheme-card {
-                background: #ffffff;
-                border-radius: 22px;
-                overflow: hidden;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-                transition: transform 0.25s ease, box-shadow 0.25s ease;
-                display: flex;
+
+        @@media (max-width: 600px) {
+
+            .page-wrapper {
+                padding: 25px 12px 40px;
+            }
+
+            .scheme-content {
+                padding: 17px;
+            }
+
+            .scheme-image-wrapper {
+                height: 190px;
+            }
+
+            .scheme-info {
+                grid-template-columns: 1fr;
+            }
+
+            .emi-details {
+                grid-template-columns: 1fr;
+            }
+
+            .emi-card-header {
+                align-items: flex-start;
                 flex-direction: column;
             }
 
-                .scheme-card:hover {
-                    transform: translateY(-7px);
-                    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.14);
-                }
-
-            /* =========================================
-                       IMAGE
-             ========================================= */
-
-            .scheme-image {
-                height: 265px;
-                position: relative;
-                overflow: hidden;
-                background: #e5e7eb;
+            .page-title {
+                font-size: 25px;
             }
-
-                .scheme-image img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    display: block;
-                    transition: transform 0.4s ease;
-                }
-
-            .scheme-card:hover .scheme-image img {
-                transform: scale(1.05);
-            }
-
-            .scheme-image::after {
-                content: "";
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                height: 100px;
-                background: linear-gradient( transparent, rgba(0, 0, 0, 0.78) );
-            }
-
-            /* =========================================
-                       SCHEME NAME
-            ========================================= */
-
-            .scheme-name {
-                position: absolute;
-                left: 22px;
-                bottom: 20px;
-                color: white;
-                font-size: 27px;
-                font-weight: 700;
-                z-index: 2;
-                text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
-            }
-
-            /* =========================================
-                       STATUS
-            ========================================= */
-
-            .status-badge {
-                position: absolute;
-                top: 18px;
-                right: 18px;
-                z-index: 3;
-                padding: 8px 15px;
-                border-radius: 20px;
-                font-size: 14px;
-                font-weight: 600;
-                color: white;
-            }
-
-            .status-active {
-                background: #16a34a;
-            }
-
-            .status-inactive {
-                background: #dc2626;
-            }
-
-            /* =========================================
-                       CARD BODY
-              ========================================= */
-
-            .scheme-body {
-                padding: 25px;
-                display: flex;
-                flex-direction: column;
-                flex: 1;
-            }
-
-            .scheme-description {
-                min-height: 55px;
-                color: #64748b;
-                font-size: 16px;
-                margin-bottom: 18px;
-            }
-
-            /* =========================================
-                       INFORMATION
-             ========================================= */
-
-            .info-list {
-                margin-top: 5px;
-            }
-
-            .info-row {
-                display: flex;
-                align-items: center;
-                padding: 10px 0;
-                border-bottom: 1px solid #edf0f4;
-            }
-
-                .info-row:last-child {
-                    border-bottom: none;
-                }
-
-            .info-icon {
-                width: 32px;
-                color: #2563eb;
-                font-size: 20px;
-            }
-
-            .info-label {
-                color: #475569;
-                font-size: 15px;
-                flex: 1;
-            }
-
-            .info-value {
-                color: #334155;
-                font-size: 15px;
-                font-weight: 700;
-                text-align: right;
-            }
-
-            /* =========================================
-                       BUTTON
-             ========================================= */
-
-            .card-actions {
-                margin-top: 20px;
-                padding-top: 18px;
-                border-top: 1px solid #e5e7eb;
-            }
-
-            .btn-view {
-                display: block;
-                width: 100%;
-                background: #2563eb;
-                color: white;
-                border-radius: 9px;
-                padding: 11px;
-                text-align: center;
-                text-decoration: none;
-                font-size: 15px;
-                font-weight: 600;
-                transition: 0.2s ease;
-            }
-
-                .btn-view:hover {
-                    background: #1d4ed8;
-                    color: white;
-                }
-
-            /* =========================================
-                       EMPTY STATE
-                    ========================================= */
-
-            .empty-state {
-                text-align: center;
-                padding: 70px 20px;
-            }
-
-                .empty-state i {
-                    font-size: 65px;
-                    color: #adb5bd;
-                }
-
-                .empty-state h3 {
-                    margin-top: 20px;
-                }
-
-            /* =========================================
-                       TABLET
-                    ========================================= */
-
-            @@media (min-width: 576px) and (max-width: 991px) {
-
-                .scheme-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-
-                .housing-page {
-                    padding: 30px 25px;
-                }
-            }
-
-            /* =========================================
-                       MOBILE
-             ========================================= */
-
-            @@media (max-width: 575px) {
-
-                .scheme-grid {
-                    grid-template-columns: 1fr;
-                }
-
-                .housing-page {
-                    padding: 25px 15px;
-                }
-
-                .page-header h1 {
-                    font-size: 30px;
-                }
-
-                .scheme-image {
-                    height: 230px;
-                }
-
-                .public-navbar {
-                    padding: 15px 20px;
-                }
-            }
+        }
 
     </style>
 
 </head>
 
+
 <body>
 
-    <!-- =========================================
-         PUBLIC NAVBAR
-    ========================================= -->
+    <div class="page-wrapper">
 
-    <nav class="public-navbar">
-
-        <div class="d-flex justify-content-between align-items-center">
-
-            <a asp-controller="Home"
-               asp-action="Index"
-               class="brand">
-
-                <i class="bi bi-buildings-fill"></i>
-
-                Housing Allotment System
-
-            </a>
-
-            <div>
-
-                <a asp-controller="Home"
-                   asp-action="Index"
-                   class="nav-link-custom">
-
-                    <i class="bi bi-house-fill"></i>
-
-                    Home
-
-                </a>
-
-            </div>
-
-        </div>
-
-    </nav>
-
-
-    <!-- =========================================
-         MAIN PAGE
-    ========================================== -->
-
-    <main class="housing-page">
-
-        <!-- HEADER -->
+        <!-- =========================================
+             PAGE HEADER
+        ========================================== -->
 
         <div class="page-header">
 
-            <h1>
+            <h1 class="page-title">
 
-                <i class="bi bi-buildings-fill header-icon"></i>
+                <i class="fa-solid fa-house-chimney"></i>
 
                 Housing Schemes
 
             </h1>
 
-            <p>
-                Explore available housing schemes and find
-                the one that suits you best.
+            <p class="page-subtitle">
+
+                Explore available housing schemes and their EMI plans.
+
             </p>
 
-        </div>
 
+            <!-- SEARCH -->
 
-        <!-- SEARCH -->
+            <div class="search-box">
 
-        <div class="search-container">
+                <i class="fa-solid fa-magnifying-glass"></i>
 
-            <input type="text"
-                   id="searchBox"
-                   class="form-control search-box"
-                   placeholder="Search housing schemes..." />
+                <input type="text"
+                       id="schemeSearch"
+                       placeholder="Search housing schemes, city, location or EMI plan..." />
+
+            </div>
 
         </div>
 
 
         <!-- =========================================
-             SCHEME CARDS
+             SCHEMES CONTAINER
         ========================================== -->
-        @if (Model != null && Model.Any())
-        {
 
-            <div class="scheme-grid" id="schemeGrid">
+        <div class="schemes-container">
 
-                @foreach (var item in Model)
-                {
+            @if (Model != null && Model.Any())
+            {
 
-                    <div class="scheme-card">
-
-                        <!-- IMAGE -->
-
-                        <div class="scheme-image">
-
-                            @if (!string.IsNullOrWhiteSpace(item.BannerImage))
-                            {
-                                <img src="@Url.Content("~/images/schemes/" + item.BannerImage.Trim())"
-                                     alt="@item.SchemeName"
-                                     onerror="this.onerror=null;this.src='/images/schemes/default.jpg';" />
-                            }
-                            else
-                            {
-                                <img src="@Url.Content("~/images/schemes/default.jpg")"
-                                     alt="Housing Scheme" />
-                            }
+                <div class="scheme-grid"
+                     id="schemeGrid">
 
 
-                            <!-- STATUS -->
-                            @if (item.Status == true)
-                            {
-                                <span class="status-badge status-active">
-
-                                    <i class="bi bi-check-circle-fill"></i>
-
-                                    Active
-
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="status-badge status-inactive">
-
-                                    <i class="bi bi-x-circle-fill"></i>
-
-                                    Inactive
-
-                                </span>
-                            }
+                    @foreach (var item in Model)
+                    {
+                        var schemeEmiPlans = emiPlans
+                            .Where(x => x.SchemeId == item.SchemeId)
+                            .OrderBy(x => x.TenureMonths)
+                            .ThenBy(x => x.PlanName)
+                            .ToList();
 
 
-                            <!-- SCHEME NAME -->
+                        <!-- =========================================
+                             SCHEME CARD
+                        ========================================== -->
 
-                            <div class="scheme-name">
-
-                                @item.SchemeName
-
-                            </div>
-
-                        </div>
+                        <div class="scheme-card">
 
 
-                        <!-- =================================
-                             CARD BODY
-                        ================================== -->
+                            <!-- =========================================
+                                 IMAGE
+                            ========================================== -->
 
-                        <div class="scheme-body">
+                            <div class="scheme-image-wrapper">
 
-
-                            <!-- DESCRIPTION -->
-
-                            <div class="scheme-description">
-
-                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                @if (!string.IsNullOrWhiteSpace(item.BannerImage))
                                 {
-                                    if (item.Description.Length > 120)
-                                    {
-                                        @item.Description.Substring(0, 120)
+                                    <img src="@Url.Content(item.BannerImage)"
+                                         alt="@item.SchemeName"
+                                         class="scheme-image"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
 
-                                        <text>...</text>
-                                    }
-                                    else
-                                    {
-                                        @item.Description
-                                    }
+                                    <div class="scheme-image-placeholder"
+                                         style="display:none;">
+
+                                        <i class="fa-solid fa-house-chimney"></i>
+
+                                    </div>
                                 }
                                 else
                                 {
-                                    <span>
-                                        No description available for this housing scheme.
+                                    <div class="scheme-image-placeholder">
+
+                                        <i class="fa-solid fa-house-chimney"></i>
+
+                                    </div>
+                                }
+
+
+                                <!-- STATUS -->
+
+                                @if (item.Status == true)
+                                {
+                                    <span class="scheme-status">
+
+                                        <i class="fa-solid fa-circle-check"></i>
+
+                                        Active
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="scheme-status inactive">
+
+                                        <i class="fa-solid fa-circle"></i>
+
+                                        Inactive
+
                                     </span>
                                 }
 
                             </div>
 
 
-                            <!-- INFORMATION -->
+                            <!-- =========================================
+                                 CONTENT
+                            ========================================== -->
 
-                            <div class="info-list">
+                            <div class="scheme-content">
 
-                                <!-- CITY -->
 
-                                <div class="info-row">
+                                <!-- SCHEME NAME -->
 
-                                    <i class="bi bi-geo-alt-fill info-icon"></i>
+                                <h2 class="scheme-title">
 
-                                    <span class="info-label">
-                                        City
-                                    </span>
+                                    @item.SchemeName
 
-                                    <strong class="info-value">
-                                        @(item.City ?? "-")
-                                    </strong>
+                                </h2>
+
+
+                                <!-- DESCRIPTION -->
+
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <p class="scheme-description">
+
+                                        @item.Description
+
+                                    </p>
+                                }
+                                else
+                                {
+                                    <p class="scheme-description">
+
+                                        Housing scheme details are available here.
+
+                                    </p>
+                                }
+
+
+                                <!-- =========================================
+                                     SCHEME INFORMATION
+                                ========================================== -->
+
+                                <div class="scheme-info">
+
+
+                                    <!-- LOCATION -->
+
+                                    <div class="info-item">
+
+                                        <i class="fa-solid fa-location-dot"></i>
+
+                                        <div>
+
+                                            <span class="info-label">
+                                                Location
+                                            </span>
+
+                                            <span class="info-value">
+                                                @(string.IsNullOrWhiteSpace(item.Location)
+                                                    ? "Not specified"
+                                                    : item.Location)
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- CITY -->
+
+                                    <div class="info-item">
+
+                                        <i class="fa-solid fa-city"></i>
+
+                                        <div>
+
+                                            <span class="info-label">
+                                                City
+                                            </span>
+
+                                            <span class="info-value">
+                                                @(string.IsNullOrWhiteSpace(item.City)
+                                                    ? "Not specified"
+                                                    : item.City)
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- STATE -->
+
+                                    <div class="info-item">
+
+                                        <i class="fa-solid fa-map"></i>
+
+                                        <div>
+
+                                            <span class="info-label">
+                                                State
+                                            </span>
+
+                                            <span class="info-value">
+                                                @(string.IsNullOrWhiteSpace(item.State)
+                                                    ? "Not specified"
+                                                    : item.State)
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- TOTAL UNITS -->
+
+                                    <div class="info-item">
+
+                                        <i class="fa-solid fa-building"></i>
+
+                                        <div>
+
+                                            <span class="info-label">
+                                                Total Units
+                                            </span>
+
+                                            <span class="info-value">
+                                                @item.TotalUnits
+                                            </span>
+
+                                        </div>
+
+                                    </div>
 
                                 </div>
 
 
-                                <!-- STATE -->
+                                <!-- =========================================
+                                     EMI SECTION
+                                ========================================== -->
 
-                                <div class="info-row">
+                                <div class="emi-section">
 
-                                    <i class="bi bi-map-fill info-icon"></i>
 
-                                    <span class="info-label">
-                                        State
-                                    </span>
+                                    <!-- EMI HEADING -->
 
-                                    <strong class="info-value">
-                                        @(item.State ?? "-")
-                                    </strong>
+                                    <div class="emi-heading">
+
+                                        <div>
+
+                                            <i class="fa-solid fa-money-check-dollar"></i>
+
+                                            Available EMI Plans
+
+                                        </div>
+
+                                        <span class="emi-count">
+
+                                            @schemeEmiPlans.Count
+
+                                            @(schemeEmiPlans.Count == 1
+                                                ? "Plan"
+                                                : "Plans")
+
+                                        </span>
+
+                                    </div>
+
+
+                                    @if (schemeEmiPlans.Any())
+                                    {
+
+                                        <div class="emi-list">
+
+
+                                            @foreach (var emi in schemeEmiPlans)
+                                            {
+
+                                                <div class="emi-card">
+
+
+                                                    <!-- EMI PLAN HEADER -->
+
+                                                    <div class="emi-card-header">
+
+                                                        <strong>
+
+                                                            @emi.PlanName
+
+                                                        </strong>
+
+
+                                                        <span class="emi-status">
+
+                                                            <i class="fa-solid fa-circle-check"></i>
+
+                                                            Active
+
+                                                        </span>
+
+                                                    </div>
+
+
+                                                    <!-- EMI DETAILS -->
+
+                                                    <div class="emi-details">
+
+
+                                                        <!-- TENURE -->
+
+                                                        <div class="emi-detail">
+
+                                                            <i class="fa-solid fa-calendar-days"></i>
+
+                                                            <div>
+
+                                                                <small>
+                                                                    Tenure
+                                                                </small>
+
+                                                                <strong>
+                                                                    @emi.TenureMonths Months
+                                                                </strong>
+
+                                                            </div>
+
+                                                        </div>
+
+
+                                                        <!-- INTEREST -->
+
+                                                        <div class="emi-detail">
+
+                                                            <i class="fa-solid fa-percent"></i>
+
+                                                            <div>
+
+                                                                <small>
+                                                                    Interest Rate
+                                                                </small>
+
+                                                                <strong>
+                                                                    @emi.InterestRate%
+                                                                </strong>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+
+                                                    <!-- DESCRIPTION -->
+
+                                                    @if (!string.IsNullOrWhiteSpace(emi.Description))
+                                                    {
+
+                                                        <div class="emi-description">
+
+                                                            <i class="fa-solid fa-circle-info"></i>
+
+                                                            @emi.Description
+
+                                                        </div>
+
+                                                    }
+
+                                                </div>
+
+                                            }
+
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+
+                                        <div class="no-emi">
+
+                                            <i class="fa-solid fa-circle-info"></i>
+
+                                            <span>
+
+                                                No EMI plans are currently available
+                                                for this scheme.
+
+                                            </span>
+
+                                        </div>
+
+                                    }
 
                                 </div>
 
 
-                                <!-- LOCATION -->
+                                <!-- =========================================
+                                     VIEW SCHEME
+                                ========================================== -->
 
-                                <div class="info-row">
+                                <div class="card-actions">
 
-                                    <i class="bi bi-pin-map-fill info-icon"></i>
+                                    <a href="@Url.Action(
+                                        "SchemeDetails",
+                                        "Home",
+                                        new { id = item.SchemeId })"
+                                       class="btn-view">
 
-                                    <span class="info-label">
-                                        Location
-                                    </span>
+                                        View Scheme
 
-                                    <strong class="info-value">
-                                        @(item.Location ?? "-")
-                                    </strong>
+                                        <i class="fa-solid fa-arrow-right"></i>
 
-                                </div>
-
-
-                                <!-- TOTAL UNITS -->
-
-                                <div class="info-row">
-
-                                    <i class="bi bi-house-fill info-icon"></i>
-
-                                    <span class="info-label">
-                                        Total Units
-                                    </span>
-
-                                    <strong class="info-value">
-                                        @(item.TotalUnits?.ToString() ?? "-")
-                                    </strong>
+                                    </a>
 
                                 </div>
 
-
-                                <!-- LAUNCH DATE -->
-
-                                <div class="info-row">
-
-                                    <i class="bi bi-calendar-event-fill info-icon"></i>
-
-                                    <span class="info-label">
-                                        Launch Date
-                                    </span>
-
-                                    <strong class="info-value">
-
-                                        @if (item.LaunchDate.HasValue)
-                                        {
-                                            @item.LaunchDate.Value.ToString("dd MMM yyyy")
-                                        }
-                                        else
-                                        {
-                                            <text>-</text>
-                                        }
-
-                                    </strong>
-
-                                </div>
-
-
-                                <!-- LAST APPLICATION DATE -->
-
-                                <div class="info-row">
-
-                                    <i class="bi bi-calendar-x-fill info-icon"></i>
-
-                                    <span class="info-label">
-                                        Apply Before
-                                    </span>
-
-                                    <strong class="info-value">
-
-                                        @if (item.LastApplicationDate.HasValue)
-                                        {
-                                            @item.LastApplicationDate.Value.ToString("dd MMM yyyy")
-                                        }
-                                        else
-                                        {
-                                            <text>-</text>
-                                        }
-
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- =================================
-                                 VIEW BUTTON
-                            ================================== -->
-
-                            <div class="card-actions">
-
-                                <a asp-controller="Home"
-                                   asp-action="SchemeDetails"
-                                   asp-route-id="@item.SchemeId"
-                                   class="btn-view">
-
-                                    <i class="bi bi-eye-fill me-1"></i>
-
-                                    View Scheme
-
-                                </a>
 
                             </div>
 
                         </div>
 
-                    </div>
+                    }
 
-                }
+                </div>
 
-            </div>
 
-        }
-        else
-        {
+                <!-- =========================================
+                     NO SEARCH RESULTS
+                ========================================== -->
 
-            <!-- EMPTY STATE -->
+                <div class="no-results"
+                     id="noResults">
 
-            <div class="empty-state">
+                    <i class="fa-solid fa-magnifying-glass"></i>
 
-                <i class="bi bi-buildings"></i>
+                    <h4>
+                        No schemes found
+                    </h4>
 
-                <h3>
-                    No Housing Schemes Found
-                </h3>
+                    <p>
+                        Try searching with a different scheme name,
+                        city, location or EMI plan.
+                    </p>
 
-                <p class="text-muted">
-                    There are currently no housing schemes available.
-                </p>
+                </div>
 
-            </div>
+            }
+            else
+            {
 
-        }
+                <!-- =========================================
+                     NO SCHEMES
+                ========================================== -->
 
-    </main>
+                <div class="empty-state">
+
+                    <i class="fa-solid fa-house-circle-exclamation"></i>
+
+                    <h4>
+                        No Housing Schemes Available
+                    </h4>
+
+                    <p>
+                        There are currently no housing schemes available.
+                    </p>
+
+                </div>
+
+            }
+
+        </div>
+
+    </div>
 
 
     <!-- =========================================
@@ -737,44 +1035,66 @@
 
     <script>
 
-            document.addEventListener("DOMContentLoaded", function() {
+        const searchInput =
+            document.getElementById("schemeSearch");
 
-                const searchBox =
-                    document.getElementById("searchBox");
+        const schemeCards =
+            document.querySelectorAll(".scheme-card");
 
-                const cards =
-                    document.querySelectorAll(".scheme-card");
+        const noResults =
+            document.getElementById("noResults");
 
-                if (searchBox) {
 
-                    searchBox.addEventListener("keyup", function() {
+        if (searchInput) {
 
-                        const searchValue =
-                            this.value.toLowerCase().trim();
+            searchInput.addEventListener("input", function () {
 
-                        cards.forEach(function(card) {
+                const searchValue =
+                    this.value.toLowerCase().trim();
 
-                            const cardText =
-                                card.innerText.toLowerCase();
+                let visibleCount = 0;
 
-                            if (cardText.includes(searchValue)) {
 
-                                card.style.display = "";
+                schemeCards.forEach(function (card) {
 
-                            }
-                            else {
+                    const cardText =
+                        card.innerText.toLowerCase();
 
-                                card.style.display = "none";
 
-                            }
+                    if (cardText.includes(searchValue)) {
 
-                        });
+                        card.style.display = "";
 
-                    });
+                        visibleCount++;
+
+                    }
+                    else {
+
+                        card.style.display = "none";
+
+                    }
+
+                });
+
+
+                if (noResults) {
+
+                    if (visibleCount === 0 && searchValue !== "") {
+
+                        noResults.style.display = "block";
+
+                    }
+                    else {
+
+                        noResults.style.display = "none";
+
+                    }
 
                 }
 
             });
+
+        }
 
     </script>
 
