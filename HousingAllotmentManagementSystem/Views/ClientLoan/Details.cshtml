@@ -1,4 +1,4 @@
-﻿@model HousingAllotmentManagementSystem.Models.Loan
+@model HousingAllotmentManagementSystem.Models.Loan
 
 @{
     ViewData["Title"] = "Loan Details";
@@ -431,6 +431,96 @@
         </div>
 
     </div>
+
+
+    <!-- PROPERTY & HOUSING SCHEME INFORMATION -->
+    @if (Model.Allotment?.Property != null)
+    {
+        var property = Model.Allotment.Property;
+        var scheme = property.Scheme;
+
+        <div class="card border-0 shadow-sm mt-4">
+
+            <div class="card-header bg-info text-white">
+
+                <h5 class="mb-0">
+                    <i class="bi bi-buildings me-2"></i>
+                    Allotted Property & Scheme Details
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-4">
+
+                    <!-- SCHEME NAME -->
+                    <div class="col-md-6 col-lg-3">
+                        <small class="text-muted d-block">Housing Scheme</small>
+                        <strong class="text-primary fs-6">@(scheme?.SchemeName ?? "N/A")</strong>
+                    </div>
+
+                    <!-- LOCATION -->
+                    <div class="col-md-6 col-lg-3">
+                        <small class="text-muted d-block">Location</small>
+                        <strong>@(scheme?.Location ?? $"{scheme?.City}, {scheme?.State}" ?? "N/A")</strong>
+                    </div>
+
+                    <!-- UNIT / PLOT NUMBER -->
+                    <div class="col-md-6 col-lg-3">
+                        <small class="text-muted d-block">Unit / Plot Number</small>
+                        <strong>
+                            @if (!string.IsNullOrEmpty(property.UnitNumber))
+                            {
+                                <span>Unit: @property.UnitNumber</span>
+                            }
+                            @if (!string.IsNullOrEmpty(property.PlotNumber))
+                            {
+                                <span class="ms-1">(Plot: @property.PlotNumber)</span>
+                            }
+                            @if (string.IsNullOrEmpty(property.UnitNumber) && string.IsNullOrEmpty(property.PlotNumber))
+                            {
+                                <span>N/A</span>
+                            }
+                        </strong>
+                    </div>
+
+                    <!-- PROPERTY TYPE -->
+                    <div class="col-md-6 col-lg-3">
+                        <small class="text-muted d-block">Property Type</small>
+                        <strong>@(property.PropertyType ?? "N/A")</strong>
+                    </div>
+
+                    <!-- CARPET AREA -->
+                    <div class="col-md-6 col-lg-3">
+                        <small class="text-muted d-block">Carpet Area</small>
+                        <strong>@(property.CarpetArea.HasValue ? $"{property.CarpetArea:N2} sq.ft" : "N/A")</strong>
+                    </div>
+
+                    <!-- BUILT-UP AREA -->
+                    <div class="col-md-6 col-lg-3">
+                        <small class="text-muted d-block">Built-up Area</small>
+                        <strong>@(property.BuiltupArea.HasValue ? $"{property.BuiltupArea:N2} sq.ft" : "N/A")</strong>
+                    </div>
+
+                    <!-- PROPERTY PRICE -->
+                    <div class="col-md-6 col-lg-3">
+                        <small class="text-muted d-block">Property Price</small>
+                        <strong class="text-success">@(property.Price.HasValue ? $"₹{property.Price.Value:N2}" : "N/A")</strong>
+                    </div>
+
+                    <!-- BEDROOMS & BATHROOMS -->
+                    <div class="col-md-6 col-lg-3">
+                        <small class="text-muted d-block">Configuration</small>
+                        <strong>@(property.Bedrooms.HasValue ? $"{property.Bedrooms} BHK" : "N/A")</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
 
 
     <!-- EMI PLANS -->

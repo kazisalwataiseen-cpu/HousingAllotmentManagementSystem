@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Home";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
@@ -645,9 +645,40 @@ bool isAuthenticated = User.Identity?.IsAuthenticated == true;
                     </p>
 
                     <a asp-controller="Applications"
-                       asp-action="Index">
+                       asp-action="MyApplications">
 
                         View My Applications
+
+                        <i class="bi bi-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+
+                <!-- ============================================= -->
+                <!-- MY PROPERTIES -->
+                <!-- ============================================= -->
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        <i class="bi bi-houses"></i>
+                    </div>
+
+                    <h4>
+                        My Properties
+                    </h4>
+
+                    <p>
+                        View your allotted properties, unit numbers,
+                        specifications and scheme information.
+                    </p>
+
+                    <a asp-controller="ClientProperty"
+                       asp-action="Index">
+
+                        View My Properties
 
                         <i class="bi bi-arrow-right"></i>
 
@@ -675,7 +706,6 @@ bool isAuthenticated = User.Identity?.IsAuthenticated == true;
                         allocation details.
                     </p>
 
-                    <!-- CLIENT-SIDE ALLOTMENTS -->
                     <a asp-controller="ClientAllotment"
                        asp-action="Index">
 
@@ -750,9 +780,6 @@ bool isAuthenticated = User.Identity?.IsAuthenticated == true;
                 </div>
 
 
-                <!-- ============================================= -->
-                <!-- MY PAYMENTS -->
-                <!-- ============================================= -->
                 <!-- ============================================= -->
                 <!-- MY PAYMENTS -->
                 <!-- ============================================= -->

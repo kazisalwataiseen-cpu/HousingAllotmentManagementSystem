@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HousingAllotmentManagementSystem.Models.Loan>
+@model IEnumerable<HousingAllotmentManagementSystem.Models.Loan>
 
 @{
     ViewData["Title"] = "My Loans";
@@ -368,6 +368,26 @@ var loanApplications =
 
                         <div class="card-body p-4">
 
+                            @if (loan.Allotment != null)
+                            {
+                                <div class="mb-3 pb-2 border-bottom">
+                                    <div class="d-flex justify-content-between text-muted small">
+                                        <span>
+                                            <i class="bi bi-buildings me-1 text-primary"></i>
+                                            <strong>@(loan.Allotment.Property?.Scheme?.SchemeName ?? "Housing Scheme")</strong>
+                                            @if (!string.IsNullOrEmpty(loan.Allotment.Property?.UnitNumber))
+                                            {
+                                                <span class="ms-1">(Unit: @loan.Allotment.Property.UnitNumber)</span>
+                                            }
+                                        </span>
+                                        <span>
+                                            <i class="bi bi-house-check me-1 text-success"></i>
+                                            Allotment: @loan.Allotment.AllotmentNumber
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+
                             <div class="row g-4">
 
                                 <!-- LOAN AMOUNT -->
@@ -562,6 +582,6 @@ var loanApplications =
 
         </div>
     }
-    ```
+    
 
 </div>

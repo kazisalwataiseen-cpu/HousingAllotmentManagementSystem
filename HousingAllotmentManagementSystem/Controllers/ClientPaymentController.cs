@@ -1,4 +1,4 @@
-﻿
+
 using HousingAllotmentManagementSystem.Data;
 using HousingAllotmentManagementSystem.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace HousingAllotmentManagementSystem.Controllers
 {
-    [Authorize(Roles = "Client")]
+    [Authorize]
     public class ClientPaymentController : Controller
     {
         private readonly ApplicationDbContext _context;

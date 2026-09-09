@@ -448,6 +448,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                     .Include(a => a.Property)
                         .ThenInclude(p => p.Scheme)
 
+                    .Include(a => a.Allotments)
+
                     .AsNoTracking()
 
                     .FirstOrDefaultAsync(a =>
@@ -1535,6 +1537,8 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                     .Include(a => a.Property)
                         .ThenInclude(p => p.Scheme)
+
+                    .Include(a => a.Allotments)
 
                     .Where(a =>
                         a.UserId == userId)

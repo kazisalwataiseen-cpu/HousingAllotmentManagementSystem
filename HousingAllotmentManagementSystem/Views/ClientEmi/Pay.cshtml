@@ -1,4 +1,4 @@
-﻿@model HousingAllotmentManagementSystem.Models.Installment
+@model HousingAllotmentManagementSystem.Models.Installment
 
 @{
     ViewData["Title"] = "Pay EMI";
@@ -7,7 +7,6 @@
 
 <div class="container py-5">
 
-    ```
     <div class="row justify-content-center">
 
         <div class="col-lg-7 col-md-9">
@@ -115,6 +114,32 @@
 
                             <h5 class="fw-bold text-danger">
                                 ₹@Model.LateFee.ToString("N2")
+                            </h5>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Principal Amount
+                            </small>
+
+                            <h5 class="fw-bold text-secondary">
+                                ₹@Model.PrincipalAmount.ToString("N2")
+                            </h5>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Interest Amount
+                            </small>
+
+                            <h5 class="fw-bold text-secondary">
+                                ₹@Model.InterestAmount.ToString("N2")
                             </h5>
 
                         </div>
@@ -246,6 +271,5 @@
         </div>
 
     </div>
-    ```
 
 </div>

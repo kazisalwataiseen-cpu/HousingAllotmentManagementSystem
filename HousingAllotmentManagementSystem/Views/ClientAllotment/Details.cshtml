@@ -1,4 +1,4 @@
-﻿@model HousingAllotmentManagementSystem.Models.Allotment
+@model HousingAllotmentManagementSystem.Models.Allotment
 
 @{
     ViewData["Title"] = "Allotment Details";
@@ -300,22 +300,53 @@
 
                     @if (Model.Property != null)
                     {
-                        <div class="row g-4">
+                        var prop = Model.Property;
+                        var sch = prop.Scheme;
+
+                        <div class="row g-3">
 
                             <div class="col-12">
-
-                                <small class="text-muted d-block">
-                                    Property ID
-                                </small>
-
-                                <h5 class="fw-bold">
-                                    @Model.PropertyId
-                                </h5>
-
+                                <small class="text-muted d-block">Housing Scheme</small>
+                                <h6 class="fw-bold text-primary">
+                                    @(sch?.SchemeName ?? "Housing Scheme")
+                                </h6>
                             </div>
 
-                        </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Unit / Plot Number</small>
+                                <h6 class="fw-bold">
+                                    @(string.IsNullOrEmpty(prop.UnitNumber) ? (string.IsNullOrEmpty(prop.PlotNumber) ? $"#{prop.PropertyId}" : $"Plot {prop.PlotNumber}") : $"Unit {prop.UnitNumber}")
+                                </h6>
+                            </div>
 
+                            <div class="col-6">
+                                <small class="text-muted d-block">Property Type</small>
+                                <h6 class="fw-bold">
+                                    @(prop.PropertyType ?? "Residential")
+                                </h6>
+                            </div>
+
+                            <div class="col-6">
+                                <small class="text-muted d-block">Location</small>
+                                <span>@(sch?.Location ?? $"{sch?.City}, {sch?.State}" ?? "N/A")</span>
+                            </div>
+
+                            <div class="col-6">
+                                <small class="text-muted d-block">Property Price</small>
+                                <span class="fw-bold text-success">
+                                    @(prop.Price.HasValue ? $"₹{prop.Price.Value:N2}" : "N/A")
+                                </span>
+                            </div>
+
+                            @if (prop.CarpetArea.HasValue)
+                            {
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Carpet Area</small>
+                                    <span>@prop.CarpetArea.Value.ToString("N2") sq.ft</span>
+                                </div>
+                            }
+
+                        </div>
 
                         <div class="alert alert-success mt-4 mb-0">
 

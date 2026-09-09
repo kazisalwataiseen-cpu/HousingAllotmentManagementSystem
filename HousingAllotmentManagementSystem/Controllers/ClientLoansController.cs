@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using HousingAllotmentManagementSystem.Data;
 using HousingAllotmentManagementSystem.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -10,14 +10,6 @@ namespace HousingAllotmentManagementSystem.Controllers
     // =========================================================
     // CLIENT LOAN CONTROLLER
     // =========================================================
-    //
-    // Clients can:
-    // 1. View their own loans
-    // 2. View their own loan details
-    // 3. Apply for a housing loan
-    // 4. View their own loan application history
-    //
-    // =========================================================
 
     [Authorize]
     public class ClientLoanController : Controller
@@ -28,7 +20,6 @@ namespace HousingAllotmentManagementSystem.Controllers
         {
             _context = context;
         }
-
 
         // =========================================================
         // MY LOANS
@@ -52,6 +43,9 @@ namespace HousingAllotmentManagementSystem.Controllers
             var loans = await _context.Loans
                 .Include(l => l.Allotment)
                     .ThenInclude(a => a.Application)
+                .Include(l => l.Allotment)
+                    .ThenInclude(a => a.Property)
+                        .ThenInclude(p => p.Scheme)
                 .Include(l => l.Emiplans)
                 .Where(l =>
                     l.Allotment.Application.UserId == userId.Value &&
@@ -60,13 +54,14 @@ namespace HousingAllotmentManagementSystem.Controllers
                 .AsNoTracking()
                 .ToListAsync();
 
-
             // -----------------------------------------------------
             // Get all loan applications belonging to client
             // -----------------------------------------------------
 
             var loanApplications = await _context.LoanApplications
                 .Include(x => x.Allotment)
+                    .ThenInclude(a => a.Property)
+                .Include(x => x.EMIPlanOption)
                 .Where(x =>
                     x.UserId == userId.Value)
                 .OrderByDescending(x => x.LoanApplicationId)
@@ -75,13 +70,14 @@ namespace HousingAllotmentManagementSystem.Controllers
 
             ViewBag.LoanApplications = loanApplications;
 
-
             // -----------------------------------------------------
             // Find active allotment
             // -----------------------------------------------------
 
             var activeAllotment = await _context.Allotments
                 .Include(a => a.Application)
+                .Include(a => a.Property)
+                    .ThenInclude(p => p.Scheme)
                 .Where(a =>
                     a.Application.UserId == userId.Value &&
                     a.AllotmentStatus == "Active")
@@ -91,7 +87,6 @@ namespace HousingAllotmentManagementSystem.Controllers
             ViewBag.HasActiveAllotment =
                 activeAllotment != null;
 
-
             // -----------------------------------------------------
             // Check pending application
             // -----------------------------------------------------
@@ -100,9 +95,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 loanApplications.Any(x =>
                     x.Status == "Pending");
 
-
             // -----------------------------------------------------
-            // Pass active allotment information to view
+            // Pass active allotment
             // -----------------------------------------------------
 
             if (activeAllotment != null)
@@ -111,10 +105,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                     activeAllotment;
             }
 
-
             return View(loans);
         }
-
 
         // =========================================================
         // LOAN DETAILS
@@ -136,13 +128,12 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // -----------------------------------------------------
-            // Only allow client to view their own loan
-            // -----------------------------------------------------
-
             var loan = await _context.Loans
                 .Include(l => l.Allotment)
                     .ThenInclude(a => a.Application)
+                .Include(l => l.Allotment)
+                    .ThenInclude(a => a.Property)
+                        .ThenInclude(p => p.Scheme)
                 .Include(l => l.Emiplans)
                     .ThenInclude(e => e.Installments)
                 .AsNoTracking()
@@ -157,7 +148,6 @@ namespace HousingAllotmentManagementSystem.Controllers
 
             return View(loan);
         }
-
 
         // =========================================================
         // APPLY FOR LOAN - GET
@@ -174,9 +164,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-
             // -----------------------------------------------------
-            // Find ACTIVE allotments belonging to logged-in client
+            // Find active allotment
             // -----------------------------------------------------
 
             var activeAllotments = await _context.Allotments
@@ -189,11 +178,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                 .OrderByDescending(a => a.CreatedDate)
                 .ToListAsync();
 
-
-            // -----------------------------------------------------
-            // No active allotment
-            // -----------------------------------------------------
-
             if (activeAllotments.Count == 0)
             {
                 TempData["Error"] =
@@ -202,17 +186,15 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-
             // -----------------------------------------------------
-            // Current implementation uses latest active allotment
+            // Use latest active allotment
             // -----------------------------------------------------
 
             var allotment =
                 activeAllotments.First();
 
-
             // -----------------------------------------------------
-            // Check whether actual loan already exists
+            // Check actual loan
             // -----------------------------------------------------
 
             var existingLoan = await _context.Loans
@@ -228,9 +210,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-
             // -----------------------------------------------------
-            // Check pending application for this allotment
+            // Check pending application
             // -----------------------------------------------------
 
             var pendingApplication = await _context.LoanApplications
@@ -248,7 +229,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-
             // -----------------------------------------------------
             // Load active EMI plan options for this scheme
             // -----------------------------------------------------
@@ -262,11 +242,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                 .AsNoTracking()
                 .ToListAsync();
 
-
-            // -----------------------------------------------------
-            // No EMI plans available
-            // -----------------------------------------------------
-
             if (emiPlanOptions.Count == 0)
             {
                 TempData["Error"] =
@@ -275,16 +250,15 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            // -----------------------------------------------------
+            // Load ViewBag data
+            // -----------------------------------------------------
+
+            await LoadLoanApplicationViewData(
+                allotment);
 
             // -----------------------------------------------------
-            // Pass data to Apply View
-            // -----------------------------------------------------
-
-            await LoadLoanApplicationViewData(allotment);
-
-
-            // -----------------------------------------------------
-            // Create model for application form
+            // Create application model
             // -----------------------------------------------------
 
             var application = new LoanApplication
@@ -301,16 +275,16 @@ namespace HousingAllotmentManagementSystem.Controllers
                 DownPayment =
                     0,
 
-                // These will be automatically populated from
-                // the selected EMI Plan Option.
                 InterestRate =
                     0,
 
                 LoanTenure =
                     0,
 
+                // IMPORTANT:
+                // Nullable EMIPlanOptionId starts as null.
                 EMIPlanOptionId =
-                    0,
+                    null,
 
                 ApplicationDate =
                     DateTime.Now,
@@ -328,10 +302,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                     DateTime.Now
             };
 
-
             return View(application);
         }
-
 
         // =========================================================
         // APPLY FOR LOAN - POST
@@ -350,7 +322,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-
             // -----------------------------------------------------
             // ALWAYS use logged-in user's ID
             // -----------------------------------------------------
@@ -358,10 +329,8 @@ namespace HousingAllotmentManagementSystem.Controllers
             model.UserId =
                 userId.Value;
 
-
             // -----------------------------------------------------
-            // Verify active allotment belongs to this client
-            // Also load Property + Housing Scheme
+            // Verify active allotment
             // -----------------------------------------------------
 
             var allotment = await _context.Allotments
@@ -373,7 +342,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                     a.Application.UserId == userId.Value &&
                     a.AllotmentStatus == "Active");
 
-
             if (allotment == null)
             {
                 TempData["Error"] =
@@ -381,7 +349,6 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-
 
             // -----------------------------------------------------
             // Check actual loan
@@ -399,16 +366,16 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-
             // -----------------------------------------------------
             // Check pending application
             // -----------------------------------------------------
 
-            var pendingExists = await _context.LoanApplications
-                .AnyAsync(x =>
-                    x.UserId == userId.Value &&
-                    x.AllotmentId == model.AllotmentId &&
-                    x.Status == "Pending");
+            var pendingExists =
+                await _context.LoanApplications
+                    .AnyAsync(x =>
+                        x.UserId == userId.Value &&
+                        x.AllotmentId == model.AllotmentId &&
+                        x.Status == "Pending");
 
             if (pendingExists)
             {
@@ -418,9 +385,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-
             // -----------------------------------------------------
-            // Remove navigation-property validation
+            // Remove navigation validation
             // -----------------------------------------------------
 
             ModelState.Remove(
@@ -429,42 +395,53 @@ namespace HousingAllotmentManagementSystem.Controllers
             ModelState.Remove(
                 nameof(LoanApplication.Allotment));
 
+            ModelState.Remove(
+                nameof(LoanApplication.EMIPlanOption));
 
             // =====================================================
-            // VALIDATE EMI PLAN OPTION
+            // VALIDATE EMI PLAN
             // =====================================================
 
-            var selectedPlan = await _context.EMIPlanOptions
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x =>
-                    x.EMIPlanOptionId == model.EMIPlanOptionId &&
-                    x.SchemeId == allotment.Property.SchemeId &&
-                    x.Status == "Active");
+            EMIPlanOption? selectedPlan = null;
 
-
-            if (selectedPlan == null)
+            if (!model.EMIPlanOptionId.HasValue ||
+                model.EMIPlanOptionId.Value <= 0)
             {
                 ModelState.AddModelError(
                     nameof(model.EMIPlanOptionId),
-                    "Please select a valid active EMI plan for your housing scheme.");
+                    "Please select an EMI plan.");
             }
             else
             {
-                // -------------------------------------------------
-                // IMPORTANT:
-                // NEVER trust InterestRate and LoanTenure posted
-                // from the browser.
-                //
-                // Get them directly from the selected plan.
-                // -------------------------------------------------
+                selectedPlan =
+                    await _context.EMIPlanOptions
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x =>
+                            x.EMIPlanOptionId ==
+                                model.EMIPlanOptionId.Value &&
+                            x.SchemeId ==
+                                allotment.Property.SchemeId &&
+                            x.Status == "Active");
 
-                model.InterestRate =
-                    selectedPlan.InterestRate;
+                if (selectedPlan == null)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.EMIPlanOptionId),
+                        "Please select a valid active EMI plan for your housing scheme.");
+                }
+                else
+                {
+                    // -------------------------------------------------
+                    // Get rate and tenure directly from database plan
+                    // -------------------------------------------------
 
-                model.LoanTenure =
-                    selectedPlan.TenureMonths;
+                    model.InterestRate =
+                        selectedPlan.InterestRate;
+
+                    model.LoanTenure =
+                        selectedPlan.TenureMonths;
+                }
             }
-
 
             // =====================================================
             // VALIDATE REQUESTED LOAN AMOUNT
@@ -477,7 +454,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "Please enter a valid loan amount.");
             }
 
-
             // =====================================================
             // VALIDATE DOWN PAYMENT
             // =====================================================
@@ -489,19 +465,18 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "Down payment cannot be negative.");
             }
 
-
-            // =====================================================
-            // VALIDATE DOWN PAYMENT AGAINST LOAN AMOUNT
-            // =====================================================
+            // -----------------------------------------------------
+            // Down payment must be less than requested amount
+            // -----------------------------------------------------
 
             if (model.RequestedLoanAmount > 0 &&
-                model.DownPayment >= model.RequestedLoanAmount)
+                model.DownPayment >=
+                    model.RequestedLoanAmount)
             {
                 ModelState.AddModelError(
                     nameof(model.DownPayment),
                     "Down payment must be less than the requested loan amount.");
             }
-
 
             // =====================================================
             // VALIDATE INTEREST RATE
@@ -515,7 +490,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "The selected EMI plan has an invalid interest rate.");
             }
 
-
             // =====================================================
             // VALIDATE TENURE
             // =====================================================
@@ -528,7 +502,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "The selected EMI plan has an invalid loan tenure.");
             }
 
-
             if (selectedPlan != null &&
                 model.LoanTenure > 360)
             {
@@ -537,20 +510,17 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "Loan tenure cannot exceed 360 months.");
             }
 
-
             // =====================================================
-            // RETURN FORM IF VALIDATION FAILS
+            // RETURN FORM IF INVALID
             // =====================================================
 
             if (!ModelState.IsValid)
             {
-                // Reload Property, Scheme and EMI plans so that
-                // the form can be displayed again correctly.
-                await LoadLoanApplicationViewData(allotment);
+                await LoadLoanApplicationViewData(
+                    allotment);
 
                 return View(model);
             }
-
 
             // =====================================================
             // CREATE LOAN APPLICATION
@@ -575,7 +545,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                             model.DownPayment,
                             2),
 
-                    // Values come from database EMI plan
                     InterestRate =
                         Math.Round(
                             selectedPlan!.InterestRate,
@@ -583,6 +552,15 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                     LoanTenure =
                         selectedPlan.TenureMonths,
+
+                    // =================================================
+                    // IMPORTANT FIX
+                    //
+                    // Save the selected EMI Plan ID in database.
+                    // =================================================
+
+                    EMIPlanOptionId =
+                        selectedPlan.EMIPlanOptionId,
 
                     ApplicationDate =
                         DateTime.Now,
@@ -600,9 +578,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                         DateTime.Now
                 };
 
-
             // =====================================================
-            // SAVE
+            // SAVE APPLICATION
             // =====================================================
 
             try
@@ -623,10 +600,13 @@ namespace HousingAllotmentManagementSystem.Controllers
                 ModelState.AddModelError(
                     "",
                     "Unable to submit the loan application: " +
-                    (ex.InnerException?.Message ??
-                     ex.Message));
+                    (
+                        ex.InnerException?.Message ??
+                        ex.Message
+                    ));
 
-                await LoadLoanApplicationViewData(allotment);
+                await LoadLoanApplicationViewData(
+                    allotment);
 
                 return View(model);
             }
@@ -637,16 +617,15 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "An unexpected error occurred: " +
                     ex.Message);
 
-                await LoadLoanApplicationViewData(allotment);
+                await LoadLoanApplicationViewData(
+                    allotment);
 
                 return View(model);
             }
         }
 
-
         // =========================================================
         // CLIENT APPLICATION DETAILS
-        // GET: /ClientLoan/ApplicationDetails/5
         // =========================================================
 
         [HttpGet]
@@ -665,15 +644,12 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-
-            // -----------------------------------------------------
-            // Only show this client's application
-            // -----------------------------------------------------
-
             var application =
                 await _context.LoanApplications
                     .Include(x => x.Allotment)
                         .ThenInclude(a => a.Property)
+                            .ThenInclude(p => p.Scheme)
+                    .Include(x => x.EMIPlanOption)
                     .Include(x => x.User)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x =>
@@ -688,7 +664,6 @@ namespace HousingAllotmentManagementSystem.Controllers
             return View(application);
         }
 
-
         // =========================================================
         // LOAD DATA FOR LOAN APPLICATION VIEW
         // =========================================================
@@ -697,7 +672,7 @@ namespace HousingAllotmentManagementSystem.Controllers
             Allotment allotment)
         {
             // -----------------------------------------------------
-            // Reload property + scheme if required
+            // Make sure Property is loaded
             // -----------------------------------------------------
 
             if (allotment.Property == null)
@@ -706,7 +681,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                     await _context.Properties
                         .Include(p => p.Scheme)
                         .FirstOrDefaultAsync(p =>
-                            p.PropertyId == allotment.PropertyId);
+                            p.PropertyId ==
+                            allotment.PropertyId);
             }
             else if (allotment.Property.Scheme == null)
             {
@@ -717,25 +693,23 @@ namespace HousingAllotmentManagementSystem.Controllers
                             allotment.Property.SchemeId);
             }
 
-
             // -----------------------------------------------------
-            // Load active EMI plan options
+            // Load active EMI plans for this scheme
             // -----------------------------------------------------
 
             var emiPlanOptions =
                 await _context.EMIPlanOptions
                     .Where(x =>
                         x.SchemeId ==
-                        allotment.Property.SchemeId &&
+                            allotment.Property.SchemeId &&
                         x.Status == "Active")
                     .OrderBy(x => x.TenureMonths)
                     .ThenBy(x => x.PlanName)
                     .AsNoTracking()
                     .ToListAsync();
 
-
             // -----------------------------------------------------
-            // Send information to Apply.cshtml
+            // Send data to Apply.cshtml
             // -----------------------------------------------------
 
             ViewBag.ActiveAllotment =
@@ -751,7 +725,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                 emiPlanOptions;
         }
 
-
         // =========================================================
         // LOGGED-IN USER ID
         // =========================================================
@@ -762,7 +735,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 User.FindFirstValue(
                     ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrWhiteSpace(userIdClaim))
+            if (string.IsNullOrWhiteSpace(
+                userIdClaim))
             {
                 return null;
             }

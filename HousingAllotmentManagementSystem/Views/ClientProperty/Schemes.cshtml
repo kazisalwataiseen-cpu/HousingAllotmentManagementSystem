@@ -1,0 +1,147 @@
+@model IEnumerable<HousingAllotmentManagementSystem.Models.HousingScheme>
+
+@{
+    ViewData["Title"] = "My Schemes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-buildings me-2 text-primary"></i>
+                My Schemes
+            </h2>
+            <p class="text-muted mb-0">
+                Housing schemes associated with your approved applications and allotted properties.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a asp-controller="ClientProperty"
+               asp-action="Index"
+               class="btn btn-outline-primary">
+                <i class="bi bi-houses me-1"></i>
+                My Properties
+            </a>
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var scheme in Model)
+            {
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
+
+                        <div class="card-header bg-primary text-white p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold">
+                                    <i class="bi bi-building me-2"></i>
+                                    @scheme.SchemeName
+                                </h5>
+                                <span class="badge bg-light text-primary">
+                                    Scheme #@scheme.SchemeId
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-4">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Location</small>
+                                    <span class="fw-semibold">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                        @(scheme.Location ?? $"{scheme.City}, {scheme.State}" ?? "N/A")
+                                    </span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">City / State</small>
+                                    <span class="fw-semibold">
+                                        @scheme.City, @scheme.State
+                                    </span>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(scheme.Description))
+                            {
+                                <div class="mb-3">
+                                    <small class="text-muted d-block">Description</small>
+                                    <p class="text-muted small mb-0">@scheme.Description</p>
+                                </div>
+                            }
+
+                            <div class="row g-3 text-center border-top pt-3">
+                                <div class="col-6 border-end">
+                                    <small class="text-muted d-block">Total Units</small>
+                                    <strong>@(scheme.TotalUnits.HasValue ? $"{scheme.TotalUnits}" : "N/A")</strong>
+                                </div>
+
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Scheme Status</small>
+                                    @if (scheme.Status == true)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Closed</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white border-0 p-3 pt-0">
+                            <div class="d-flex justify-content-between">
+                                <a asp-controller="ClientProperty"
+                                   asp-action="Index"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-houses me-1"></i>
+                                    View My Allotted Properties
+                                </a>
+
+                                <a asp-controller="Home"
+                                   asp-action="SchemeDetails"
+                                   asp-route-id="@scheme.SchemeId"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Scheme Details
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-buildings display-1 text-muted"></i>
+                <h4 class="fw-bold mt-3">No Schemes Found</h4>
+                <p class="text-muted mb-4">
+                    You currently do not have any housing schemes associated with your applications or allotments.
+                </p>
+                <a asp-controller="Home"
+                   asp-action="HousingSchemes"
+                   class="btn btn-primary">
+                    <i class="bi bi-buildings me-1"></i>
+                    Browse Available Housing Schemes
+                </a>
+            </div>
+        </div>
+    }
+
+</div>

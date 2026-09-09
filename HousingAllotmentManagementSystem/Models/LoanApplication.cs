@@ -15,26 +15,33 @@ namespace HousingAllotmentManagementSystem.Models
         public int AllotmentId { get; set; }
 
         [Column(TypeName = "decimal(18, 2)")]
+        [Display(Name = "Requested Loan Amount")]
         public decimal RequestedLoanAmount { get; set; }
 
         [Column(TypeName = "decimal(18, 2)")]
+        [Display(Name = "Down Payment")]
         public decimal DownPayment { get; set; }
 
         [Column(TypeName = "decimal(5, 2)")]
+        [Display(Name = "Interest Rate")]
         public decimal InterestRate { get; set; }
 
+        [Display(Name = "Loan Tenure")]
         public int LoanTenure { get; set; }
 
-        // =========================================================
-        // SELECTED EMI PLAN OPTION
-        // This is used only by the loan application form.
-        // It will NOT create a column in the database.
-        // =========================================================
 
-        [NotMapped]
+        // =========================================================
+        // EMI PLAN OPTION
+        // =========================================================
         [Display(Name = "EMI Plan")]
-        [Range(1, int.MaxValue, ErrorMessage = "Please select an EMI plan.")]
-        public int EMIPlanOptionId { get; set; }
+        public int? EMIPlanOptionId { get; set; }
+        [ForeignKey(nameof(EMIPlanOptionId))]
+        public virtual EMIPlanOption? EMIPlanOption { get; set; }
+
+
+        // =========================================================
+        // APPLICATION DETAILS
+        // =========================================================
 
         [Column(TypeName = "datetime")]
         public DateTime ApplicationDate { get; set; }
@@ -50,6 +57,11 @@ namespace HousingAllotmentManagementSystem.Models
 
         [Column(TypeName = "datetime")]
         public DateTime CreatedDate { get; set; }
+
+
+        // =========================================================
+        // NAVIGATION PROPERTIES
+        // =========================================================
 
         [ForeignKey("UserId")]
         public virtual User User { get; set; } = null!;

@@ -7,10 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HousingAllotmentManagementSystem.Controllers
 {
-    // =========================================================
-    // ADMIN ONLY
-    // =========================================================
-
     [Authorize(Roles = "Admin")]
     public class EmiplansController : Controller
     {
@@ -25,24 +21,17 @@ namespace HousingAllotmentManagementSystem.Controllers
         // INDEX
         // =========================================================
 
-        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var emiPlans = await _context.Emiplans
-
                 .Include(e => e.Loan)
                     .ThenInclude(l => l.Allotment)
                         .ThenInclude(a => a.Application)
-                            .ThenInclude(app => app.User)
-
+                            .ThenInclude(ap => ap.User)
                 .Include(e => e.Loan)
                     .ThenInclude(l => l.Allotment)
                         .ThenInclude(a => a.Property)
-                            .ThenInclude(p => p.Scheme)
-
                 .Include(e => e.Installments)
-
-                .OrderByDescending(e => e.EmiplanId)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -53,51 +42,54 @@ namespace HousingAllotmentManagementSystem.Controllers
         // DETAILS
         // =========================================================
 
-        [HttpGet]
-        public async Task<IActionResult> Details(int? emiplanid)
+        public async Task<IActionResult> Details(int? id)
         {
-            if (emiplanid == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var emiPlan = await _context.Emiplans
+            var emiplan = await _context.Emiplans
                 .Include(e => e.Loan)
-                .Include(e => e.Installments
-                    .OrderBy(i => i.InstallmentNumber))
+                    .ThenInclude(l => l.Allotment)
+                        .ThenInclude(a => a.Application)
+                            .ThenInclude(ap => ap.User)
+                .Include(e => e.Loan)
+                    .ThenInclude(l => l.Allotment)
+                        .ThenInclude(a => a.Property)
+                .Include(e => e.Installments)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(e =>
-                    e.EmiplanId == emiplanid.Value);
+                .FirstOrDefaultAsync(e => e.EmiplanId == id);
 
-            if (emiPlan == null)
+            if (emiplan == null)
             {
                 return NotFound();
             }
 
-            return View(emiPlan);
+            return View(emiplan);
         }
 
         // =========================================================
         // CREATE - GET
         // =========================================================
 
-        [HttpGet]
         public async Task<IActionResult> Create()
         {
-            await LoadLoansAsync();
-
-            var emiPlan = new Emiplan
+            var emiplan = new Emiplan
             {
-                EmistartDate = DateOnly.FromDateTime(DateTime.Today),
+                EmistartDate =
+                    DateOnly.FromDateTime(
+                        DateTime.Today.AddMonths(1)
+                    ),
+
                 PlanStatus = "Active",
-                PaidEmis = 0,
-                RemainingEmis = 0,
-                MonthlyEmi = 0,
-                OutstandingBalance = 0,
+
                 CreatedDate = DateTime.Now
             };
 
-            return View(emiPlan);
+            await LoadLoansAsync(emiplan.LoanId);
+
+            return View(emiplan);
         }
 
         // =========================================================
@@ -114,130 +106,157 @@ namespace HousingAllotmentManagementSystem.Controllers
             // Validate Loan
             // -----------------------------------------------------
 
-            if (emiplan.LoanId <= 0)
-            {
-                ModelState.AddModelError(
-                    nameof(Emiplan.LoanId),
-                    "Please select a loan.");
-            }
-
             var loan = await _context.Loans
-                .FirstOrDefaultAsync(l =>
-                    l.LoanId == emiplan.LoanId);
+                .FirstOrDefaultAsync(
+                    l => l.LoanId == emiplan.LoanId
+                );
 
-            if (loan == null && emiplan.LoanId > 0)
+            if (loan == null)
             {
                 ModelState.AddModelError(
-                    nameof(Emiplan.LoanId),
-                    "Selected loan does not exist.");
+                    "LoanId",
+                    "Please select a valid loan."
+                );
             }
-
-            // -----------------------------------------------------
-            // Prevent duplicate EMI Plan
-            // -----------------------------------------------------
 
             if (loan != null)
             {
-                var existingPlan = await _context.Emiplans
-                    .AnyAsync(e =>
-                        e.LoanId == emiplan.LoanId);
+                // -------------------------------------------------
+                // Check duplicate EMI plan
+                // -------------------------------------------------
+
+                bool existingPlan =
+                    await _context.Emiplans
+                        .AnyAsync(
+                            e => e.LoanId == emiplan.LoanId
+                        );
 
                 if (existingPlan)
                 {
                     ModelState.AddModelError(
-                        nameof(Emiplan.LoanId),
-                        "An EMI Plan already exists for this loan.");
+                        "LoanId",
+                        "An EMI plan already exists for this loan."
+                    );
                 }
-            }
 
-            // -----------------------------------------------------
-            // Validate Total EMIs
-            // -----------------------------------------------------
+                // -------------------------------------------------
+                // Validate total EMIs
+                // -------------------------------------------------
 
-            if (emiplan.TotalEmis <= 0)
-            {
-                ModelState.AddModelError(
-                    nameof(Emiplan.TotalEmis),
-                    "Total EMIs must be greater than 0.");
-            }
+                if (emiplan.TotalEmis <= 0)
+                {
+                    ModelState.AddModelError(
+                        "TotalEmis",
+                        "Total EMIs must be greater than zero."
+                    );
+                }
 
-            // -----------------------------------------------------
-            // Validate Start Date
-            // -----------------------------------------------------
+                // -------------------------------------------------
+                // Validate start date
+                // -------------------------------------------------
 
-            if (emiplan.EmistartDate == default)
-            {
-                ModelState.AddModelError(
-                    nameof(Emiplan.EmistartDate),
-                    "Please select EMI start date.");
-            }
+                if (emiplan.EmistartDate <
+                    DateOnly.FromDateTime(DateTime.Today))
+                {
+                    ModelState.AddModelError(
+                        "EmistartDate",
+                        "EMI start date cannot be in the past."
+                    );
+                }
 
-            // -----------------------------------------------------
-            // Validate Loan Tenure
-            // -----------------------------------------------------
+                // -------------------------------------------------
+                // IMPORTANT
+                //
+                // LoanAmount is already the actual financed amount.
+                //
+                // Example:
+                //
+                // Requested Amount = ₹10,00,000
+                // Down Payment     = ₹2,00,000
+                // LoanAmount       = ₹8,00,000
+                //
+                // EMI is calculated on ₹8,00,000.
+                // -------------------------------------------------
 
-            if (loan != null &&
-                loan.LoanTenure > 0 &&
-                emiplan.TotalEmis > loan.LoanTenure)
-            {
-                ModelState.AddModelError(
-                    nameof(Emiplan.TotalEmis),
-                    $"Total EMIs cannot be greater than the loan tenure of {loan.LoanTenure} months.");
-            }
+                decimal principalAmount =
+                    loan.LoanAmount;
 
-            // -----------------------------------------------------
-            // Validate EMI amount if manually supplied
-            // -----------------------------------------------------
+                if (principalAmount <= 0)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Loan amount must be greater than zero."
+                    );
+                }
 
-            if (emiplan.MonthlyEmi < 0)
-            {
-                ModelState.AddModelError(
-                    nameof(Emiplan.MonthlyEmi),
-                    "Monthly EMI cannot be negative.");
+                // -------------------------------------------------
+                // Calculate EMI automatically
+                // -------------------------------------------------
+
+                if (emiplan.TotalEmis > 0 &&
+                    principalAmount > 0)
+                {
+                    decimal calculatedEmi =
+                        CalculateEmi(
+                            principalAmount,
+                            loan.InterestRate,
+                            emiplan.TotalEmis
+                        );
+
+                    if (emiplan.MonthlyEmi <= 0)
+                    {
+                        emiplan.MonthlyEmi =
+                            calculatedEmi;
+                    }
+                }
             }
 
             if (!ModelState.IsValid)
             {
                 await LoadLoansAsync(emiplan.LoanId);
+
                 return View(emiplan);
             }
 
+            // =====================================================
+            // TRANSACTION
+            // =====================================================
+
+            await using var transaction =
+                await _context.Database
+                    .BeginTransactionAsync();
+
             try
             {
-                // =================================================
-                // PRINCIPAL
-                // =================================================
+                loan = await _context.Loans
+                    .FirstOrDefaultAsync(
+                        l => l.LoanId == emiplan.LoanId
+                    );
+
+                if (loan == null)
+                {
+                    ModelState.AddModelError(
+                        "LoanId",
+                        "Loan not found."
+                    );
+
+                    await LoadLoansAsync(
+                        emiplan.LoanId
+                    );
+
+                    return View(emiplan);
+                }
+
+                // -------------------------------------------------
+                // LoanAmount is already financed amount
+                // -------------------------------------------------
 
                 decimal principalAmount =
-                    loan!.LoanAmount - loan.DownPayment;
+                    loan.LoanAmount;
 
-                if (principalAmount < 0)
-                {
-                    principalAmount = 0;
-                }
-
-                // =================================================
-                // MONTHLY EMI
-                // =================================================
-
-                decimal monthlyEmi =
-                    CalculateEmi(
-                        principalAmount,
-                        loan.InterestRate,
-                        emiplan.TotalEmis);
-
-                // Allow administrator to manually enter EMI
-                if (emiplan.MonthlyEmi > 0)
-                {
-                    monthlyEmi = emiplan.MonthlyEmi;
-                }
-
-                // =================================================
-                // SET PLAN VALUES
-                // =================================================
-
-                emiplan.MonthlyEmi =
-                    Math.Round(monthlyEmi, 2);
+                // -------------------------------------------------
+                // Set EMI Plan values
+                // -------------------------------------------------
 
                 emiplan.PaidEmis = 0;
 
@@ -245,93 +264,93 @@ namespace HousingAllotmentManagementSystem.Controllers
                     emiplan.TotalEmis;
 
                 emiplan.OutstandingBalance =
-                    Math.Round(principalAmount, 2);
+                    principalAmount;
 
                 emiplan.NextDueDate =
                     emiplan.EmistartDate;
 
                 emiplan.EmiendDate =
                     emiplan.EmistartDate.AddMonths(
-                        emiplan.TotalEmis - 1);
+                        emiplan.TotalEmis - 1
+                    );
 
-                emiplan.PlanStatus =
-                    string.IsNullOrWhiteSpace(
-                        emiplan.PlanStatus)
-                        ? "Active"
-                        : emiplan.PlanStatus;
+                emiplan.PlanStatus = "Active";
 
                 emiplan.CreatedDate =
                     DateTime.Now;
 
-                // =================================================
-                // SAVE EMI PLAN
-                // =================================================
+                // -------------------------------------------------
+                // Add EMI Plan
+                // -------------------------------------------------
 
                 _context.Emiplans.Add(emiplan);
 
                 await _context.SaveChangesAsync();
 
-                // =================================================
-                // GENERATE INSTALLMENTS
-                // =================================================
+                // -------------------------------------------------
+                // Generate installments
+                // -------------------------------------------------
 
-                GenerateInstallments(
+                await GenerateInstallments(
                     emiplan,
                     loan,
-                    principalAmount);
+                    principalAmount
+                );
 
                 await _context.SaveChangesAsync();
 
+                await transaction.CommitAsync();
+
                 TempData["SuccessMessage"] =
-                    $"EMI Plan created successfully. {emiplan.TotalEmis} installments generated.";
+                    "EMI plan and installments created successfully.";
 
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateException ex)
-            {
-                ModelState.AddModelError(
-                    "",
-                    "Database error while creating EMI Plan: " +
-                    (ex.InnerException?.Message ?? ex.Message));
-            }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
+
                 ModelState.AddModelError(
                     "",
-                    "Error while creating EMI Plan: " +
-                    ex.Message);
+                    "Unable to create EMI plan. " +
+                    ex.Message
+                );
+
+                await LoadLoansAsync(
+                    emiplan.LoanId
+                );
+
+                return View(emiplan);
             }
-
-            await LoadLoansAsync(emiplan.LoanId);
-
-            return View(emiplan);
         }
 
         // =========================================================
         // EDIT - GET
         // =========================================================
 
-        [HttpGet]
-        public async Task<IActionResult> Edit(int? emiplanid)
+        public async Task<IActionResult> Edit(int? id)
         {
-            if (emiplanid == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var emiPlan = await _context.Emiplans
+            var emiplan = await _context.Emiplans
                 .Include(e => e.Loan)
-                .FirstOrDefaultAsync(e =>
-                    e.EmiplanId == emiplanid.Value);
+                .FirstOrDefaultAsync(
+                    e => e.EmiplanId == id
+                );
 
-            if (emiPlan == null)
+            if (emiplan == null)
             {
                 return NotFound();
             }
 
-            await LoadLoansAsync(emiPlan.LoanId);
+            await LoadLoansAsync(
+                emiplan.LoanId
+            );
 
-            return View(emiPlan);
+            return View(emiplan);
         }
 
         // =========================================================
@@ -341,166 +360,98 @@ namespace HousingAllotmentManagementSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
-            int emiplanid,
+            int id,
             Emiplan emiplan)
         {
-            if (emiplanid != emiplan.EmiplanId)
+            if (id != emiplan.EmiplanId)
             {
                 return NotFound();
             }
 
             RemoveNavigationValidation();
 
-            if (emiplan.LoanId <= 0)
+            var existingPlan =
+                await _context.Emiplans
+                    .Include(e => e.Loan)
+                    .FirstOrDefaultAsync(
+                        e => e.EmiplanId == id
+                    );
+
+            if (existingPlan == null)
+            {
+                return NotFound();
+            }
+
+            var loan = await _context.Loans
+                .FirstOrDefaultAsync(
+                    l => l.LoanId == emiplan.LoanId
+                );
+
+            if (loan == null)
             {
                 ModelState.AddModelError(
-                    nameof(Emiplan.LoanId),
-                    "Please select a loan.");
+                    "LoanId",
+                    "Please select a valid loan."
+                );
             }
 
             if (emiplan.TotalEmis <= 0)
             {
                 ModelState.AddModelError(
-                    nameof(Emiplan.TotalEmis),
-                    "Total EMIs must be greater than 0.");
+                    "TotalEmis",
+                    "Total EMIs must be greater than zero."
+                );
+            }
+
+            if (loan != null)
+            {
+                // -------------------------------------------------
+                // LoanAmount is already financed amount
+                // -------------------------------------------------
+
+                decimal principalAmount =
+                    loan.LoanAmount;
+
+                if (principalAmount <= 0)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Loan amount must be greater than zero."
+                    );
+                }
+
+                decimal calculatedEmi =
+                    CalculateEmi(
+                        principalAmount,
+                        loan.InterestRate,
+                        emiplan.TotalEmis
+                    );
+
+                if (emiplan.MonthlyEmi <= 0)
+                {
+                    emiplan.MonthlyEmi =
+                        calculatedEmi;
+                }
             }
 
             if (!ModelState.IsValid)
             {
-                await LoadLoansAsync(emiplan.LoanId);
+                await LoadLoansAsync(
+                    emiplan.LoanId
+                );
+
                 return View(emiplan);
             }
+
+            await using var transaction =
+                await _context.Database
+                    .BeginTransactionAsync();
 
             try
             {
                 // -------------------------------------------------
-                // Load existing EMI plan
+                // Update EMI Plan
                 // -------------------------------------------------
-
-                var existingPlan = await _context.Emiplans
-                    .FirstOrDefaultAsync(e =>
-                        e.EmiplanId == emiplanid);
-
-                if (existingPlan == null)
-                {
-                    return NotFound();
-                }
-
-                // -------------------------------------------------
-                // Load loan
-                // -------------------------------------------------
-
-                var loan = await _context.Loans
-                    .FirstOrDefaultAsync(l =>
-                        l.LoanId == emiplan.LoanId);
-
-                if (loan == null)
-                {
-                    ModelState.AddModelError(
-                        nameof(Emiplan.LoanId),
-                        "Selected loan does not exist.");
-
-                    await LoadLoansAsync(emiplan.LoanId);
-
-                    return View(emiplan);
-                }
-
-                // -------------------------------------------------
-                // Validate tenure
-                // -------------------------------------------------
-
-                if (loan.LoanTenure > 0 &&
-                    emiplan.TotalEmis > loan.LoanTenure)
-                {
-                    ModelState.AddModelError(
-                        nameof(Emiplan.TotalEmis),
-                        $"Total EMIs cannot be greater than the loan tenure of {loan.LoanTenure} months.");
-
-                    await LoadLoansAsync(emiplan.LoanId);
-
-                    return View(emiplan);
-                }
-
-                // -------------------------------------------------
-                // Load existing installments
-                // -------------------------------------------------
-
-                var installments = await _context.Installments
-                    .Where(i =>
-                        i.EmiplanId == existingPlan.EmiplanId)
-                    .ToListAsync();
-
-                // -------------------------------------------------
-                // Check whether any payment exists
-                // -------------------------------------------------
-
-                bool hasPayments = installments.Any(i =>
-                    i.PaidAmount > 0 ||
-                    i.PaymentDate.HasValue ||
-                    i.PaymentStatus == "Paid");
-
-                if (hasPayments)
-                {
-                    ModelState.AddModelError(
-                        "",
-                        "This EMI Plan cannot be regenerated because payments already exist. Only the plan status should be changed.");
-
-                    await LoadLoansAsync(emiplan.LoanId);
-
-                    return View(emiplan);
-                }
-
-                // -------------------------------------------------
-                // Delete old installments
-                // -------------------------------------------------
-
-                if (installments.Any())
-                {
-                    _context.Installments.RemoveRange(
-                        installments);
-                }
-
-                // -------------------------------------------------
-                // Calculate principal
-                // -------------------------------------------------
-
-                decimal principalAmount =
-                    loan.LoanAmount - loan.DownPayment;
-
-                if (principalAmount < 0)
-                {
-                    principalAmount = 0;
-                }
-
-                // -------------------------------------------------
-                // Calculate EMI
-                // -------------------------------------------------
-
-                decimal monthlyEmi =
-                    CalculateEmi(
-                        principalAmount,
-                        loan.InterestRate,
-                        emiplan.TotalEmis);
-
-                if (emiplan.MonthlyEmi > 0)
-                {
-                    monthlyEmi =
-                        emiplan.MonthlyEmi;
-                }
-
-                // -------------------------------------------------
-                // Preserve created date
-                // -------------------------------------------------
-
-                DateTime originalCreatedDate =
-                    existingPlan.CreatedDate;
-
-                // -------------------------------------------------
-                // Update EMI plan
-                // -------------------------------------------------
-
-                existingPlan.LoanId =
-                    emiplan.LoanId;
 
                 existingPlan.EmistartDate =
                     emiplan.EmistartDate;
@@ -508,185 +459,187 @@ namespace HousingAllotmentManagementSystem.Controllers
                 existingPlan.TotalEmis =
                     emiplan.TotalEmis;
 
-                existingPlan.PaidEmis =
-                    0;
-
-                existingPlan.RemainingEmis =
-                    emiplan.TotalEmis;
-
-                existingPlan.MonthlyEmi =
-                    Math.Round(monthlyEmi, 2);
-
-                existingPlan.OutstandingBalance =
-                    Math.Round(principalAmount, 2);
-
                 existingPlan.EmiendDate =
                     emiplan.EmistartDate.AddMonths(
-                        emiplan.TotalEmis - 1);
+                        emiplan.TotalEmis - 1
+                    );
 
-                existingPlan.NextDueDate =
-                    emiplan.EmistartDate;
+                existingPlan.MonthlyEmi =
+                    emiplan.MonthlyEmi;
 
                 existingPlan.PlanStatus =
-                    string.IsNullOrWhiteSpace(
-                        emiplan.PlanStatus)
-                        ? "Active"
-                        : emiplan.PlanStatus;
+                    emiplan.PlanStatus;
 
-                existingPlan.CreatedDate =
-                    originalCreatedDate;
+                // -------------------------------------------------
+                // LoanAmount is financed amount
+                // -------------------------------------------------
+
+                decimal principalAmount =
+                    loan!.LoanAmount;
+
+                existingPlan.PaidEmis = 0;
+
+                existingPlan.RemainingEmis =
+                    existingPlan.TotalEmis;
+
+                existingPlan.OutstandingBalance =
+                    principalAmount;
+
+                existingPlan.NextDueDate =
+                    existingPlan.EmistartDate;
+
+                // -------------------------------------------------
+                // Delete old installments
+                // -------------------------------------------------
+
+                var oldInstallments =
+                    await _context.Installments
+                        .Where(
+                            i => i.EmiplanId ==
+                                 existingPlan.EmiplanId
+                        )
+                        .ToListAsync();
+
+                if (oldInstallments.Any())
+                {
+                    _context.Installments
+                        .RemoveRange(
+                            oldInstallments
+                        );
+                }
 
                 // -------------------------------------------------
                 // Generate new installments
                 // -------------------------------------------------
 
-                GenerateInstallments(
+                await GenerateInstallments(
                     existingPlan,
                     loan,
-                    principalAmount);
+                    principalAmount
+                );
 
                 await _context.SaveChangesAsync();
 
+                await transaction.CommitAsync();
+
                 TempData["SuccessMessage"] =
-                    "EMI Plan and installments updated successfully.";
+                    "EMI plan updated successfully.";
 
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await EmiplanExistsAsync(
-                        emiplan.EmiplanId))
-                {
-                    return NotFound();
-                }
-
-                throw;
-            }
-            catch (DbUpdateException ex)
-            {
-                ModelState.AddModelError(
-                    "",
-                    "Database error while updating EMI Plan: " +
-                    (ex.InnerException?.Message ?? ex.Message));
-            }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
+
                 ModelState.AddModelError(
                     "",
-                    "Error while updating EMI Plan: " +
-                    ex.Message);
+                    "Unable to update EMI plan. " +
+                    ex.Message
+                );
+
+                await LoadLoansAsync(
+                    emiplan.LoanId
+                );
+
+                return View(emiplan);
             }
-
-            await LoadLoansAsync(emiplan.LoanId);
-
-            return View(emiplan);
         }
 
         // =========================================================
         // DELETE - GET
         // =========================================================
 
-        [HttpGet]
-        public async Task<IActionResult> Delete(int? emiplanid)
+        public async Task<IActionResult> Delete(int? id)
         {
-            if (emiplanid == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var emiPlan = await _context.Emiplans
+            var emiplan = await _context.Emiplans
                 .Include(e => e.Loan)
                 .Include(e => e.Installments)
+                    .ThenInclude(i => i.Payments)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(e =>
-                    e.EmiplanId == emiplanid.Value);
+                .FirstOrDefaultAsync(
+                    e => e.EmiplanId == id
+                );
 
-            if (emiPlan == null)
+            if (emiplan == null)
             {
                 return NotFound();
             }
 
-            return View(emiPlan);
+            return View(emiplan);
         }
 
         // =========================================================
         // DELETE - POST
         // =========================================================
 
-        [HttpPost]
-        [ActionName("Delete")]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(
-            int emiplanid)
+            int id)
         {
-            var emiPlan = await _context.Emiplans
-                .FirstOrDefaultAsync(e =>
-                    e.EmiplanId == emiplanid);
+            var emiplan =
+                await _context.Emiplans
+                    .Include(e => e.Installments)
+                        .ThenInclude(i => i.Payments)
+                    .FirstOrDefaultAsync(
+                        e => e.EmiplanId == id
+                    );
 
-            if (emiPlan == null)
+            if (emiplan == null)
             {
                 return NotFound();
+            }
+
+            // -----------------------------------------------------
+            // Do not delete if payment exists
+            // -----------------------------------------------------
+
+            bool hasPayments =
+                emiplan.Installments
+                    .Any(i => i.Payments.Any());
+
+            if (hasPayments)
+            {
+                TempData["ErrorMessage"] =
+                    "This EMI plan cannot be deleted because payments already exist.";
+
+                return RedirectToAction(nameof(Index));
             }
 
             try
             {
                 // -------------------------------------------------
-                // Get installments
-                // -------------------------------------------------
-
-                var installments = await _context.Installments
-                    .Where(i =>
-                        i.EmiplanId == emiplanid)
-                    .ToListAsync();
-
-                // -------------------------------------------------
-                // Do not delete plan if payments exist
-                // -------------------------------------------------
-
-                bool hasPayments = installments.Any(i =>
-                    i.PaidAmount > 0 ||
-                    i.PaymentDate.HasValue ||
-                    i.PaymentStatus == "Paid");
-
-                if (hasPayments)
-                {
-                    TempData["ErrorMessage"] =
-                        "This EMI Plan cannot be deleted because payment records already exist.";
-
-                    return RedirectToAction(nameof(Index));
-                }
-
-                // -------------------------------------------------
                 // Delete installments
                 // -------------------------------------------------
 
-                if (installments.Any())
+                if (emiplan.Installments.Any())
                 {
-                    _context.Installments.RemoveRange(
-                        installments);
+                    _context.Installments
+                        .RemoveRange(
+                            emiplan.Installments
+                        );
                 }
 
                 // -------------------------------------------------
                 // Delete EMI plan
                 // -------------------------------------------------
 
-                _context.Emiplans.Remove(emiPlan);
+                _context.Emiplans.Remove(emiplan);
 
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] =
-                    "EMI Plan and its installments deleted successfully.";
-            }
-            catch (DbUpdateException ex)
-            {
-                TempData["ErrorMessage"] =
-                    "Unable to delete the EMI Plan. " +
-                    (ex.InnerException?.Message ?? ex.Message);
+                    "EMI plan deleted successfully.";
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] =
-                    "Error while deleting EMI Plan: " +
+                    "Unable to delete EMI plan. " +
                     ex.Message;
             }
 
@@ -700,130 +653,185 @@ namespace HousingAllotmentManagementSystem.Controllers
         private decimal CalculateEmi(
             decimal principal,
             decimal annualInterestRate,
-            int totalEmis)
+            int tenureMonths)
         {
-            if (totalEmis <= 0)
+            if (principal <= 0 ||
+                tenureMonths <= 0)
             {
                 return 0;
             }
 
-            if (principal <= 0)
+            // -----------------------------------------------------
+            // Zero interest
+            // -----------------------------------------------------
+
+            if (annualInterestRate <= 0)
             {
-                return 0;
+                return Math.Round(
+                    principal / tenureMonths,
+                    2
+                );
             }
+
+            // -----------------------------------------------------
+            // Monthly interest rate
+            // -----------------------------------------------------
 
             decimal monthlyRate =
-                annualInterestRate / 12m / 100m;
+                annualInterestRate / 12 / 100;
 
-            if (monthlyRate <= 0)
-            {
-                return principal / totalEmis;
-            }
+            double p =
+                (double)principal;
 
-            decimal power =
-                (decimal)Math.Pow(
-                    (double)(1 + monthlyRate),
-                    totalEmis);
+            double r =
+                (double)monthlyRate;
 
-            decimal emi =
-                principal *
-                monthlyRate *
-                power /
-                (power - 1);
+            double n =
+                tenureMonths;
 
-            return Math.Round(emi, 2);
+            double emi =
+                p *
+                r *
+                Math.Pow(1 + r, n) /
+                (
+                    Math.Pow(1 + r, n) - 1
+                );
+
+            return Math.Round(
+                (decimal)emi,
+                2
+            );
         }
 
         // =========================================================
         // GENERATE INSTALLMENTS
         // =========================================================
 
-        private void GenerateInstallments(
-            Emiplan emiPlan,
+        private async Task GenerateInstallments(
+            Emiplan emiplan,
             Loan loan,
             decimal principalAmount)
         {
-            decimal outstanding =
+            decimal outstandingPrincipal =
                 principalAmount;
 
             decimal monthlyRate =
-                loan.InterestRate / 12m / 100m;
+                loan.InterestRate / 12 / 100;
 
-            for (int i = 1;
-                 i <= emiPlan.TotalEmis;
-                 i++)
+            decimal monthlyEmi =
+                emiplan.MonthlyEmi;
+
+            for (
+                int month = 1;
+                month <= emiplan.TotalEmis;
+                month++
+            )
             {
+                // -------------------------------------------------
+                // Interest
+                // -------------------------------------------------
+
                 decimal interestAmount =
                     Math.Round(
-                        outstanding * monthlyRate,
-                        2);
+                        outstandingPrincipal *
+                        monthlyRate,
+                        2
+                    );
 
-                decimal installmentAmount =
-                    emiPlan.MonthlyEmi;
+                // -------------------------------------------------
+                // Principal
+                // -------------------------------------------------
 
-                decimal principalPayment =
-                    installmentAmount -
+                decimal principalComponent =
+                    monthlyEmi -
                     interestAmount;
 
                 // -------------------------------------------------
                 // Last installment adjustment
                 // -------------------------------------------------
 
-                if (i == emiPlan.TotalEmis)
+                if (
+                    month ==
+                    emiplan.TotalEmis
+                )
                 {
-                    principalPayment =
-                        outstanding;
+                    principalComponent =
+                        outstandingPrincipal;
+                }
 
+                if (principalComponent < 0)
+                {
+                    principalComponent = 0;
+                }
+
+                if (
+                    principalComponent >
+                    outstandingPrincipal
+                )
+                {
+                    principalComponent =
+                        outstandingPrincipal;
+                }
+
+                // -------------------------------------------------
+                // Installment amount
+                // -------------------------------------------------
+
+                decimal installmentAmount =
+                    principalComponent +
+                    interestAmount;
+
+                if (
+                    month ==
+                    emiplan.TotalEmis
+                )
+                {
                     installmentAmount =
-                        principalPayment +
+                        outstandingPrincipal +
                         interestAmount;
                 }
 
-                if (principalPayment < 0)
-                {
-                    principalPayment = 0;
-                }
+                // -------------------------------------------------
+                // Due date
+                // -------------------------------------------------
 
-                if (principalPayment > outstanding)
-                {
-                    principalPayment = outstanding;
-                }
+                DateOnly dueDate =
+                    emiplan.EmistartDate
+                        .AddMonths(month - 1);
 
-                outstanding -=
-                    principalPayment;
-
-                if (outstanding < 0)
-                {
-                    outstanding = 0;
-                }
+                // -------------------------------------------------
+                // Create installment
+                // -------------------------------------------------
 
                 var installment =
                     new Installment
                     {
                         EmiplanId =
-                            emiPlan.EmiplanId,
+                            emiplan.EmiplanId,
 
                         InstallmentNumber =
-                            i,
+                            month,
 
                         DueDate =
-                            emiPlan.EmistartDate
-                                .AddMonths(i - 1),
+                            dueDate,
 
                         InstallmentAmount =
                             Math.Round(
                                 installmentAmount,
-                                2),
+                                2
+                            ),
 
                         PrincipalAmount =
                             Math.Round(
-                                principalPayment,
-                                2),
+                                principalComponent,
+                                2
+                            ),
 
                         InterestAmount =
                             Math.Round(
                                 interestAmount,
-                                2),
+                                2
+                            ),
 
                         LateFee = 0,
 
@@ -835,7 +843,8 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                         TransactionReference = null,
 
-                        PaymentStatus = "Pending",
+                        PaymentStatus =
+                            "Pending",
 
                         Remarks = null,
 
@@ -844,40 +853,55 @@ namespace HousingAllotmentManagementSystem.Controllers
                     };
 
                 _context.Installments.Add(
-                    installment);
+                    installment
+                );
+
+                // -------------------------------------------------
+                // Reduce outstanding principal
+                // -------------------------------------------------
+
+                outstandingPrincipal -=
+                    principalComponent;
+
+                if (outstandingPrincipal < 0)
+                {
+                    outstandingPrincipal = 0;
+                }
             }
+
+            await Task.CompletedTask;
         }
 
         // =========================================================
-        // LOAD LOAN DROPDOWN
+        // LOAD LOANS
         // =========================================================
 
         private async Task LoadLoansAsync(
-            int? selectedLoanId = null)
+            int selectedLoanId = 0)
         {
-            var loans = await _context.Loans
-                .AsNoTracking()
-                .OrderByDescending(l => l.LoanId)
-                .ToListAsync();
+            var loans =
+                await _context.Loans
+                    .OrderByDescending(
+                        l => l.LoanId
+                    )
+                    .AsNoTracking()
+                    .ToListAsync();
 
-            var loanList = loans.Select(l => new
-            {
-                LoanId = l.LoanId,
+            ViewBag.Loans =
+                loans.Select(
+                    l => new SelectListItem
+                    {
+                        Value =
+                            l.LoanId.ToString(),
 
-                DisplayText =
-                    l.LoanNumber +
-                    " | ₹" +
-                    l.LoanAmount.ToString("N2") +
-                    " | " +
-                    l.LoanStatus
-            });
+                        Text =
+                            $"{l.LoanNumber} | ₹{l.LoanAmount:N2} | {l.LoanStatus}",
 
-            ViewBag.LoanId =
-                new SelectList(
-                    loanList,
-                    "LoanId",
-                    "DisplayText",
-                    selectedLoanId);
+                        Selected =
+                            l.LoanId ==
+                            selectedLoanId
+                    }
+                ).ToList();
         }
 
         // =========================================================
@@ -886,20 +910,9 @@ namespace HousingAllotmentManagementSystem.Controllers
 
         private void RemoveNavigationValidation()
         {
-            ModelState.Remove(nameof(Emiplan.Loan));
-            ModelState.Remove(nameof(Emiplan.Installments));
-        }
+            ModelState.Remove("Loan");
 
-        // =========================================================
-        // CHECK EMI PLAN EXISTS
-        // =========================================================
-
-        private async Task<bool> EmiplanExistsAsync(
-            int emiplanid)
-        {
-            return await _context.Emiplans
-                .AnyAsync(e =>
-                    e.EmiplanId == emiplanid);
+            ModelState.Remove("Installments");
         }
     }
 }

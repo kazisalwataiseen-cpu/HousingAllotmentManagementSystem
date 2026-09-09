@@ -1,34 +1,68 @@
-﻿@model HousingAllotmentManagementSystem.Models.Emiplan
+﻿
+@model HousingAllotmentManagementSystem.Models.Emiplan
 
 @{
     ViewData["Title"] = "EMI Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
-
-var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
-
-    var paidPercentage = Model.TotalEmis > 0
-        ? (decimal)Model.PaidEmis / Model.TotalEmis * 100
-        : 0;
-
-    var remainingPercentage = 100 - paidPercentage;
-
-    if (remainingPercentage < 0)
-    {
-        remainingPercentage = 0;
-    }
 
     var installments = Model.Installments?
         .OrderBy(i => i.InstallmentNumber)
         .ToList()
         ?? new List<HousingAllotmentManagementSystem.Models.Installment>();
 
+    var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
+    var paidPercentage = Model.TotalEmis > 0
+        ? (decimal)Model.PaidEmis / Model.TotalEmis * 100
+        : 0;
+
+    if (paidPercentage > 100)
+    {
+        paidPercentage = 100;
+    }
+
+    // Find next unpaid installment
+    var nextInstallment = installments
+        .Where(i =>
+            i.PaymentStatus != "Paid" &&
+            i.PaidAmount < i.InstallmentAmount)
+        .OrderBy(i => i.InstallmentNumber)
+        .FirstOrDefault();
 }
 
 <div class="container-fluid py-4">
 
-    
+    <!-- ========================================================= -->
+    <!-- SUCCESS / ERROR MESSAGES -->
+    <!-- ========================================================= -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+
     <!-- ========================================================= -->
     <!-- PAGE HEADER -->
     <!-- ========================================================= -->
@@ -43,7 +77,7 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
             </h2>
 
             <p class="text-muted mb-0">
-                Complete details of your EMI plan and installments.
+                View your EMI plan and installment payment schedule.
             </p>
 
         </div>
@@ -61,133 +95,159 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
 
     <!-- ========================================================= -->
-    <!-- SUMMARY CARDS -->
+    <!-- EMI PLAN SUMMARY -->
     <!-- ========================================================= -->
 
-    <div class="row g-4 mb-4">
+    <div class="card border-0 shadow-sm mb-4">
 
-        <!-- Monthly EMI -->
+        <div class="card-header bg-primary text-white">
 
-        <div class="col-md-6 col-xl-3">
+            <div class="d-flex justify-content-between align-items-center">
 
-            <div class="card border-0 shadow-sm h-100">
+                <h5 class="mb-0">
+                    <i class="bi bi-bar-chart me-2"></i>
+                    EMI Plan Summary
+                </h5>
 
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between align-items-center">
-
-                        <div>
-
-                            <small class="text-muted">
-                                Monthly EMI
-                            </small>
-
-                            <h4 class="fw-bold text-primary mt-2 mb-0">
-                                ₹@Model.MonthlyEmi.ToString("N2")
-                            </h4>
-
-                        </div>
-
-                        <i class="bi bi-cash-stack fs-2 text-primary"></i>
-
-                    </div>
-
-                </div>
+                @if (Model.PlanStatus == "Completed")
+                {
+                    <span class="badge bg-light text-success">
+                        Completed
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-success">
+                        @Model.PlanStatus
+                    </span>
+                }
 
             </div>
 
         </div>
 
 
-        <!-- Paid EMIs -->
+        <div class="card-body">
 
-        <div class="col-md-6 col-xl-3">
+            <div class="row g-4">
 
-            <div class="card border-0 shadow-sm h-100">
+                <!-- TOTAL EMIs -->
 
-                <div class="card-body">
+                <div class="col-md-6 col-xl-2">
 
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="border rounded p-3 h-100">
 
-                        <div>
+                        <small class="text-muted d-block">
+                            Total EMIs
+                        </small>
 
-                            <small class="text-muted">
-                                Paid EMIs
-                            </small>
-
-                            <h4 class="fw-bold text-success mt-2 mb-0">
-                                @Model.PaidEmis
-                            </h4>
-
-                        </div>
-
-                        <i class="bi bi-check-circle fs-2 text-success"></i>
+                        <h4 class="fw-bold mt-2 mb-0">
+                            @Model.TotalEmis
+                        </h4>
 
                     </div>
 
                 </div>
 
-            </div>
 
-        </div>
+                <!-- PAID EMIs -->
 
+                <div class="col-md-6 col-xl-2">
 
-        <!-- Remaining EMIs -->
+                    <div class="border rounded p-3 h-100">
 
-        <div class="col-md-6 col-xl-3">
+                        <small class="text-muted d-block">
+                            Paid EMIs
+                        </small>
 
-            <div class="card border-0 shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between align-items-center">
-
-                        <div>
-
-                            <small class="text-muted">
-                                Remaining EMIs
-                            </small>
-
-                            <h4 class="fw-bold text-danger mt-2 mb-0">
-                                @Model.RemainingEmis
-                            </h4>
-
-                        </div>
-
-                        <i class="bi bi-hourglass-split fs-2 text-danger"></i>
+                        <h4 class="fw-bold text-success mt-2 mb-0">
+                            @Model.PaidEmis
+                        </h4>
 
                     </div>
 
                 </div>
 
-            </div>
 
-        </div>
+                <!-- REMAINING EMIs -->
+
+                <div class="col-md-6 col-xl-2">
+
+                    <div class="border rounded p-3 h-100">
+
+                        <small class="text-muted d-block">
+                            Remaining EMIs
+                        </small>
+
+                        <h4 class="fw-bold text-danger mt-2 mb-0">
+                            @Model.RemainingEmis
+                        </h4>
+
+                    </div>
+
+                </div>
 
 
-        <!-- Outstanding -->
+                <!-- MONTHLY EMI -->
 
-        <div class="col-md-6 col-xl-3">
+                <div class="col-md-6 col-xl-2">
 
-            <div class="card border-0 shadow-sm h-100">
+                    <div class="border rounded p-3 h-100">
 
-                <div class="card-body">
+                        <small class="text-muted d-block">
+                            Monthly EMI
+                        </small>
 
-                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold text-primary mt-2 mb-0">
+                            ₹@Model.MonthlyEmi.ToString("N2")
+                        </h5>
 
-                        <div>
+                    </div>
 
-                            <small class="text-muted">
-                                Outstanding Balance
-                            </small>
+                </div>
 
-                            <h4 class="fw-bold mt-2 mb-0">
-                                ₹@Model.OutstandingBalance.ToString("N2")
-                            </h4>
 
-                        </div>
+                <!-- OUTSTANDING BALANCE -->
 
-                        <i class="bi bi-wallet2 fs-2 text-warning"></i>
+                <div class="col-md-6 col-xl-2">
+
+                    <div class="border rounded p-3 h-100">
+
+                        <small class="text-muted d-block">
+                            Outstanding Balance
+                        </small>
+
+                        <h5 class="fw-bold text-warning mt-2 mb-0">
+                            ₹@Model.OutstandingBalance.ToString("N2")
+                        </h5>
+
+                    </div>
+
+                </div>
+
+
+                <!-- NEXT DUE DATE -->
+
+                <div class="col-md-6 col-xl-2">
+
+                    <div class="border rounded p-3 h-100">
+
+                        <small class="text-muted d-block">
+                            Next Due Date
+                        </small>
+
+                        @if (nextInstallment != null)
+                        {
+                            <h6 class="fw-bold text-danger mt-2 mb-0">
+                                @nextInstallment.DueDate.ToString("dd-MM-yyyy")
+                            </h6>
+                        }
+                        else
+                        {
+                            <h6 class="fw-bold text-success mt-2 mb-0">
+                                Completed
+                            </h6>
+                        }
 
                     </div>
 
@@ -208,7 +268,7 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
         <div class="card-body">
 
-            <div class="d-flex justify-content-between mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
 
                 <span class="fw-semibold">
                     EMI Repayment Progress
@@ -248,20 +308,18 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
 
     <!-- ========================================================= -->
-    <!-- EMI PLAN + SCHEDULE -->
+    <!-- EMI PLAN INFORMATION -->
     <!-- ========================================================= -->
 
-    <div class="row g-4">
+    <div class="row g-4 mb-4">
 
-        <!-- ===================================================== -->
-        <!-- EMI PLAN INFORMATION -->
-        <!-- ===================================================== -->
+        <!-- EMI PLAN -->
 
         <div class="col-lg-6">
 
             <div class="card border-0 shadow-sm h-100">
 
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-dark text-white">
 
                     <h5 class="mb-0">
                         <i class="bi bi-info-circle me-2"></i>
@@ -275,11 +333,11 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
                     <div class="row mb-3">
 
-                        <div class="col-sm-6 text-muted">
+                        <div class="col-6 text-muted">
                             EMI Plan ID
                         </div>
 
-                        <div class="col-sm-6 fw-semibold">
+                        <div class="col-6 fw-semibold">
                             #@Model.EmiplanId
                         </div>
 
@@ -288,11 +346,11 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
                     <div class="row mb-3">
 
-                        <div class="col-sm-6 text-muted">
+                        <div class="col-6 text-muted">
                             Loan Number
                         </div>
 
-                        <div class="col-sm-6 fw-semibold">
+                        <div class="col-6 fw-semibold">
 
                             @(Model.Loan?.LoanNumber ?? "N/A")
 
@@ -303,11 +361,11 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
                     <div class="row mb-3">
 
-                        <div class="col-sm-6 text-muted">
+                        <div class="col-6 text-muted">
                             Total EMIs
                         </div>
 
-                        <div class="col-sm-6 fw-semibold">
+                        <div class="col-6 fw-semibold">
                             @Model.TotalEmis
                         </div>
 
@@ -316,11 +374,11 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
                     <div class="row mb-3">
 
-                        <div class="col-sm-6 text-muted">
+                        <div class="col-6 text-muted">
                             Monthly EMI
                         </div>
 
-                        <div class="col-sm-6 fw-semibold">
+                        <div class="col-6 fw-semibold text-primary">
                             ₹@Model.MonthlyEmi.ToString("N2")
                         </div>
 
@@ -329,25 +387,12 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
                     <div class="row mb-3">
 
-                        <div class="col-sm-6 text-muted">
+                        <div class="col-6 text-muted">
                             Total Repayment
                         </div>
 
-                        <div class="col-sm-6 fw-semibold">
+                        <div class="col-6 fw-semibold">
                             ₹@totalAmount.ToString("N2")
-                        </div>
-
-                    </div>
-
-
-                    <div class="row mb-3">
-
-                        <div class="col-sm-6 text-muted">
-                            Outstanding Balance
-                        </div>
-
-                        <div class="col-sm-6 fw-semibold text-danger">
-                            ₹@Model.OutstandingBalance.ToString("N2")
                         </div>
 
                     </div>
@@ -355,11 +400,11 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
                     <div class="row">
 
-                        <div class="col-sm-6 text-muted">
+                        <div class="col-6 text-muted">
                             Plan Status
                         </div>
 
-                        <div class="col-sm-6">
+                        <div class="col-6">
 
                             @if (Model.PlanStatus == "Active")
                             {
@@ -370,7 +415,7 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
                             }
                             else if (Model.PlanStatus == "Completed")
                             {
-                                <span class="badge bg-success">
+                                <span class="badge bg-primary">
                                     <i class="bi bi-check-circle me-1"></i>
                                     Completed
                                 </span>
@@ -393,27 +438,23 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
         </div>
 
 
-        <!-- ===================================================== -->
-        <!-- EMI SCHEDULE -->
-        <!-- ===================================================== -->
+        <!-- EMI DATES -->
 
         <div class="col-lg-6">
 
             <div class="card border-0 shadow-sm h-100">
 
-                <div class="card-header bg-dark text-white">
+                <div class="card-header bg-success text-white">
 
                     <h5 class="mb-0">
                         <i class="bi bi-calendar3 me-2"></i>
-                        EMI Schedule
+                        EMI Schedule Information
                     </h5>
 
                 </div>
 
 
                 <div class="card-body">
-
-                    <!-- Start Date -->
 
                     <div class="row mb-4">
 
@@ -436,8 +477,6 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
                     </div>
 
 
-                    <!-- End Date -->
-
                     <div class="row mb-4">
 
                         <div class="col-2 text-danger fs-3">
@@ -459,8 +498,6 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
                     </div>
 
 
-                    <!-- Next Due Date -->
-
                     <div class="row mb-4">
 
                         <div class="col-2 text-warning fs-3">
@@ -474,15 +511,24 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
                             </small>
 
                             <div class="fw-bold text-danger">
-                                @Model.NextDueDate.ToString("dd MMMM yyyy")
+
+                                @if (nextInstallment != null)
+                                {
+                                    @nextInstallment.DueDate.ToString("dd MMMM yyyy")
+                                }
+                                else
+                                {
+                                    <span class="text-success">
+                                        All EMIs Paid
+                                    </span>
+                                }
+
                             </div>
 
                         </div>
 
                     </div>
 
-
-                    <!-- Created Date -->
 
                     <div class="row">
 
@@ -516,15 +562,16 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
     <!-- ========================================================= -->
     <!-- RELATED LOAN -->
     <!-- ========================================================= -->
+
     @if (Model.Loan != null)
     {
-        <div class="card border-0 shadow-sm mt-4">
+        <div class="card border-0 shadow-sm mb-4">
 
-            <div class="card-header bg-success text-white">
+            <div class="card-header bg-secondary text-white">
 
                 <h5 class="mb-0">
                     <i class="bi bi-bank me-2"></i>
-                    Related Loan Information
+                    Related Loan
                 </h5>
 
             </div>
@@ -533,8 +580,6 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
             <div class="card-body">
 
                 <div class="row g-4">
-
-                    <!-- Loan Number -->
 
                     <div class="col-md-4">
 
@@ -549,8 +594,6 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
                     </div>
 
 
-                    <!-- Loan Amount -->
-
                     <div class="col-md-4">
 
                         <small class="text-muted d-block">
@@ -563,8 +606,6 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
                     </div>
 
-
-                    <!-- Down Payment -->
 
                     <div class="col-md-4">
 
@@ -579,8 +620,6 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
                     </div>
 
 
-                    <!-- Interest -->
-
                     <div class="col-md-4">
 
                         <small class="text-muted d-block">
@@ -588,13 +627,11 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
                         </small>
 
                         <strong>
-                            @Model.Loan.InterestRate.ToString("N2")%
+                            @Model.Loan.InterestRate.ToString("0.00")%
                         </strong>
 
                     </div>
 
-
-                    <!-- Tenure -->
 
                     <div class="col-md-4">
 
@@ -608,8 +645,6 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
                     </div>
 
-
-                    <!-- Loan Status -->
 
                     <div class="col-md-4">
 
@@ -625,7 +660,7 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
                         }
                         else if (Model.Loan.LoanStatus == "Completed")
                         {
-                            <span class="badge bg-success">
+                            <span class="badge bg-primary">
                                 Completed
                             </span>
                         }
@@ -650,9 +685,9 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
     <!-- INSTALLMENT SCHEDULE -->
     <!-- ========================================================= -->
 
-    <div class="card border-0 shadow-sm mt-4">
+    <div class="card border-0 shadow-sm mb-4">
 
-        <div class="card-header bg-light">
+        <div class="card-header bg-primary text-white">
 
             <div class="d-flex justify-content-between align-items-center">
 
@@ -664,7 +699,7 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
                 </h5>
 
 
-                <span class="badge bg-primary">
+                <span class="badge bg-light text-primary">
 
                     @installments.Count Installments
 
@@ -687,23 +722,23 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
                             <tr>
 
-                                <th>#</th>
+                                <th>EMI No.</th>
 
                                 <th>Due Date</th>
 
-                                <th>Installment</th>
+                                <th>EMI Amount</th>
 
                                 <th>Principal</th>
 
                                 <th>Interest</th>
 
-                                <th>Late Fee</th>
-
-                                <th>Paid</th>
-
-                                <th>Payment Date</th>
+                                <th>Paid Amount</th>
 
                                 <th>Status</th>
+
+                                <th class="text-center">
+                                    Action
+                                </th>
 
                             </tr>
 
@@ -716,56 +751,76 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
                             {
                                 <tr>
 
-                                    <td class="fw-semibold">
-                                        @installment.InstallmentNumber
+                                    <!-- EMI NUMBER -->
+
+                                    <td class="fw-bold">
+                                        #@installment.InstallmentNumber
                                     </td>
 
 
+                                    <!-- DUE DATE -->
+
                                     <td>
+
                                         @installment.DueDate.ToString("dd-MM-yyyy")
+
+                                        @if (installment.PaymentStatus != "Paid" &&
+                                             installment.DueDate < DateOnly.FromDateTime(DateTime.Today))
+                                        {
+                                            <br />
+
+                                            <small class="text-danger">
+                                                <i class="bi bi-exclamation-circle me-1"></i>
+                                                Overdue
+                                            </small>
+                                        }
+
                                     </td>
 
 
-                                    <td>
+                                    <!-- EMI AMOUNT -->
+
+                                    <td class="fw-semibold">
+
                                         ₹@installment.InstallmentAmount.ToString("N2")
+
+                                        @if (installment.LateFee > 0 &&
+                                             installment.PaymentStatus != "Paid")
+                                        {
+                                            <br />
+
+                                            <small class="text-danger">
+                                                + ₹@installment.LateFee.ToString("N2") late fee
+                                            </small>
+                                        }
+
                                     </td>
 
+
+                                    <!-- PRINCIPAL -->
 
                                     <td>
                                         ₹@installment.PrincipalAmount.ToString("N2")
                                     </td>
 
 
+                                    <!-- INTEREST -->
+
                                     <td>
                                         ₹@installment.InterestAmount.ToString("N2")
                                     </td>
 
 
-                                    <td>
-                                        ₹@installment.LateFee.ToString("N2")
-                                    </td>
+                                    <!-- PAID AMOUNT -->
 
+                                    <td class="fw-semibold text-success">
 
-                                    <td class="fw-semibold">
                                         ₹@installment.PaidAmount.ToString("N2")
-                                    </td>
-
-
-                                    <td>
-
-                                        @if (installment.PaymentDate.HasValue)
-                                        {
-                                            @installment.PaymentDate.Value.ToString("dd-MM-yyyy")
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">
-                                                Not Paid
-                                            </span>
-                                        }
 
                                     </td>
 
+
+                                    <!-- STATUS -->
 
                                     <td>
 
@@ -775,15 +830,6 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
                                                 <i class="bi bi-check-circle me-1"></i>
                                                 Paid
-
-                                            </span>
-                                        }
-                                        else if (installment.PaymentStatus == "Pending")
-                                        {
-                                            <span class="badge bg-warning text-dark">
-
-                                                <i class="bi bi-clock me-1"></i>
-                                                Pending
 
                                             </span>
                                         }
@@ -798,9 +844,42 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
                                         }
                                         else
                                         {
-                                            <span class="badge bg-secondary">
-                                                @installment.PaymentStatus
+                                            <span class="badge bg-warning text-dark">
+
+                                                <i class="bi bi-clock me-1"></i>
+                                                Pending
+
                                             </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- ACTION -->
+
+                                    <td class="text-center">
+
+                                        @if (installment.PaymentStatus == "Paid" ||
+                                             installment.PaidAmount >= installment.InstallmentAmount)
+                                        {
+                                            <span class="text-success fw-semibold">
+
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                Paid
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <a asp-controller="ClientEmi"
+                                               asp-action="Pay"
+                                               asp-route-id="@installment.InstallmentId"
+                                               class="btn btn-sm btn-primary">
+
+                                                <i class="bi bi-credit-card me-1"></i>
+                                                Pay EMI
+
+                                            </a>
                                         }
 
                                     </td>
@@ -838,10 +917,68 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
 
     <!-- ========================================================= -->
+    <!-- NEXT PAYMENT -->
+    <!-- ========================================================= -->
+
+    @if (nextInstallment != null)
+    {
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-body">
+
+                <div class="d-flex flex-column flex-md-row
+                            justify-content-between
+                            align-items-md-center">
+
+                    <div>
+
+                        <h5 class="fw-bold mb-1">
+                            <i class="bi bi-credit-card me-2"></i>
+                            Next EMI Payment
+                        </h5>
+
+                        <p class="text-muted mb-0">
+
+                            EMI #@nextInstallment.InstallmentNumber
+
+                            is due on
+
+                            <strong>
+                                @nextInstallment.DueDate.ToString("dd MMMM yyyy")
+                            </strong>
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="mt-3 mt-md-0">
+
+                        <a asp-controller="ClientEmi"
+                           asp-action="Pay"
+                           asp-route-id="@nextInstallment.InstallmentId"
+                           class="btn btn-success">
+
+                            <i class="bi bi-credit-card me-1"></i>
+                            Pay Next EMI
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+
+    <!-- ========================================================= -->
     <!-- BOTTOM ACTIONS -->
     <!-- ========================================================= -->
 
-    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
         <a asp-controller="ClientEmi"
            asp-action="Index"
@@ -855,7 +992,7 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
 
         <a asp-controller="ClientLoan"
            asp-action="Index"
-           class="btn btn-primary">
+           class="btn btn-outline-primary">
 
             <i class="bi bi-bank me-1"></i>
             View My Loans
@@ -863,6 +1000,6 @@ var totalAmount = Model.MonthlyEmi * Model.TotalEmis;
         </a>
 
     </div>
-    
 
 </div>
+

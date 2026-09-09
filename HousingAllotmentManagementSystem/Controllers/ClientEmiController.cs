@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using HousingAllotmentManagementSystem.Data;
 using HousingAllotmentManagementSystem.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -88,6 +88,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                 .Include(e => e.Loan)
                     .ThenInclude(l => l.Allotment)
                         .ThenInclude(a => a.Property)
+                            .ThenInclude(p => p.Scheme)
 
                 .Include(e => e.Installments
                     .OrderBy(i => i.InstallmentNumber))
@@ -243,6 +244,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                     });
             }
 
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
                 // =================================================
@@ -277,7 +280,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                     DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
                 string receiptNumber =
-                    "REC" +
+                    "REC-" +
                     DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
 
@@ -312,7 +315,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                         receiptNumber,
 
                     PaymentStatus =
-                        "Success",
+                        "Completed",
 
                     Remarks =
                         $"Payment for EMI #{installment.InstallmentNumber}",
@@ -356,31 +359,37 @@ namespace HousingAllotmentManagementSystem.Controllers
                 var emiPlan =
                     installment.Emiplan;
 
-                emiPlan.PaidEmis =
+                // Count already paid installments plus this current one
+                int previouslyPaid =
                     await _context.Installments
                         .CountAsync(i =>
                             i.EmiplanId == emiPlan.EmiplanId &&
-                            i.PaymentStatus == "Paid");
+                            i.PaymentStatus == "Paid" &&
+                            i.InstallmentId != installment.InstallmentId);
+
+                emiPlan.PaidEmis = previouslyPaid + 1;
 
                 emiPlan.RemainingEmis =
-                    emiPlan.TotalEmis -
-                    emiPlan.PaidEmis;
-
-                if (emiPlan.RemainingEmis < 0)
-                {
-                    emiPlan.RemainingEmis = 0;
-                }
-
-
-                // -------------------------------------------------
-                // Outstanding balance
-                // -------------------------------------------------
-
-                emiPlan.OutstandingBalance =
                     Math.Max(
                         0,
-                        emiPlan.OutstandingBalance -
-                        installment.PrincipalAmount);
+                        emiPlan.TotalEmis -
+                        emiPlan.PaidEmis);
+
+
+                // -------------------------------------------------
+                // Outstanding balance: sum of remaining unpaid principals
+                // -------------------------------------------------
+
+                decimal remainingPrincipal =
+                    await _context.Installments
+                        .Where(i =>
+                            i.EmiplanId == emiPlan.EmiplanId &&
+                            i.PaymentStatus != "Paid" &&
+                            i.InstallmentId != installment.InstallmentId)
+                        .SumAsync(i => i.PrincipalAmount);
+
+                emiPlan.OutstandingBalance =
+                    Math.Round(Math.Max(0, remainingPrincipal), 2);
 
 
                 // =================================================
@@ -389,17 +398,14 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                 var nextInstallment =
                     await _context.Installments
-
                         .Where(i =>
                             i.EmiplanId ==
                                 emiPlan.EmiplanId &&
                             i.PaymentStatus != "Paid" &&
                             i.InstallmentId !=
                                 installment.InstallmentId)
-
                         .OrderBy(i =>
                             i.InstallmentNumber)
-
                         .FirstOrDefaultAsync();
 
 
@@ -418,7 +424,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                     // -------------------------------------------------
 
                     emiPlan.NextDueDate =
-                        installment.DueDate;
+                        emiPlan.EmiendDate;
 
                     emiPlan.RemainingEmis =
                         0;
@@ -428,18 +434,26 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                     emiPlan.PlanStatus =
                         "Completed";
+
+                    // Also mark the loan as completed
+                    if (emiPlan.Loan != null)
+                    {
+                        emiPlan.Loan.LoanStatus =
+                            "Completed";
+                    }
                 }
 
 
                 // =================================================
-                // SAVE EVERYTHING
+                // SAVE EVERYTHING & COMMIT TRANSACTION
                 // =================================================
 
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
 
                 TempData["Success"] =
-                    "EMI payment completed successfully. " +
+                    $"EMI #{installment.InstallmentNumber} payment completed successfully. " +
                     $"Receipt: {receiptNumber}";
 
 

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HousingAllotmentManagementSystem.Models.Payment>
+@model IEnumerable<HousingAllotmentManagementSystem.Models.Payment>
 
 @{
     ViewData["Title"] = "My Payments";
@@ -200,14 +200,15 @@
                         <thead class="table-light">
 
                             <tr>
-                                <th>Payment ID</th>
-                                <th>Payment Type</th>
-                                <th>Amount</th>
-                                <th>Payment Date</th>
-                                <th>Method</th>
+                                <th>Receipt No.</th>
                                 <th>Transaction ID</th>
-                                <th>Receipt</th>
+                                <th>Payment Date</th>
+                                <th>Payment Type</th>
+                                <th>EMI No.</th>
+                                <th>Amount</th>
+                                <th>Method</th>
                                 <th>Status</th>
+                                <th>Remarks</th>
                                 <th>Action</th>
                             </tr>
 
@@ -220,15 +221,11 @@
                                 <tr>
 
                                     <td class="fw-semibold">
-                                        #@payment.PaymentId
+                                        @(payment.ReceiptNumber ?? $"REC-{payment.PaymentId}")
                                     </td>
 
                                     <td>
-                                        @payment.PaymentType
-                                    </td>
-
-                                    <td class="fw-bold">
-                                        ₹@payment.Amount.ToString("N2")
+                                        <small class="text-muted">@(payment.TransactionId ?? "N/A")</small>
                                     </td>
 
                                     <td>
@@ -236,23 +233,50 @@
                                     </td>
 
                                     <td>
+                                        <span class="badge bg-light text-dark border">
+                                            @payment.PaymentType
+                                        </span>
+                                    </td>
+
+                                    <td class="fw-semibold text-primary">
+                                        @(payment.Installment != null ? $"EMI #{payment.Installment.InstallmentNumber}" : "-")
+                                    </td>
+
+                                    <td class="fw-bold text-success">
+                                        ₹@payment.Amount.ToString("N2")
+                                    </td>
+
+                                    <td>
                                         @payment.PaymentMethod
                                     </td>
 
                                     <td>
-                                        @(payment.TransactionId ?? "N/A")
+
+                                        @if (payment.PaymentStatus == "Completed" || payment.PaymentStatus == "Success")
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                @payment.PaymentStatus
+                                            </span>
+                                        }
+                                        else if (payment.PaymentStatus == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-clock me-1"></i>
+                                                Pending
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                @payment.PaymentStatus
+                                            </span>
+                                        }
+
                                     </td>
 
                                     <td>
-                                        @(payment.ReceiptNumber ?? "N/A")
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge bg-success">
-                                            @payment.PaymentStatus
-                                        </span>
-
+                                        <small class="text-muted">@(string.IsNullOrEmpty(payment.Remarks) ? "-" : payment.Remarks)</small>
                                     </td>
 
                                     <td>

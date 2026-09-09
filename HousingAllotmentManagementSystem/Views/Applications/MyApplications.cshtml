@@ -1,519 +1,210 @@
-﻿@model IEnumerable<HousingAllotmentManagementSystem.Models.Application>
+@model IEnumerable<HousingAllotmentManagementSystem.Models.Application>
 
 @{
     ViewData["Title"] = "My Applications";
-    Layout = null;
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
-<html lang="en">
+<div class="container py-5">
 
-<head>
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-file-earmark-text text-primary me-2"></i>
+                My Applications
+            </h2>
+            <p class="text-muted mb-0">
+                View and track your submitted housing applications.
+            </p>
+        </div>
 
-    <meta charset="utf-8" />
+        <div class="d-flex gap-2">
+            <a asp-controller="Home"
+               asp-action="HousingSchemes"
+               class="btn btn-outline-primary">
+                <i class="bi bi-buildings me-1"></i>
+                Explore Schemes
+            </a>
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
+    <!-- SUCCESS / ERROR MESSAGES -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-    <title>My Applications - Housing Allotment System</title>
-
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
-
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-
-    <style>
-
-            body {
-                margin: 0;
-                background: #f5f7fb;
-                color: #263238;
-                font-family: Arial, Helvetica, sans-serif;
-            }
-
-            .page {
-                padding: 40px 25px 60px;
-            }
-
-            .container-custom {
-                max-width: 1200px;
-                margin: auto;
-            }
-
-            .page-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 20px;
-                flex-wrap: wrap;
-                margin-bottom: 30px;
-            }
-
-                .page-header h1 {
-                    font-size: 32px;
-                    font-weight: 700;
-                    color: #1f2937;
-                    margin-bottom: 5px;
-                }
-
-                .page-header p {
-                    color: #64748b;
-                    margin: 0;
-                }
-
-            .back-home {
-                background: #2563eb;
-                color: white;
-                text-decoration: none;
-                padding: 11px 20px;
-                border-radius: 9px;
-                font-weight: 600;
-            }
-
-                .back-home:hover {
-                    background: #1d4ed8;
-                    color: white;
-                }
-
-            .application-card {
-                background: white;
-                border-radius: 18px;
-                box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-                margin-bottom: 20px;
-                overflow: hidden;
-            }
-
-            .application-card-header {
-                padding: 20px 22px;
-                border-bottom: 1px solid #e5e7eb;
-            }
-
-            .application-id {
-                color: #2563eb;
-                font-size: 18px;
-                font-weight: 700;
-            }
-
-            .scheme-name {
-                font-size: 20px;
-                font-weight: 700;
-                color: #1f2937;
-            }
-
-            .scheme-location {
-                color: #64748b;
-                font-size: 14px;
-                margin-top: 4px;
-            }
-
-            .application-card-body {
-                padding: 20px 22px;
-            }
-
-            .info-grid {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 15px;
-            }
-
-            .info-box {
-                background: #f8fafc;
-                border: 1px solid #e2e8f0;
-                border-radius: 11px;
-                padding: 14px;
-            }
-
-            .info-label {
-                display: block;
-                color: #64748b;
-                font-size: 13px;
-                margin-bottom: 5px;
-            }
-
-            .info-value {
-                display: block;
-                color: #1f2937;
-                font-weight: 700;
-                font-size: 15px;
-            }
-
-            .status-badge {
-                display: inline-block;
-                padding: 7px 14px;
-                border-radius: 20px;
-                font-size: 13px;
-                font-weight: 600;
-            }
-
-            .status-pending {
-                background: #fef3c7;
-                color: #92400e;
-            }
-
-            .status-approved {
-                background: #dcfce7;
-                color: #166534;
-            }
-
-            .status-rejected {
-                background: #fee2e2;
-                color: #991b1b;
-            }
-
-            .card-footer-custom {
-                border-top: 1px solid #e5e7eb;
-                padding: 15px 22px;
-                display: flex;
-                justify-content: flex-end;
-            }
-
-            .view-btn {
-                background: #06b6d4;
-                color: white;
-                text-decoration: none;
-                padding: 9px 18px;
-                border-radius: 8px;
-                font-weight: 600;
-            }
-
-                .view-btn:hover {
-                    background: #0891b2;
-                    color: white;
-                }
-
-            .empty-state {
-                background: white;
-                border-radius: 18px;
-                padding: 70px 20px;
-                text-align: center;
-                box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            }
-
-                .empty-state i {
-                    font-size: 70px;
-                    color: #94a3b8;
-                }
-
-                .empty-state h3 {
-                    margin-top: 20px;
-                    font-weight: 700;
-                }
-
-            .browse-btn {
-                display: inline-block;
-                margin-top: 15px;
-                background: #2563eb;
-                color: white;
-                text-decoration: none;
-                padding: 11px 22px;
-                border-radius: 9px;
-                font-weight: 600;
-            }
-
-                .browse-btn:hover {
-                    background: #1d4ed8;
-                    color: white;
-                }
-
-            @@media (max-width: 991px) {
-
-                .info-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-            }
-
-            @@media (max-width: 575px) {
-
-                .page {
-                    padding: 25px 12px 40px;
-                }
-
-                .page-header h1 {
-                    font-size: 27px;
-                }
-
-                .info-grid {
-                    grid-template-columns: 1fr;
-                }
-
-                .application-card-header,
-                .application-card-body,
-                .card-footer-custom {
-                    padding-left: 16px;
-                    padding-right: 16px;
-                }
-            }
-
-    </style>
-
-</head>
-
-<body>
-
-    <div class="page">
-
-        <div class="container-custom">
-
-            <!-- HEADER -->
-
-            <div class="page-header">
-
-                <div>
-
-                    <h1>
-                        <i class="bi bi-file-earmark-text-fill text-primary me-2"></i>
-                        My Applications
-                    </h1>
-
-                    <p>
-                        View and track your housing applications.
-                    </p>
-
-                </div>
-
-                <a asp-controller="Home"
-                   asp-action="HousingSchemes"
-                   class="back-home">
-
-                    <i class="bi bi-buildings-fill me-1"></i>
-
-                    Browse Housing Schemes
-
-                </a>
-
-            </div>
-
-
-            <!-- SUCCESS MESSAGE -->
-            @if (TempData["SuccessMessage"] != null)
+    <!-- APPLICATIONS LIST -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
             {
-                <div class="alert alert-success alert-dismissible fade show">
+                var scheme = item.Property?.Scheme;
+                var property = item.Property;
+                var allotment = item.Allotments?.FirstOrDefault();
 
-                    <i class="bi bi-check-circle-fill me-2"></i>
-
-                    @TempData["SuccessMessage"]
-
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert">
-                    </button>
-
-                </div>
-            }
-
-
-            <!-- APPLICATIONS -->
-            @if (Model != null && Model.Any())
-            {
-                foreach (var item in Model)
-                {
-                    <div class="application-card">
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
 
                         <!-- HEADER -->
-
-                        <div class="application-card-header">
-
-                            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
-
+                        <div class="card-header bg-primary text-white p-3">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <div>
-
-                                    <div class="application-id">
-                                        Application #@item.ApplicationId
-                                    </div>
-
-                                    <div class="scheme-name mt-1">
-
-                                        @(item.Property?.Scheme?.SchemeName
-                                            ?? "Housing Scheme")
-
-                                    </div>
-
-                                    <div class="scheme-location">
-
-                                        <i class="bi bi-geo-alt-fill me-1"></i>
-
-                                        @(item.Property?.Scheme?.Location
-                                            ?? item.Property?.Scheme?.City
-                                            ?? "Location not specified")
-
-                                    </div>
-
+                                    <small class="opacity-75">Application Number</small>
+                                    <h5 class="mb-0 fw-bold">#@item.ApplicationId</h5>
                                 </div>
 
-
-                                <!-- STATUS -->
-
                                 <div>
-
-                                    @if (string.Equals(
-                                        item.Status,
-                                        "Approved",
-                                        StringComparison.OrdinalIgnoreCase))
+                                    @if (string.Equals(item.Status, "Approved", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        <span class="status-badge status-approved">
-
+                                        <span class="badge bg-success fs-6">
                                             <i class="bi bi-check-circle-fill me-1"></i>
-
                                             Approved
-
                                         </span>
                                     }
-                                    else if (string.Equals(
-                                        item.Status,
-                                        "Rejected",
-                                        StringComparison.OrdinalIgnoreCase))
+                                    else if (string.Equals(item.Status, "Rejected", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        <span class="status-badge status-rejected">
-
+                                        <span class="badge bg-danger fs-6">
                                             <i class="bi bi-x-circle-fill me-1"></i>
-
                                             Rejected
-
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="status-badge status-pending">
-
+                                        <span class="badge bg-warning text-dark fs-6">
                                             <i class="bi bi-hourglass-split me-1"></i>
-
-                                            @(string.IsNullOrWhiteSpace(item.Status)
-                                                ? "Pending"
-                                                : item.Status)
-
+                                            @(string.IsNullOrWhiteSpace(item.Status) ? "Pending" : item.Status)
                                         </span>
                                     }
-
                                 </div>
-
                             </div>
-
                         </div>
-
 
                         <!-- BODY -->
+                        <div class="card-body p-4">
 
-                        <div class="application-card-body">
-
-                            <div class="info-grid">
-
-                                <div class="info-box">
-
-                                    <span class="info-label">
-                                        Property
-                                    </span>
-
-                                    <span class="info-value">
-                                        @(item.Property?.UnitNumber ?? "-")
-                                    </span>
-
-                                </div>
-
-
-                                <div class="info-box">
-
-                                    <span class="info-label">
-                                        Property Type
-                                    </span>
-
-                                    <span class="info-value">
-                                        @(item.Property?.PropertyType ?? "-")
-                                    </span>
-
-                                </div>
-
-
-                                <div class="info-box">
-
-                                    <span class="info-label">
-                                        Application Date
-                                    </span>
-
-                                    <span class="info-value">
-                                        @item.ApplicationDate.ToString("dd MMM yyyy")
-                                    </span>
-
-                                </div>
-
-
-                                <div class="info-box">
-
-                                    <span class="info-label">
-                                        Property Price
-                                    </span>
-
-                                    <span class="info-value">
-
-                                        @if (item.Property?.Price.HasValue == true)
-                                        {
-                                            @:₹@item.Property.Price.Value.ToString("N2")
-                                        }
-                                        else
-                                        {
-                                            @:-
-                                        }
-
-                                    </span>
-
-                                </div>
-
+                            <!-- SCHEME -->
+                            <div class="mb-3 pb-3 border-bottom">
+                                <small class="text-muted d-block">Housing Scheme</small>
+                                <h5 class="fw-bold text-primary mt-1 mb-0">
+                                    @(scheme?.SchemeName ?? "Housing Scheme")
+                                </h5>
+                                <small class="text-muted">
+                                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                    @(scheme?.Location ?? $"{scheme?.City}, {scheme?.State}" ?? "Location not specified")
+                                </small>
                             </div>
+
+                            <!-- DETAILS GRID -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Property Unit</small>
+                                    <strong>@(property?.UnitNumber ?? (property?.PlotNumber != null ? $"Plot {property.PlotNumber}" : "Not Assigned"))</strong>
+                                </div>
+
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Property Type</small>
+                                    <strong>@(property?.PropertyType ?? "Residential")</strong>
+                                </div>
+
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Application Date</small>
+                                    <span>@item.ApplicationDate.ToString("dd MMM yyyy")</span>
+                                </div>
+
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Property Price</small>
+                                    <span class="text-success fw-bold">
+                                        @(property?.Price.HasValue == true ? $"₹{property.Price.Value:N2}" : "-")
+                                    </span>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(item.Remarks))
+                            {
+                                <div class="mb-3">
+                                    <small class="text-muted d-block">Remarks</small>
+                                    <div class="alert alert-light border small py-2 px-3 mb-0">
+                                        @item.Remarks
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- ALLOTMENT INFORMATION IF ALLOTTED -->
+                            @if (allotment != null)
+                            {
+                                <div class="alert alert-success border-0 py-2 px-3 mb-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-house-check-fill me-1"></i>
+                                            <strong>Allotment:</strong> @allotment.AllotmentNumber
+                                        </div>
+                                        <span class="badge bg-success">@allotment.AllotmentStatus</span>
+                                    </div>
+                                    <div class="small text-muted mt-1">
+                                        Allotted on @allotment.AllotmentDate.ToString("dd MMM yyyy") &bull; Booking: ₹@allotment.BookingAmount.ToString("N2")
+                                    </div>
+                                </div>
+                            }
 
                         </div>
 
-
                         <!-- FOOTER -->
-
-                        <div class="card-footer-custom">
-
+                        <div class="card-footer bg-white border-0 p-3 pt-0 d-flex justify-content-between align-items-center">
                             <a asp-controller="Applications"
                                asp-action="MyApplicationDetails"
                                asp-route-applicationId="@item.ApplicationId"
-                               class="view-btn">
-
+                               class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-eye-fill me-1"></i>
-
-                                View Full Details
-
+                                View Application Details
                             </a>
 
+                            @if (allotment != null)
+                            {
+                                <a asp-controller="ClientProperty"
+                                   asp-action="Details"
+                                   asp-route-id="@allotment.PropertyId"
+                                   class="btn btn-sm btn-success">
+                                    <i class="bi bi-house-door me-1"></i>
+                                    View Property
+                                </a>
+                            }
                         </div>
 
                     </div>
-                }
-            }
-            else
-            {
-                <div class="empty-state">
-
-                    <i class="bi bi-file-earmark-x"></i>
-
-                    <h3>
-                        No Applications Found
-                    </h3>
-
-                    <p class="text-muted">
-                        You have not submitted any housing applications yet.
-                    </p>
-
-                    <a asp-controller="Home"
-                       asp-action="HousingSchemes"
-                       class="browse-btn">
-
-                        <i class="bi bi-buildings-fill me-1"></i>
-
-                        Explore Housing Schemes
-
-                    </a>
-
                 </div>
             }
-
         </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-file-earmark-x display-1 text-muted"></i>
+                <h3 class="fw-bold mt-3">No Applications Found</h3>
+                <p class="text-muted mb-4">
+                    You have not submitted any housing applications yet.
+                </p>
+                <a asp-controller="Home"
+                   asp-action="HousingSchemes"
+                   class="btn btn-primary">
+                    <i class="bi bi-buildings-fill me-1"></i>
+                    Explore Housing Schemes
+                </a>
+            </div>
+        </div>
+    }
 
-    </div>
-
-</body>
-
-</html>
+</div>
