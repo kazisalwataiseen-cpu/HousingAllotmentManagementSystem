@@ -1,55 +1,1381 @@
-﻿@model HousingAllotmentManagementSystem.ViewModels.DashboardViewModel
+﻿
+@model HousingAllotmentManagementSystem.ViewModels.DashboardViewModel
 
 @{
     ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2 class="mb-4">Dashboard</h2>
+<style>
 
-<div class="row">
+    /* =========================================================
+           DASHBOARD PAGE
+           ========================================================= */
 
-    <div class="col-md-3 mb-4">
-        <div class="card shadow border-0">
-            <div class="card-body text-center">
-                <h6>Total Users</h6>
-                <h2>@Model.TotalUsers</h2>
-            </div>
+    .dashboard-page {
+        padding: 5px 5px 35px;
+        background: #f8f9fc;
+        min-height: calc(100vh - 70px);
+    }
+
+
+    /* =========================================================
+           HEADER
+           ========================================================= */
+
+    .dashboard-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+    }
+
+    .dashboard-welcome h2 {
+        font-size: 29px;
+        font-weight: 750;
+        color: #30364b;
+        margin: 0 0 6px;
+        letter-spacing: -.5px;
+    }
+
+    .dashboard-welcome p {
+        margin: 0;
+        color: #9298aa;
+        font-size: 14px;
+    }
+
+    .dashboard-date {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 10px 15px;
+        background: #ffffff;
+        border: 1px solid #eef0f6;
+        border-radius: 14px;
+        color: #777e92;
+        font-size: 13px;
+        box-shadow: 0 5px 18px rgba(50,55,90,.05);
+    }
+
+        .dashboard-date i {
+            color: #8d7bd8;
+            font-size: 16px;
+        }
+
+
+    /* =========================================================
+           KPI CARDS
+           ========================================================= */
+
+    .kpi-card {
+        position: relative;
+        border: 0;
+        border-radius: 22px;
+        overflow: hidden;
+        min-height: 166px;
+        box-shadow: 0 8px 28px rgba(47,53,85,.07);
+        transition: transform .3s ease, box-shadow .3s ease;
+    }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(47,53,85,.12);
+        }
+
+        .kpi-card .card-body {
+            padding: 23px;
+            position: relative;
+            z-index: 2;
+        }
+
+    .kpi-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+        margin-bottom: 17px;
+    }
+
+    .kpi-label {
+        color: #73798b;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .kpi-number {
+        color: #30364b;
+        font-size: 29px;
+        font-weight: 750;
+        line-height: 1.2;
+        margin: 0;
+    }
+
+    .kpi-sub {
+        margin-top: 8px;
+        font-size: 11px;
+        color: #969bad;
+    }
+
+
+    /* Decorative circles */
+
+    .kpi-card::before {
+        content: "";
+        position: absolute;
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        right: -55px;
+        top: -58px;
+        background: rgba(255,255,255,.42);
+    }
+
+    .kpi-card::after {
+        content: "";
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        right: -25px;
+        bottom: -35px;
+        background: rgba(255,255,255,.28);
+    }
+
+
+    /* =========================================================
+           CARD COLORS
+           ========================================================= */
+
+    .kpi-users {
+        background: linear-gradient(145deg,#eef3ff,#e3ebff);
+    }
+
+        .kpi-users .kpi-icon {
+            background: #d6e2ff;
+            color: #657fe1;
+        }
+
+    .kpi-properties {
+        background: linear-gradient(145deg,#ecf8f1,#dff2e7);
+    }
+
+        .kpi-properties .kpi-icon {
+            background: #cee9d9;
+            color: #4ca873;
+        }
+
+    .kpi-applications {
+        background: linear-gradient(145deg,#fff7e8,#ffefd2);
+    }
+
+        .kpi-applications .kpi-icon {
+            background: #ffe2ae;
+            color: #db9b3d;
+        }
+
+    .kpi-payments {
+        background: linear-gradient(145deg,#f8efff,#eee2fb);
+    }
+
+        .kpi-payments .kpi-icon {
+            background: #e5d0f7;
+            color: #9366c7;
+        }
+
+
+    /* =========================================================
+           GENERAL CARDS
+           ========================================================= */
+
+    .dashboard-card {
+        background: #ffffff;
+        border: 0;
+        border-radius: 23px;
+        box-shadow: 0 8px 28px rgba(47,53,85,.065);
+        height: 100%;
+    }
+
+    .dashboard-card-body {
+        padding: 26px;
+    }
+
+    .section-title {
+        color: #30364b;
+        font-size: 17px;
+        font-weight: 720;
+        margin: 0;
+    }
+
+    .section-subtitle {
+        color: #a0a5b4;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+
+    /* =========================================================
+           PAYMENT COLLECTION
+           ========================================================= */
+
+    .collection-card {
+        background: linear-gradient(145deg,#fffaf6,#fff3eb);
+        border: 0;
+        border-radius: 23px;
+        box-shadow: 0 8px 28px rgba(47,53,85,.065);
+        overflow: hidden;
+        height: 100%;
+        position: relative;
+    }
+
+        .collection-card::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            right: -75px;
+            bottom: -90px;
+            background: rgba(255,255,255,.45);
+        }
+
+    .collection-body {
+        padding: 27px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .collection-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .collection-icon {
+        width: 49px;
+        height: 49px;
+        border-radius: 15px;
+        background: #ffe3d1;
+        color: #dc8756;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+    }
+
+    .collection-label {
+        color: #918982;
+        font-size: 12px;
+        margin-top: 22px;
+        margin-bottom: 4px;
+    }
+
+    .collection-amount {
+        font-size: 31px;
+        font-weight: 750;
+        color: #cf7648;
+        margin: 0;
+        letter-spacing: -.5px;
+    }
+
+    .collection-description {
+        color: #a69b94;
+        font-size: 12px;
+        margin-top: 7px;
+    }
+
+    .collection-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 11px;
+        border-radius: 20px;
+        background: rgba(255,255,255,.72);
+        color: #8b817a;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #76c493;
+    }
+
+
+    /* =========================================================
+           COLLECTION MINI VISUAL
+           ========================================================= */
+
+    .collection-visual {
+        height: 85px;
+        margin-top: 22px;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        gap: 7px;
+        overflow: hidden;
+    }
+
+    .collection-bar {
+        flex: 1;
+        border-radius: 8px 8px 3px 3px;
+        background: linear-gradient( to top, rgba(224,142,94,.30), rgba(246,190,155,.72) );
+    }
+
+        .collection-bar:nth-child(1) {
+            height: 28%;
+        }
+
+        .collection-bar:nth-child(2) {
+            height: 42%;
+        }
+
+        .collection-bar:nth-child(3) {
+            height: 35%;
+        }
+
+        .collection-bar:nth-child(4) {
+            height: 55%;
+        }
+
+        .collection-bar:nth-child(5) {
+            height: 48%;
+        }
+
+        .collection-bar:nth-child(6) {
+            height: 68%;
+        }
+
+        .collection-bar:nth-child(7) {
+            height: 56%;
+        }
+
+        .collection-bar:nth-child(8) {
+            height: 78%;
+        }
+
+    .collection-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: rgba(210,170,145,.25);
+    }
+
+
+    /* =========================================================
+           SYSTEM OVERVIEW
+           ========================================================= */
+
+    .overview-list {
+        margin-top: 18px;
+    }
+
+    .overview-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 0;
+        border-bottom: 1px solid #f0f1f5;
+    }
+
+        .overview-row:last-child {
+            border-bottom: none;
+        }
+
+    .overview-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .overview-icon {
+        width: 39px;
+        height: 39px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    .overview-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #555c70;
+    }
+
+    .overview-value {
+        font-size: 15px;
+        font-weight: 750;
+        color: #343a4e;
+    }
+
+    .overview-users {
+        background: #edf2ff;
+        color: #657fe1;
+    }
+
+    .overview-properties {
+        background: #eaf7ef;
+        color: #50a774;
+    }
+
+    .overview-applications {
+        background: #fff4df;
+        color: #dc9b42;
+    }
+
+    .overview-payments {
+        background: #f3eaff;
+        color: #9669c8;
+    }
+
+
+    /* =========================================================
+           QUICK ACTIONS
+           ========================================================= */
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2,1fr);
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .quick-action {
+        text-decoration: none;
+        padding: 13px;
+        border-radius: 14px;
+        background: #f8f9fc;
+        border: 1px solid #f0f1f6;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #5d6477;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all .25s ease;
+    }
+
+        .quick-action:hover {
+            background: #f1efff;
+            color: #7b68b4;
+            transform: translateY(-2px);
+        }
+
+        .quick-action i {
+            font-size: 16px;
+        }
+
+
+    /* =========================================================
+           MONTHLY GRAPH
+           ========================================================= */
+
+    .graph-card {
+        background: #ffffff;
+        border: 0;
+        border-radius: 23px;
+        box-shadow: 0 8px 28px rgba(47,53,85,.065);
+    }
+
+    .graph-body {
+        padding: 27px;
+    }
+
+    .graph-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .graph-badge {
+        padding: 7px 13px;
+        border-radius: 20px;
+        background: #f1ecff;
+        color: #8a70c2;
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .graph-wrapper {
+        height: 330px;
+        position: relative;
+        margin-top: 12px;
+    }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 991px) {
+
+        .dashboard-top {
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .dashboard-date {
+            display: none;
+        }
+    }
+
+    @@media (max-width: 575px) {
+
+        .dashboard-page {
+            padding: 0 0 25px;
+        }
+
+        .dashboard-welcome h2 {
+            font-size: 23px;
+        }
+
+        .kpi-card {
+            min-height: 150px;
+        }
+
+        .collection-amount {
+            font-size: 26px;
+        }
+
+        .graph-wrapper {
+            height: 260px;
+        }
+
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+
+</style>
+
+
+<!-- =========================================================
+     DASHBOARD
+     ========================================================= -->
+
+<div class="dashboard-page">
+
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="dashboard-top">
+
+        <div class="dashboard-welcome">
+
+            <h2>
+                Welcome back, Administrator 👋
+            </h2>
+
+            <p>
+                Here's what's happening in your Housing Allotment Management System.
+            </p>
+
         </div>
+
+
+        <div class="dashboard-date">
+
+            <i class="bi bi-calendar3"></i>
+
+            <span id="dashboardDate"></span>
+
+        </div>
+
     </div>
 
-    <div class="col-md-3 mb-4">
-        <div class="card shadow border-0">
-            <div class="card-body text-center">
-                <h6>Total Properties</h6>
-                <h2>@Model.TotalProperties</h2>
+
+    <!-- =====================================================
+         KPI CARDS
+         ===================================================== -->
+
+    <div class="row g-4">
+
+
+        <!-- USERS -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card kpi-card kpi-users">
+
+                <div class="card-body">
+
+                    <div class="kpi-icon">
+
+                        <i class="bi bi-people-fill"></i>
+
+                    </div>
+
+                    <div class="kpi-label">
+                        Total Users
+                    </div>
+
+                    <h3 class="kpi-number">
+                        @Model.TotalUsers
+                    </h3>
+
+                    <div class="kpi-sub">
+                        Registered system users
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
+
+
+        <!-- PROPERTIES -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card kpi-card kpi-properties">
+
+                <div class="card-body">
+
+                    <div class="kpi-icon">
+
+                        <i class="bi bi-buildings-fill"></i>
+
+                    </div>
+
+                    <div class="kpi-label">
+                        Total Properties
+                    </div>
+
+                    <h3 class="kpi-number">
+                        @Model.TotalProperties
+                    </h3>
+
+                    <div class="kpi-sub">
+                        Housing properties
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- APPLICATIONS -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card kpi-card kpi-applications">
+
+                <div class="card-body">
+
+                    <div class="kpi-icon">
+
+                        <i class="bi bi-file-earmark-check-fill"></i>
+
+                    </div>
+
+                    <div class="kpi-label">
+                        Total Applications
+                    </div>
+
+                    <h3 class="kpi-number">
+                        @Model.TotalApplications
+                    </h3>
+
+                    <div class="kpi-sub">
+                        Housing applications
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PAYMENTS -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card kpi-card kpi-payments">
+
+                <div class="card-body">
+
+                    <div class="kpi-icon">
+
+                        <i class="bi bi-credit-card-fill"></i>
+
+                    </div>
+
+                    <div class="kpi-label">
+                        Total Payments
+                    </div>
+
+                    <h3 class="kpi-number">
+                        @Model.TotalPayments
+                    </h3>
+
+                    <div class="kpi-sub">
+                        Successful transactions
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="col-md-3 mb-4">
-        <div class="card shadow border-0">
-            <div class="card-body text-center">
-                <h6>Total Applications</h6>
-                <h2>@Model.TotalApplications</h2>
+
+    <!-- =====================================================
+         PAYMENT + SYSTEM OVERVIEW
+         ===================================================== -->
+
+    <div class="row g-4 mt-1">
+
+
+        <!-- TOTAL PAYMENT -->
+
+        <div class="col-xl-5 col-lg-6">
+
+            <div class="collection-card">
+
+                <div class="collection-body">
+
+                    <div class="collection-head">
+
+                        <div>
+
+                            <h5 class="section-title">
+                                Total Payment Collection
+                            </h5>
+
+                            <div class="section-subtitle">
+                                Overall successful payment amount
+                            </div>
+
+                        </div>
+
+
+                        <div class="collection-icon">
+
+                            <i class="bi bi-wallet2"></i>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="collection-label">
+                        Total Collected Amount
+                    </div>
+
+
+                    <h2 class="collection-amount">
+
+                        ₹ @Model.TotalPaymentAmount.ToString("N2")
+
+                    </h2>
+
+
+                    <div class="collection-description">
+
+                        Based on successful payment transactions
+
+                    </div>
+
+
+                    <div class="mt-3">
+
+                        <span class="collection-status">
+
+                            <span class="status-dot"></span>
+
+                            Collection Active
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- DECORATIVE MINI VISUAL -->
+
+                    <div class="collection-visual">
+
+                        <div class="collection-bar"></div>
+                        <div class="collection-bar"></div>
+                        <div class="collection-bar"></div>
+                        <div class="collection-bar"></div>
+                        <div class="collection-bar"></div>
+                        <div class="collection-bar"></div>
+                        <div class="collection-bar"></div>
+                        <div class="collection-bar"></div>
+
+                        <div class="collection-line"></div>
+
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
+
+
+        <!-- SYSTEM OVERVIEW -->
+
+        <div class="col-xl-7 col-lg-6">
+
+            <div class="dashboard-card">
+
+                <div class="dashboard-card-body">
+
+                    <h5 class="section-title">
+                        System Overview
+                    </h5>
+
+                    <div class="section-subtitle">
+                        Current statistics across the system
+                    </div>
+
+
+                    <div class="overview-list">
+
+
+                        <!-- USERS -->
+
+                        <div class="overview-row">
+
+                            <div class="overview-info">
+
+                                <div class="overview-icon overview-users">
+
+                                    <i class="bi bi-people-fill"></i>
+
+                                </div>
+
+                                <span class="overview-name">
+                                    Registered Users
+                                </span>
+
+                            </div>
+
+                            <span class="overview-value">
+                                @Model.TotalUsers
+                            </span>
+
+                        </div>
+
+
+                        <!-- PROPERTIES -->
+
+                        <div class="overview-row">
+
+                            <div class="overview-info">
+
+                                <div class="overview-icon overview-properties">
+
+                                    <i class="bi bi-house-fill"></i>
+
+                                </div>
+
+                                <span class="overview-name">
+                                    Housing Properties
+                                </span>
+
+                            </div>
+
+                            <span class="overview-value">
+                                @Model.TotalProperties
+                            </span>
+
+                        </div>
+
+
+                        <!-- APPLICATIONS -->
+
+                        <div class="overview-row">
+
+                            <div class="overview-info">
+
+                                <div class="overview-icon overview-applications">
+
+                                    <i class="bi bi-file-earmark-text-fill"></i>
+
+                                </div>
+
+                                <span class="overview-name">
+                                    Applications
+                                </span>
+
+                            </div>
+
+                            <span class="overview-value">
+                                @Model.TotalApplications
+                            </span>
+
+                        </div>
+
+
+                        <!-- PAYMENTS -->
+
+                        <div class="overview-row">
+
+                            <div class="overview-info">
+
+                                <div class="overview-icon overview-payments">
+
+                                    <i class="bi bi-credit-card-fill"></i>
+
+                                </div>
+
+                                <span class="overview-name">
+                                    Payment Transactions
+                                </span>
+
+                            </div>
+
+                            <span class="overview-value">
+                                @Model.TotalPayments
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- QUICK ACTIONS -->
+
+                    <div class="quick-actions">
+
+
+                        <a asp-controller="HousingSchemes"
+                           asp-action="Index"
+                           class="quick-action">
+
+                            <i class="bi bi-buildings"></i>
+
+                            Housing Schemes
+
+                        </a>
+
+
+                        <a asp-controller="Properties"
+                           asp-action="Index"
+                           class="quick-action">
+
+                            <i class="bi bi-house-door"></i>
+
+                            Properties
+
+                        </a>
+
+
+                        <a asp-controller="Applications"
+                           asp-action="Index"
+                           class="quick-action">
+
+                            <i class="bi bi-file-earmark-text"></i>
+
+                            Applications
+
+                        </a>
+
+
+                        <a asp-controller="Payments"
+                           asp-action="Index"
+                           class="quick-action">
+
+                            <i class="bi bi-credit-card"></i>
+
+                            Payments
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="col-md-3 mb-4">
-        <div class="card shadow border-0">
-            <div class="card-body text-center">
-                <h6>Total Payments</h6>
-                <h2>@Model.TotalPayments</h2>
+
+    <!-- =====================================================
+         REAL MONTHLY PAYMENT GRAPH
+         ===================================================== -->
+
+    <div class="row g-4 mt-1">
+
+        <div class="col-12">
+
+            <div class="graph-card">
+
+                <div class="graph-body">
+
+
+                    <div class="graph-header">
+
+                        <div>
+
+                            <h5 class="section-title">
+                                Monthly Payment Collection
+                            </h5>
+
+                            <div class="section-subtitle">
+                                Successful payment collection for @DateTime.Now.Year
+                            </div>
+
+                        </div>
+
+
+                        <div class="graph-badge">
+
+                            <i class="bi bi-graph-up-arrow me-1"></i>
+
+                            Monthly
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="graph-wrapper">
+
+                        <canvas id="monthlyPaymentChart"></canvas>
+
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
+
     </div>
 
 </div>
 
-<div class="card shadow border-0 mt-4">
-    <div class="card-body">
-        <h4>Total Payment Collection</h4>
-        <h2 class="text-success">₹ @Model.TotalPaymentAmount.ToString("N2")</h2>
-    </div>
-</div>
+
+<!-- =========================================================
+     CHART.JS
+     ========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+
+        /* =====================================================
+           CURRENT DATE
+           ===================================================== */
+
+        const dateElement =
+            document.getElementById("dashboardDate");
+
+        if (dateElement) {
+
+            const today = new Date();
+
+            dateElement.textContent =
+                today.toLocaleDateString(
+                    "en-IN",
+                    {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric"
+                    }
+                );
+
+        }
+
+
+        /* =====================================================
+           MONTHLY PAYMENT DATA FROM DATABASE
+           ===================================================== */
+
+        const monthlyLabels = [
+
+            @foreach (var item in Model.MonthlyPayments)
+            {
+                    @: "@item.Month",
+            }
+
+        ];
+
+
+        const monthlyAmounts = [
+
+            @foreach (var item in Model.MonthlyPayments)
+            {
+                    @: @item.Amount.ToString(
+                            System.Globalization.CultureInfo.InvariantCulture
+                            ),
+                }
+
+    ];
+
+
+            /* =====================================================
+               CANVAS
+               ===================================================== */
+
+            const canvas =
+                document.getElementById("monthlyPaymentChart");
+
+            if (!canvas) {
+                return;
+            }
+
+
+            const ctx =
+                canvas.getContext("2d");
+
+
+            /* =====================================================
+               GRADIENT
+               ===================================================== */
+
+            const gradient =
+                ctx.createLinearGradient(
+                    0,
+                    0,
+                    0,
+                    330
+                );
+
+            gradient.addColorStop(
+                0,
+                "rgba(149,117,210,.30)"
+            );
+
+            gradient.addColorStop(
+                0.6,
+                "rgba(149,117,210,.10)"
+            );
+
+            gradient.addColorStop(
+                1,
+                "rgba(149,117,210,.015)"
+            );
+
+
+            /* =====================================================
+               MONTHLY LINE CHART
+               ===================================================== */
+
+            new Chart(ctx, {
+
+                type: "line",
+
+                data: {
+
+                    labels: monthlyLabels,
+
+                    datasets: [
+
+                        {
+
+                            label: "Payment Collection",
+
+                            data: monthlyAmounts,
+
+                            borderColor: "#9575d2",
+
+                            backgroundColor: gradient,
+
+                            borderWidth: 3,
+
+                            fill: true,
+
+                            tension: .4,
+
+                            pointRadius: 5,
+
+                            pointHoverRadius: 8,
+
+                            pointBackgroundColor: "#9575d2",
+
+                            pointBorderColor: "#ffffff",
+
+                            pointBorderWidth: 3
+
+                        }
+
+                    ]
+
+                },
+
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+
+                    interaction: {
+
+                        intersect: false,
+
+                        mode: "index"
+
+                    },
+
+
+                    animation: {
+
+                        duration: 1300,
+
+                        easing: "easeOutQuart"
+
+                    },
+
+
+                    plugins: {
+
+                        legend: {
+
+                            display: false
+
+                        },
+
+
+                        tooltip: {
+
+                            backgroundColor: "#30364b",
+
+                            titleColor: "#ffffff",
+
+                            bodyColor: "#ffffff",
+
+                            padding: 13,
+
+                            cornerRadius: 10,
+
+                            displayColors: false,
+
+
+                            callbacks: {
+
+                                label: function (context) {
+
+                                    return " ₹ " +
+
+                                        Number(context.raw)
+                                            .toLocaleString(
+                                                "en-IN",
+                                                {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2
+                                                }
+                                            );
+
+                                }
+
+                            }
+
+                        }
+
+                    },
+
+
+                    scales: {
+
+                        x: {
+
+                            grid: {
+
+                                display: false
+
+                            },
+
+                            border: {
+
+                                display: false
+
+                            },
+
+                            ticks: {
+
+                                color: "#969bad",
+
+                                font: {
+
+                                    size: 12
+
+                                }
+
+                            }
+
+                        },
+
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            border: {
+
+                                display: false
+
+                            },
+
+                            grid: {
+
+                                color:
+                                    "rgba(151,155,175,.10)"
+
+                            },
+
+                            ticks: {
+
+                                color: "#969bad",
+
+                                font: {
+
+                                    size: 11
+
+                                },
+
+
+                                callback: function (value) {
+
+                                    return "₹ " +
+
+                                        Number(value)
+                                            .toLocaleString(
+                                                "en-IN"
+                                            );
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+        });
+
+</script>
+   
