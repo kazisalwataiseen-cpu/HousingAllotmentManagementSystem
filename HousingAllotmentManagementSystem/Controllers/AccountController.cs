@@ -1,6 +1,8 @@
 ﻿using System.Security.Claims;
+using System.Security.Cryptography;
 using HousingAllotmentManagementSystem.Data;
 using HousingAllotmentManagementSystem.Models;
+using HousingAllotmentManagementSystem.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +13,14 @@ namespace HousingAllotmentManagementSystem.Controllers
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public AccountController(ApplicationDbContext context)
+        public AccountController(
+            ApplicationDbContext context,
+            IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // =========================================================
@@ -137,12 +143,6 @@ namespace HousingAllotmentManagementSystem.Controllers
 
             // -----------------------------------------------------
             // PASSWORD CHECK
-            // -----------------------------------------------------
-            //
-            // Your current registration system stores the password
-            // directly in PasswordHash, so this comparison matches
-            // your current database structure.
-            //
             // -----------------------------------------------------
 
             if (string.IsNullOrEmpty(user.PasswordHash))
@@ -302,7 +302,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "Admin",
                     StringComparison.OrdinalIgnoreCase))
             {
-                // Admin can use a valid local return URL
                 if (!string.IsNullOrWhiteSpace(returnUrl) &&
                     Url.IsLocalUrl(returnUrl))
                 {
@@ -318,7 +317,6 @@ namespace HousingAllotmentManagementSystem.Controllers
             // CLIENT
             // =====================================================
 
-            // Client can only go to allowed client pages
             if (IsClientAllowedReturnUrl(returnUrl))
             {
                 return Redirect(returnUrl!);
@@ -328,6 +326,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 "Index",
                 "Home");
         }
+
+
         // =========================================================
         // REGISTER - GET
         // =========================================================
@@ -358,7 +358,6 @@ namespace HousingAllotmentManagementSystem.Controllers
             // Normalize phone number
             string mobile = NormalizePhoneNumber(model.Mobile);
 
-
             // =====================================================
             // CHECK EMAIL
             // =====================================================
@@ -374,7 +373,6 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                 return View(model);
             }
-
 
             // =====================================================
             // CHECK MOBILE
@@ -392,7 +390,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return View(model);
             }
 
-
             // =====================================================
             // FIND CLIENT ROLE
             // =====================================================
@@ -409,7 +406,6 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                 return View(model);
             }
-
 
             // =====================================================
             // CREATE USER
@@ -434,7 +430,6 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                 CreatedDate = DateTime.Now
             };
-
 
             // =====================================================
             // SAVE USER
@@ -468,6 +463,331 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return View(model);
             }
         }
+
+
+        // =========================================================
+        // FORGOT PASSWORD - GET
+        // =========================================================
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+
+        // =========================================================
+        // FORGOT PASSWORD - POST
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(
+            ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            string email = model.Email.Trim().ToLower();
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.Email == email);
+
+            // -----------------------------------------------------
+            // SECURITY
+            // -----------------------------------------------------
+            // We don't reveal whether an email exists.
+            // -----------------------------------------------------
+
+            if (user == null)
+            {
+                TempData["ForgotPasswordMessage"] =
+                    "If an account exists with this email address, a password reset link has been sent.";
+
+                return RedirectToAction(
+                    nameof(ForgotPassword));
+            }
+
+            // -----------------------------------------------------
+            // GENERATE SECURE TOKEN
+            // -----------------------------------------------------
+
+            byte[] tokenBytes =
+                RandomNumberGenerator.GetBytes(32);
+
+            string token =
+                Convert.ToBase64String(tokenBytes)
+                    .Replace("+", "-")
+                    .Replace("/", "_")
+                    .Replace("=", "");
+
+            // -----------------------------------------------------
+            // SAVE TOKEN
+            // -----------------------------------------------------
+
+            user.PasswordResetToken = token;
+
+            // Token valid for 30 minutes
+            user.PasswordResetTokenExpiry =
+                DateTime.UtcNow.AddMinutes(30);
+
+            await _context.SaveChangesAsync();
+
+            // -----------------------------------------------------
+            // CREATE RESET LINK
+            // -----------------------------------------------------
+
+            string? resetLink = Url.Action(
+                nameof(ResetPassword),
+                "Account",
+                new
+                {
+                    email = user.Email,
+                    token = token
+                },
+                Request.Scheme);
+
+            // -----------------------------------------------------
+            // EMAIL CONTENT
+            // -----------------------------------------------------
+
+            string emailBody = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Password Reset</title>
+</head>
+
+<body style='font-family: Arial, sans-serif; background-color: #f5f7fa; padding: 30px;'>
+
+    <div style='max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px;'>
+
+        <h2 style='color: #333;'>Password Reset Request</h2>
+
+        <p>Hello <strong>{System.Net.WebUtility.HtmlEncode(user.FullName)}</strong>,</p>
+
+        <p>
+            We received a request to reset the password for your account.
+        </p>
+
+        <p>
+            Click the button below to create a new password:
+        </p>
+
+        <p style='text-align: center; margin: 30px 0;'>
+            <a href='{System.Net.WebUtility.HtmlEncode(resetLink)}'
+               style='background-color: #6c63ff;
+                      color: white;
+                      padding: 12px 25px;
+                      text-decoration: none;
+                      border-radius: 6px;
+                      display: inline-block;'>
+                Reset Password
+            </a>
+        </p>
+
+        <p>
+            This password reset link will expire in <strong>30 minutes</strong>.
+        </p>
+
+        <p>
+            If you did not request a password reset, you can safely ignore this email.
+        </p>
+
+        <hr>
+
+        <p style='font-size: 12px; color: #777;'>
+            Housing Allotment Management System
+        </p>
+
+    </div>
+
+</body>
+</html>";
+
+            // -----------------------------------------------------
+            // SEND EMAIL
+            // -----------------------------------------------------
+
+            try
+            {
+                await _emailService.SendEmailAsync(
+                    user.Email,
+                    "Housing Allotment Management System - Password Reset",
+                    emailBody);
+            }
+            catch (Exception)
+            {
+                // Remove token if email could not be sent
+                user.PasswordResetToken = null;
+                user.PasswordResetTokenExpiry = null;
+
+                await _context.SaveChangesAsync();
+
+                ModelState.AddModelError(
+                    "",
+                    "Unable to send the password reset email. Please try again later.");
+
+                return View(model);
+            }
+
+            TempData["ForgotPasswordMessage"] =
+                "If an account exists with this email address, a password reset link has been sent.";
+
+            return RedirectToAction(
+                nameof(ForgotPassword));
+        }
+
+
+        // =========================================================
+        // RESET PASSWORD - GET
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(
+            string? email,
+            string? token)
+        {
+            if (string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(token))
+            {
+                TempData["ResetPasswordError"] =
+                    "The password reset link is invalid.";
+
+                return RedirectToAction(
+                    nameof(ForgotPassword));
+            }
+
+            string normalizedEmail =
+                email.Trim().ToLower();
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.Email == normalizedEmail &&
+                    u.PasswordResetToken == token);
+
+            if (user == null)
+            {
+                TempData["ResetPasswordError"] =
+                    "The password reset link is invalid or has already been used.";
+
+                return RedirectToAction(
+                    nameof(ForgotPassword));
+            }
+
+            // -----------------------------------------------------
+            // CHECK EXPIRY
+            // -----------------------------------------------------
+
+            if (!user.PasswordResetTokenExpiry.HasValue ||
+                user.PasswordResetTokenExpiry.Value < DateTime.UtcNow)
+            {
+                user.PasswordResetToken = null;
+                user.PasswordResetTokenExpiry = null;
+
+                await _context.SaveChangesAsync();
+
+                TempData["ResetPasswordError"] =
+                    "The password reset link has expired. Please request a new one.";
+
+                return RedirectToAction(
+                    nameof(ForgotPassword));
+            }
+
+            var model = new ResetPasswordViewModel
+            {
+                Email = user.Email,
+                Token = token
+            };
+
+            return View(model);
+        }
+
+
+        // =========================================================
+        // RESET PASSWORD - POST
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(
+            ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            string email =
+                model.Email.Trim().ToLower();
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.Email == email &&
+                    u.PasswordResetToken == model.Token);
+
+            if (user == null)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "The password reset link is invalid or has already been used.");
+
+                return View(model);
+            }
+
+            // -----------------------------------------------------
+            // CHECK TOKEN EXPIRY
+            // -----------------------------------------------------
+
+            if (!user.PasswordResetTokenExpiry.HasValue ||
+                user.PasswordResetTokenExpiry.Value < DateTime.UtcNow)
+            {
+                user.PasswordResetToken = null;
+                user.PasswordResetTokenExpiry = null;
+
+                await _context.SaveChangesAsync();
+
+                ModelState.AddModelError(
+                    "",
+                    "The password reset link has expired. Please request a new one.");
+
+                return View(model);
+            }
+
+            // -----------------------------------------------------
+            // UPDATE PASSWORD
+            // -----------------------------------------------------
+            //
+            // Your current Login/Register system stores the password
+            // directly in PasswordHash.
+            //
+            // We therefore keep the same format here so existing
+            // authentication continues to work.
+            // -----------------------------------------------------
+
+            user.PasswordHash = model.Password;
+
+            // -----------------------------------------------------
+            // INVALIDATE TOKEN
+            // -----------------------------------------------------
+
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpiry = null;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] =
+                "Your password has been reset successfully. You can now login with your new password.";
+
+            return RedirectToAction(
+                nameof(Login));
+        }
+
+
         // =========================================================
         // CLIENT RETURN URL VALIDATION
         // =========================================================

@@ -26,6 +26,12 @@ public partial class User
 
     public string PasswordHash { get; set; } = null!;
 
+    // Password Reset Fields
+    public string? PasswordResetToken { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime? PasswordResetTokenExpiry { get; set; }
+
     [StringLength(20)]
     public string? Gender { get; set; }
 

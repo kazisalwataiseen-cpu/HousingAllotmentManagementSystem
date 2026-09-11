@@ -1,3 +1,4 @@
+
 using System;
 using System.Linq;
 using System.Net;
@@ -20,11 +21,11 @@ namespace HousingAllotmentManagementSystem.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
 
-    // =========================================================
-    // PROPERTY STATUS
-    // =========================================================
+        // =========================================================
+        // PROPERTY STATUS
+        // =========================================================
 
-    private const string PropertyStatusAvailable = "Available";
+        private const string PropertyStatusAvailable = "Available";
         private const string PropertyStatusReserved = "Reserved";
 
         // =========================================================
@@ -50,14 +51,10 @@ namespace HousingAllotmentManagementSystem.Controllers
         {
             var applications = await _context.Applications
                 .Include(a => a.User)
-
                 .Include(a => a.Property)
                     .ThenInclude(p => p.Scheme)
-
                 .OrderByDescending(a => a.ApplicationId)
-
                 .AsNoTracking()
-
                 .ToListAsync();
 
             return View(applications);
@@ -70,8 +67,7 @@ namespace HousingAllotmentManagementSystem.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Details(
-            int? applicationid)
+        public async Task<IActionResult> Details(int? applicationid)
         {
             if (applicationid == null)
             {
@@ -80,14 +76,11 @@ namespace HousingAllotmentManagementSystem.Controllers
 
             var application = await _context.Applications
                 .Include(a => a.User)
-
                 .Include(a => a.Property)
                     .ThenInclude(p => p.Scheme)
-
                 .AsNoTracking()
-
                 .FirstOrDefaultAsync(a =>
-                    a.ApplicationId == applicationid.Value);
+                    a.ApplicationId == applicationid);
 
             if (application == null)
             {
@@ -95,324 +88,6 @@ namespace HousingAllotmentManagementSystem.Controllers
             }
 
             return View(application);
-        }
-
-
-        // =========================================================
-        // APPROVE APPLICATION - ADMIN
-        // =========================================================
-        //
-        // Shortcut action used from Applications/Index.
-        //
-        // Pending
-        //    ↓
-        // Approve
-        //    ↓
-        // Approved
-        //
-        // The property remains Reserved.
-        //
-        // =========================================================
-
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Approve(
-            int id)
-        {
-            var application =
-                await _context.Applications
-
-                    .Include(a => a.User)
-
-                    .Include(a => a.Property)
-                        .ThenInclude(p => p.Scheme)
-
-                    .FirstOrDefaultAsync(a =>
-                        a.ApplicationId == id);
-
-            if (application == null)
-            {
-                return NotFound();
-            }
-
-
-            // -----------------------------------------------------
-            // ONLY PENDING APPLICATIONS CAN BE APPROVED
-            // -----------------------------------------------------
-
-            if (!string.Equals(
-                    application.Status,
-                    "Pending",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                TempData["ErrorMessage"] =
-                    "Only pending applications can be approved.";
-
-                return RedirectToAction(
-                    nameof(Index));
-            }
-
-
-            // -----------------------------------------------------
-            // VERIFY PROPERTY
-            // -----------------------------------------------------
-
-            if (application.PropertyId <= 0)
-            {
-                TempData["ErrorMessage"] =
-                    "This application does not have a valid property.";
-
-                return RedirectToAction(
-                    nameof(Index));
-            }
-
-
-            var property =
-                await _context.Properties
-                    .FirstOrDefaultAsync(p =>
-                        p.PropertyId ==
-                        application.PropertyId);
-
-            if (property == null)
-            {
-                TempData["ErrorMessage"] =
-                    "The property linked to this application could not be found.";
-
-                return RedirectToAction(
-                    nameof(Index));
-            }
-
-
-            // -----------------------------------------------------
-            // PROPERTY MUST BE RESERVED
-            // -----------------------------------------------------
-            //
-            // Normally a submitted application reserves the
-            // property.
-            //
-            // If property is still Available, we reserve it now.
-            //
-            // If it is already Reserved, approval can continue.
-            //
-            // -----------------------------------------------------
-
-            if (string.Equals(
-                    property.Status,
-                    PropertyStatusAvailable,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                property.Status =
-                    PropertyStatusReserved;
-            }
-            else if (!string.Equals(
-                         property.Status,
-                         PropertyStatusReserved,
-                         StringComparison.OrdinalIgnoreCase))
-            {
-                TempData["ErrorMessage"] =
-                    "The property linked to this application is not available for approval.";
-
-                return RedirectToAction(
-                    nameof(Index));
-            }
-
-
-            // -----------------------------------------------------
-            // UPDATE APPLICATION
-            // -----------------------------------------------------
-
-            application.Status =
-                "Approved";
-
-            application.UpdatedDate =
-                DateTime.Now;
-
-            application.Remarks =
-                "Application approved by administrator.";
-
-            try
-            {
-                await _context.SaveChangesAsync();
-
-
-                // -------------------------------------------------
-                // SEND APPROVAL EMAIL
-                // -------------------------------------------------
-
-                await SendStatusEmailAsync(
-                    application.ApplicationId,
-                    "Approved");
-
-
-                TempData["SuccessMessage"] =
-                    $"Application #{application.ApplicationId} approved successfully.";
-
-                return RedirectToAction(
-                    nameof(Index));
-            }
-            catch (DbUpdateException ex)
-            {
-                TempData["ErrorMessage"] =
-                    "Database error while approving application: " +
-                    (ex.InnerException?.Message ?? ex.Message);
-
-                return RedirectToAction(
-                    nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] =
-                    "Unable to approve application: " +
-                    ex.Message;
-
-                return RedirectToAction(
-                    nameof(Index));
-            }
-        }
-
-
-        // =========================================================
-        // REJECT APPLICATION - ADMIN
-        // =========================================================
-        //
-        // Shortcut action used from Applications/Index.
-        //
-        // Pending
-        //    ↓
-        // Reject
-        //    ↓
-        // Rejected
-        //
-        // The reserved property is released.
-        //
-        // =========================================================
-
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reject(
-            int id)
-        {
-            var application =
-                await _context.Applications
-
-                    .Include(a => a.User)
-
-                    .Include(a => a.Property)
-                        .ThenInclude(p => p.Scheme)
-
-                    .FirstOrDefaultAsync(a =>
-                        a.ApplicationId == id);
-
-            if (application == null)
-            {
-                return NotFound();
-            }
-
-
-            // -----------------------------------------------------
-            // ONLY PENDING APPLICATIONS CAN BE REJECTED
-            // -----------------------------------------------------
-
-            if (!string.Equals(
-                    application.Status,
-                    "Pending",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                TempData["ErrorMessage"] =
-                    "Only pending applications can be rejected.";
-
-                return RedirectToAction(
-                    nameof(Index));
-            }
-
-
-            await using var transaction =
-                await _context.Database.BeginTransactionAsync();
-
-            try
-            {
-                // -------------------------------------------------
-                // RELEASE PROPERTY
-                // -------------------------------------------------
-
-                if (application.PropertyId > 0)
-                {
-                    var property =
-                        await _context.Properties
-                            .FirstOrDefaultAsync(p =>
-                                p.PropertyId ==
-                                application.PropertyId);
-
-                    if (property != null &&
-                        string.Equals(
-                            property.Status,
-                            PropertyStatusReserved,
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        property.Status =
-                            PropertyStatusAvailable;
-                    }
-                }
-
-
-                // -------------------------------------------------
-                // UPDATE APPLICATION
-                // -------------------------------------------------
-
-                application.Status =
-                    "Rejected";
-
-                application.UpdatedDate =
-                    DateTime.Now;
-
-                application.Remarks =
-                    "Application rejected by administrator.";
-
-
-                await _context.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-
-
-                // -------------------------------------------------
-                // SEND REJECTION EMAIL
-                // -------------------------------------------------
-
-                await SendStatusEmailAsync(
-                    application.ApplicationId,
-                    "Rejected");
-
-
-                TempData["SuccessMessage"] =
-                    $"Application #{application.ApplicationId} rejected successfully.";
-
-                return RedirectToAction(
-                    nameof(Index));
-            }
-            catch (DbUpdateException ex)
-            {
-                await transaction.RollbackAsync();
-
-                TempData["ErrorMessage"] =
-                    "Database error while rejecting application: " +
-                    (ex.InnerException?.Message ?? ex.Message);
-
-                return RedirectToAction(
-                    nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-
-                TempData["ErrorMessage"] =
-                    "Unable to reject application: " +
-                    ex.Message;
-
-                return RedirectToAction(
-                    nameof(Index));
-            }
         }
 
 
@@ -422,16 +97,14 @@ namespace HousingAllotmentManagementSystem.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> MyApplicationDetails(
-            int? applicationId)
+        public async Task<IActionResult> MyApplicationDetails(int? applicationId)
         {
             if (applicationId == null)
             {
                 return NotFound();
             }
 
-            int? userId =
-                GetLoggedInUserId();
+            int? userId = GetLoggedInUserId();
 
             if (userId == null)
             {
@@ -440,23 +113,14 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "Account");
             }
 
-            var application =
-                await _context.Applications
-
-                    .Include(a => a.User)
-
-                    .Include(a => a.Property)
-                        .ThenInclude(p => p.Scheme)
-
-                    .Include(a => a.Allotments)
-
-                    .AsNoTracking()
-
-                    .FirstOrDefaultAsync(a =>
-                        a.ApplicationId ==
-                            applicationId.Value &&
-                        a.UserId ==
-                            userId.Value);
+            var application = await _context.Applications
+                .Include(a => a.User)
+                .Include(a => a.Property)
+                    .ThenInclude(p => p.Scheme)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a =>
+                    a.ApplicationId == applicationId &&
+                    a.UserId == userId.Value);
 
             if (application == null)
             {
@@ -464,6 +128,302 @@ namespace HousingAllotmentManagementSystem.Controllers
             }
 
             return View(application);
+        }
+
+
+        // =========================================================
+        // APPROVE - ADMIN
+        // Automatically creates the allotment for the exact
+        // property selected in the approved application.
+        // =========================================================
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var application = await _context.Applications
+                .Include(a => a.User)
+                .Include(a => a.Property)
+                    .ThenInclude(p => p.Scheme)
+                .FirstOrDefaultAsync(a =>
+                    a.ApplicationId == id);
+
+            if (application == null)
+            {
+                return NotFound();
+            }
+
+            if (!string.Equals(
+                    application.Status,
+                    "Pending",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ErrorMessage"] =
+                    "Only pending applications can be approved.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (application.PropertyId <= 0)
+            {
+                TempData["ErrorMessage"] =
+                    "This application does not have a valid property.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // -----------------------------------------------------
+                // GET THE EXACT PROPERTY SELECTED BY THE CLIENT
+                // -----------------------------------------------------
+                var property = await _context.Properties
+                    .FirstOrDefaultAsync(p =>
+                        p.PropertyId == application.PropertyId);
+
+                if (property == null)
+                {
+                    await transaction.RollbackAsync();
+
+                    TempData["ErrorMessage"] =
+                        "The property linked to this application could not be found.";
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // -----------------------------------------------------
+                // PREVENT DUPLICATE ALLOTMENT
+                // -----------------------------------------------------
+                var existingAllotment =
+                    await _context.Allotments
+                        .FirstOrDefaultAsync(a =>
+                            a.ApplicationId == application.ApplicationId);
+
+                if (existingAllotment != null)
+                {
+                    await transaction.RollbackAsync();
+
+                    TempData["ErrorMessage"] =
+                        "An allotment has already been created for this application.";
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // -----------------------------------------------------
+                // PROPERTY MUST BE AVAILABLE OR RESERVED
+                // -----------------------------------------------------
+                // Client applications reserve the selected property
+                // when the application is submitted. Therefore,
+                // Reserved is valid here.
+                if (string.Equals(
+                        property.Status,
+                        PropertyStatusAvailable,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    property.Status = PropertyStatusReserved;
+                }
+                else if (!string.Equals(
+                             property.Status,
+                             PropertyStatusReserved,
+                             StringComparison.OrdinalIgnoreCase))
+                {
+                    await transaction.RollbackAsync();
+
+                    TempData["ErrorMessage"] =
+                        "The property linked to this application is not available for approval.";
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // -----------------------------------------------------
+                // APPROVE APPLICATION
+                // -----------------------------------------------------
+                application.Status = "Approved";
+                application.UpdatedDate = DateTime.Now;
+                application.Remarks =
+                    "Application approved and property allotted automatically.";
+
+                // -----------------------------------------------------
+                // GENERATE UNIQUE ALLOTMENT NUMBER
+                // -----------------------------------------------------
+                string allotmentNumber;
+
+                do
+                {
+                    allotmentNumber =
+                        "ALT" +
+                        DateTime.Now.ToString("yyyyMMddHHmmssfff") +
+                        Random.Shared.Next(100, 999);
+                }
+                while (await _context.Allotments.AnyAsync(a =>
+                    a.AllotmentNumber == allotmentNumber));
+
+                // -----------------------------------------------------
+                // CREATE ALLOTMENT AUTOMATICALLY
+                // -----------------------------------------------------
+                var allotment = new Allotment
+                {
+                    ApplicationId = application.ApplicationId,
+
+                    // IMPORTANT: use the exact PropertyId selected
+                    // by the client in the application.
+                    PropertyId = property.PropertyId,
+
+                    AllotmentNumber = allotmentNumber,
+                    AllotmentDate =
+                        DateOnly.FromDateTime(DateTime.Now),
+
+                    // Booking amount comes from the selected property.
+                    BookingAmount = property.BookingAmount ?? 0,
+
+                    AllotmentStatus = "Allotted",
+
+                    Remarks =
+                        "Property automatically allotted after application approval.",
+
+                    CreatedDate = DateTime.Now
+                };
+
+                _context.Allotments.Add(allotment);
+
+                // Save Application + Property + Allotment together.
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                // Send approval email after successful database save.
+                await SendStatusEmailAsync(
+                    application.ApplicationId,
+                    "Approved");
+
+                TempData["SuccessMessage"] =
+                    $"Application #{application.ApplicationId} approved and " +
+                    $"property allotted successfully. Allotment No: " +
+                    $"{allotment.AllotmentNumber}";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+
+                TempData["ErrorMessage"] =
+                    "Database error while approving application and creating allotment: " +
+                    (ex.InnerException?.Message ?? ex.Message);
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+
+                TempData["ErrorMessage"] =
+                    "Unable to approve application and create allotment: " +
+                    ex.Message;
+
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+
+        // =========================================================
+        // REJECT - ADMIN
+        // =========================================================
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reject(int id)
+        {
+            var application = await _context.Applications
+                .Include(a => a.User)
+                .Include(a => a.Property)
+                    .ThenInclude(p => p.Scheme)
+                .FirstOrDefaultAsync(a =>
+                    a.ApplicationId == id);
+
+            if (application == null)
+            {
+                return NotFound();
+            }
+
+            if (!string.Equals(
+                    application.Status,
+                    "Pending",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ErrorMessage"] =
+                    "Only pending applications can be rejected.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Release the property reserved by this application.
+                if (application.PropertyId > 0)
+                {
+                    var property = await _context.Properties
+                        .FirstOrDefaultAsync(p =>
+                            p.PropertyId == application.PropertyId);
+
+                    if (property != null &&
+                        string.Equals(
+                            property.Status,
+                            PropertyStatusReserved,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        property.Status = PropertyStatusAvailable;
+                    }
+                }
+
+                application.Status = "Rejected";
+                application.UpdatedDate = DateTime.Now;
+
+                if (string.IsNullOrWhiteSpace(application.Remarks))
+                {
+                    application.Remarks =
+                        "Application rejected by administrator.";
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                await SendStatusEmailAsync(
+                    application.ApplicationId,
+                    "Rejected");
+
+                TempData["SuccessMessage"] =
+                    $"Application #{application.ApplicationId} rejected successfully.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+
+                TempData["ErrorMessage"] =
+                    "Database error while rejecting application: " +
+                    (ex.InnerException?.Message ?? ex.Message);
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+
+                TempData["ErrorMessage"] =
+                    "Unable to reject application: " +
+                    ex.Message;
+
+                return RedirectToAction(nameof(Index));
+            }
         }
 
 
@@ -479,14 +439,9 @@ namespace HousingAllotmentManagementSystem.Controllers
 
             var application = new Application
             {
-                ApplicationDate =
-                    DateTime.Now,
-
-                CreatedDate =
-                    DateTime.Now,
-
-                Status =
-                    "Pending"
+                ApplicationDate = DateTime.Now,
+                CreatedDate = DateTime.Now,
+                Status = "Pending"
             };
 
             return View(application);
@@ -500,17 +455,15 @@ namespace HousingAllotmentManagementSystem.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            Application application)
+        public async Task<IActionResult> Create(Application application)
         {
+            // Navigation properties are loaded by EF.
             ModelState.Remove("User");
             ModelState.Remove("Property");
 
+            // Admin-created applications always start as Pending.
             ModelState.Remove("Status");
-
-            application.Status =
-                "Pending";
-
+            application.Status = "Pending";
 
             // -----------------------------------------------------
             // USER VALIDATION
@@ -524,11 +477,9 @@ namespace HousingAllotmentManagementSystem.Controllers
             }
             else
             {
-                bool userExists =
-                    await _context.Users
-                        .AnyAsync(u =>
-                            u.UserId ==
-                            application.UserId);
+                bool userExists = await _context.Users
+                    .AnyAsync(u =>
+                        u.UserId == application.UserId);
 
                 if (!userExists)
                 {
@@ -537,7 +488,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                         "Selected applicant does not exist.");
                 }
             }
-
 
             // -----------------------------------------------------
             // PROPERTY VALIDATION
@@ -551,12 +501,10 @@ namespace HousingAllotmentManagementSystem.Controllers
             }
             else
             {
-                var property =
-                    await _context.Properties
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(p =>
-                            p.PropertyId ==
-                            application.PropertyId);
+                var property = await _context.Properties
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p =>
+                        p.PropertyId == application.PropertyId);
 
                 if (property == null)
                 {
@@ -565,7 +513,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                         "Selected property does not exist.");
                 }
             }
-
 
             // -----------------------------------------------------
             // VALIDATION FAILED
@@ -580,9 +527,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return View(application);
             }
 
-
             // -----------------------------------------------------
-            // SAVE
+            // SAVE APPLICATION
             // -----------------------------------------------------
 
             await using var transaction =
@@ -590,68 +536,31 @@ namespace HousingAllotmentManagementSystem.Controllers
 
             try
             {
-                application.ApplicationDate =
-                    DateTime.Now;
+                application.ApplicationDate = DateTime.Now;
+                application.CreatedDate = DateTime.Now;
+                application.UpdatedDate = null;
+                application.Status = "Pending";
 
-                application.CreatedDate =
-                    DateTime.Now;
+                application.User = null!;
+                application.Property = null!;
 
-                application.UpdatedDate =
-                    null;
-
-                application.Status =
-                    "Pending";
-
-                application.User =
-                    null!;
-
-                application.Property =
-                    null!;
-
-
-                _context.Applications.Add(
-                    application);
+                _context.Applications.Add(application);
 
                 await _context.SaveChangesAsync();
 
-
-                // Reserve the property when an application is created.
-
-                var selectedProperty =
-                    await _context.Properties
-                        .FirstOrDefaultAsync(p =>
-                            p.PropertyId ==
-                            application.PropertyId);
-
-                if (selectedProperty != null &&
-                    string.Equals(
-                        selectedProperty.Status,
-                        PropertyStatusAvailable,
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    selectedProperty.Status =
-                        PropertyStatusReserved;
-
-                    await _context.SaveChangesAsync();
-                }
-
-
                 await transaction.CommitAsync();
 
-
                 // -------------------------------------------------
-                // EMAIL
+                // APPLICATION SUBMITTED EMAIL
                 // -------------------------------------------------
 
                 await SendSubmittedEmailAsync(
                     application.ApplicationId);
 
-
                 TempData["SuccessMessage"] =
                     "Application created successfully.";
 
-                return RedirectToAction(
-                    nameof(Index));
+                return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
             {
@@ -672,7 +581,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                     ex.Message);
             }
 
-
             LoadDropDowns(
                 application.UserId,
                 application.PropertyId);
@@ -687,20 +595,17 @@ namespace HousingAllotmentManagementSystem.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(
-            int? applicationid)
+        public async Task<IActionResult> Edit(int? applicationid)
         {
             if (applicationid == null)
             {
                 return NotFound();
             }
 
-            var application =
-                await _context.Applications
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(a =>
-                        a.ApplicationId ==
-                        applicationid.Value);
+            var application = await _context.Applications
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a =>
+                    a.ApplicationId == applicationid);
 
             if (application == null)
             {
@@ -726,15 +631,13 @@ namespace HousingAllotmentManagementSystem.Controllers
             int applicationid,
             Application application)
         {
-            if (applicationid !=
-                application.ApplicationId)
+            if (applicationid != application.ApplicationId)
             {
                 return NotFound();
             }
 
             ModelState.Remove("User");
             ModelState.Remove("Property");
-
 
             // -----------------------------------------------------
             // USER VALIDATION
@@ -748,11 +651,9 @@ namespace HousingAllotmentManagementSystem.Controllers
             }
             else
             {
-                bool userExists =
-                    await _context.Users
-                        .AnyAsync(u =>
-                            u.UserId ==
-                            application.UserId);
+                bool userExists = await _context.Users
+                    .AnyAsync(u =>
+                        u.UserId == application.UserId);
 
                 if (!userExists)
                 {
@@ -761,7 +662,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                         "Selected applicant does not exist.");
                 }
             }
-
 
             // -----------------------------------------------------
             // PROPERTY VALIDATION
@@ -775,11 +675,9 @@ namespace HousingAllotmentManagementSystem.Controllers
             }
             else
             {
-                bool propertyExists =
-                    await _context.Properties
-                        .AnyAsync(p =>
-                            p.PropertyId ==
-                            application.PropertyId);
+                bool propertyExists = await _context.Properties
+                    .AnyAsync(p =>
+                        p.PropertyId == application.PropertyId);
 
                 if (!propertyExists)
                 {
@@ -789,6 +687,9 @@ namespace HousingAllotmentManagementSystem.Controllers
                 }
             }
 
+            // -----------------------------------------------------
+            // VALIDATION FAILED
+            // -----------------------------------------------------
 
             if (!ModelState.IsValid)
             {
@@ -799,7 +700,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return View(application);
             }
 
-
             await using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
@@ -808,25 +708,25 @@ namespace HousingAllotmentManagementSystem.Controllers
                 var existingApplication =
                     await _context.Applications
                         .FirstOrDefaultAsync(a =>
-                            a.ApplicationId ==
-                            applicationid);
+                            a.ApplicationId == applicationid);
 
                 if (existingApplication == null)
                 {
                     return NotFound();
                 }
 
+                // -------------------------------------------------
+                // KEEP OLD VALUES
+                // -------------------------------------------------
 
                 int oldPropertyId =
                     existingApplication.PropertyId;
 
                 string oldStatus =
-                    existingApplication.Status ??
-                    "Pending";
-
+                    existingApplication.Status ?? "Pending";
 
                 // -------------------------------------------------
-                // UPDATE INFORMATION
+                // UPDATE APPLICATION INFORMATION
                 // -------------------------------------------------
 
                 existingApplication.UserId =
@@ -850,16 +750,14 @@ namespace HousingAllotmentManagementSystem.Controllers
                 existingApplication.Remarks =
                     application.Remarks;
 
-
                 // -------------------------------------------------
                 // STATUS
                 // -------------------------------------------------
 
                 string newStatus =
-                    string.IsNullOrWhiteSpace(
-                        application.Status)
-                            ? "Pending"
-                            : application.Status.Trim();
+                    string.IsNullOrWhiteSpace(application.Status)
+                        ? "Pending"
+                        : application.Status.Trim();
 
                 bool statusChanged =
                     !string.Equals(
@@ -873,11 +771,12 @@ namespace HousingAllotmentManagementSystem.Controllers
                 existingApplication.UpdatedDate =
                     DateTime.Now;
 
-
                 // -------------------------------------------------
-                // REJECTED
+                // PROPERTY STATUS LOGIC
                 // -------------------------------------------------
 
+                // If application is rejected,
+                // release its property.
                 if (newStatus.Equals(
                     "Rejected",
                     StringComparison.OrdinalIgnoreCase))
@@ -899,9 +798,8 @@ namespace HousingAllotmentManagementSystem.Controllers
                     }
                 }
 
-
                 // -------------------------------------------------
-                // PROPERTY CHANGED
+                // IF PROPERTY WAS CHANGED
                 // -------------------------------------------------
 
                 if (oldPropertyId !=
@@ -923,10 +821,11 @@ namespace HousingAllotmentManagementSystem.Controllers
                             PropertyStatusAvailable;
                     }
 
-
+                    // Reserve new property if application is
+                    // still active.
                     if (!newStatus.Equals(
-                        "Rejected",
-                        StringComparison.OrdinalIgnoreCase))
+                            "Rejected",
+                            StringComparison.OrdinalIgnoreCase))
                     {
                         var newProperty =
                             await _context.Properties
@@ -942,14 +841,12 @@ namespace HousingAllotmentManagementSystem.Controllers
                     }
                 }
 
-
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 
-
                 // -------------------------------------------------
-                // SEND STATUS EMAIL
+                // STATUS EMAIL
                 // -------------------------------------------------
 
                 if (statusChanged)
@@ -959,12 +856,10 @@ namespace HousingAllotmentManagementSystem.Controllers
                         newStatus);
                 }
 
-
                 TempData["SuccessMessage"] =
                     "Application updated successfully.";
 
-                return RedirectToAction(
-                    nameof(Index));
+                return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
             {
@@ -985,7 +880,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                     ex.Message);
             }
 
-
             LoadDropDowns(
                 application.UserId,
                 application.PropertyId);
@@ -995,22 +889,23 @@ namespace HousingAllotmentManagementSystem.Controllers
 
 
         // =========================================================
-        // APPLY - GET - CLIENT
+        // APPLY - GET - LOGGED-IN USER
         // =========================================================
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Apply(
-            int? schemeId)
+        public async Task<IActionResult> Apply(int? schemeId)
         {
             if (schemeId == null)
             {
                 return NotFound();
             }
 
+            // -----------------------------------------------------
+            // GET LOGGED-IN USER ID
+            // -----------------------------------------------------
 
-            int? userId =
-                GetLoggedInUserId();
+            int? userId = GetLoggedInUserId();
 
             if (userId == null)
             {
@@ -1024,73 +919,69 @@ namespace HousingAllotmentManagementSystem.Controllers
                     });
             }
 
+            // -----------------------------------------------------
+            // GET SCHEME
+            // -----------------------------------------------------
 
-            var scheme =
-                await _context.HousingSchemes
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(s =>
-                        s.SchemeId ==
-                        schemeId.Value);
+            var scheme = await _context.HousingSchemes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s =>
+                    s.SchemeId == schemeId.Value);
 
             if (scheme == null)
             {
                 return NotFound();
             }
 
+            // -----------------------------------------------------
+            // GET CURRENT USER
+            // -----------------------------------------------------
 
-            var currentUser =
-                await _context.Users
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(u =>
-                        u.UserId ==
-                        userId.Value);
+            var currentUser = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u =>
+                    u.UserId == userId.Value);
 
             if (currentUser == null)
             {
                 return NotFound();
             }
 
+            // -----------------------------------------------------
+            // AVAILABLE PROPERTIES
+            // -----------------------------------------------------
 
             var properties =
                 await GetAvailablePropertiesAsync(
                     schemeId.Value);
 
+            // -----------------------------------------------------
+            // CHECK PREVIOUS APPLICATION
+            // -----------------------------------------------------
 
             bool alreadyAppliedForScheme =
                 await _context.Applications
                     .AnyAsync(a =>
-                        a.UserId ==
-                            userId.Value &&
+                        a.UserId == userId.Value &&
                         a.Property != null &&
                         a.Property.SchemeId ==
-                            schemeId.Value);
+                        schemeId.Value);
 
+            // -----------------------------------------------------
+            // CREATE APPLICATION MODEL
+            // -----------------------------------------------------
 
             var application = new Application
             {
-                UserId =
-                    userId.Value,
-
-                ApplicationDate =
-                    DateTime.Now,
-
-                CreatedDate =
-                    DateTime.Now,
-
-                Status =
-                    "Pending"
+                UserId = userId.Value,
+                ApplicationDate = DateTime.Now,
+                CreatedDate = DateTime.Now,
+                Status = "Pending"
             };
 
-
-            ViewBag.Scheme =
-                scheme;
-
-            ViewBag.Properties =
-                properties;
-
-            ViewBag.CurrentUser =
-                currentUser;
-
+            ViewBag.Scheme = scheme;
+            ViewBag.Properties = properties;
+            ViewBag.CurrentUser = currentUser;
             ViewBag.AlreadyApplied =
                 alreadyAppliedForScheme;
 
@@ -1099,7 +990,7 @@ namespace HousingAllotmentManagementSystem.Controllers
 
 
         // =========================================================
-        // APPLY - POST - CLIENT
+        // APPLY - POST - LOGGED-IN USER
         // =========================================================
 
         [HttpPost]
@@ -1109,13 +1000,19 @@ namespace HousingAllotmentManagementSystem.Controllers
             int schemeId,
             Application application)
         {
+            // -----------------------------------------------------
+            // REMOVE NAVIGATION VALIDATION
+            // -----------------------------------------------------
+
             ModelState.Remove("User");
             ModelState.Remove("Property");
             ModelState.Remove("Status");
 
+            // -----------------------------------------------------
+            // GET LOGGED-IN USER ID
+            // -----------------------------------------------------
 
-            int? userId =
-                GetLoggedInUserId();
+            int? userId = GetLoggedInUserId();
 
             if (userId == null)
             {
@@ -1129,70 +1026,81 @@ namespace HousingAllotmentManagementSystem.Controllers
                     });
             }
 
+            // IMPORTANT:
+            // NEVER TRUST UserId COMING FROM THE FORM.
+            application.UserId = userId.Value;
 
-            application.UserId =
-                userId.Value;
+            application.Status = "Pending";
 
-            application.Status =
-                "Pending";
+            // -----------------------------------------------------
+            // GET SCHEME
+            // -----------------------------------------------------
 
-
-            var scheme =
-                await _context.HousingSchemes
-                    .FirstOrDefaultAsync(s =>
-                        s.SchemeId ==
-                        schemeId);
+            var scheme = await _context.HousingSchemes
+                .FirstOrDefaultAsync(s =>
+                    s.SchemeId == schemeId);
 
             if (scheme == null)
             {
                 return NotFound();
             }
 
+            // -----------------------------------------------------
+            // GET CURRENT USER
+            // -----------------------------------------------------
 
-            var currentUser =
-                await _context.Users
-                    .FirstOrDefaultAsync(u =>
-                        u.UserId ==
-                        userId.Value);
+            var currentUser = await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.UserId == userId.Value);
 
             if (currentUser == null)
             {
                 return NotFound();
             }
 
-
-            // -----------------------------------------------------
-            // USER INFORMATION
-            // -----------------------------------------------------
+            // =====================================================
+            // IMPORTANT FIX
+            // =====================================================
+            //
+            // Applicant information comes directly from Users table.
+            //
+            // We DO NOT receive:
+            //
+            // string applicantName
+            // string applicantEmail
+            // string applicantMobile
+            //
+            // from the browser anymore.
+            //
+            // =====================================================
 
             string applicantName =
-                currentUser.FullName?.Trim()
-                ?? string.Empty;
+                currentUser.FullName?.Trim() ?? string.Empty;
 
             string applicantEmail =
-                currentUser.Email?.Trim()
-                ?? string.Empty;
+                currentUser.Email?.Trim() ?? string.Empty;
 
             string applicantMobile =
-                currentUser.Mobile?.Trim()
-                ?? string.Empty;
+                currentUser.Mobile?.Trim() ?? string.Empty;
 
+            // -----------------------------------------------------
+            // USER INFORMATION VALIDATION
+            // -----------------------------------------------------
 
-            if (string.IsNullOrWhiteSpace(
-                applicantName))
+            if (string.IsNullOrWhiteSpace(applicantName))
             {
                 ModelState.AddModelError(
                     "",
-                    "Your name is missing from your user profile. Please update your profile before applying.");
+                    "Your name is missing from your user profile. " +
+                    "Please update your profile before applying.");
             }
 
-
-            if (string.IsNullOrWhiteSpace(
-                applicantEmail))
+            if (string.IsNullOrWhiteSpace(applicantEmail))
             {
                 ModelState.AddModelError(
                     "",
-                    "Your email address is missing from your user profile. Please update your profile before applying.");
+                    "Your email address is missing from your user profile. " +
+                    "Please update your profile before applying.");
             }
             else
             {
@@ -1200,24 +1108,22 @@ namespace HousingAllotmentManagementSystem.Controllers
                     new System.ComponentModel.DataAnnotations
                         .EmailAddressAttribute();
 
-                if (!emailValidator.IsValid(
-                    applicantEmail))
+                if (!emailValidator.IsValid(applicantEmail))
                 {
                     ModelState.AddModelError(
                         "",
-                        "Your registered email address is not valid. Please update your profile.");
+                        "Your registered email address is not valid. " +
+                        "Please update your profile.");
                 }
             }
 
-
-            if (string.IsNullOrWhiteSpace(
-                applicantMobile))
+            if (string.IsNullOrWhiteSpace(applicantMobile))
             {
                 ModelState.AddModelError(
                     "",
-                    "Your mobile number is missing from your user profile. Please update your profile before applying.");
+                    "Your mobile number is missing from your user profile. " +
+                    "Please update your profile.");
             }
-
 
             // -----------------------------------------------------
             // PROPERTY VALIDATION
@@ -1259,20 +1165,23 @@ namespace HousingAllotmentManagementSystem.Controllers
                 }
             }
 
-
             // -----------------------------------------------------
-            // PREVIOUS APPLICATION
+            // CHECK PREVIOUS APPLICATION
             // -----------------------------------------------------
 
             bool alreadyAppliedForScheme =
                 await _context.Applications
                     .AnyAsync(a =>
-                        a.UserId ==
-                            userId.Value &&
+                        a.UserId == userId.Value &&
                         a.Property != null &&
-                        a.Property.SchemeId ==
-                            schemeId);
+                        a.Property.SchemeId == schemeId);
 
+            // Duplicate applications are intentionally allowed.
+            // Therefore, no ModelState error is added here.
+
+            // -----------------------------------------------------
+            // VALIDATION FAILED
+            // -----------------------------------------------------
 
             if (!ModelState.IsValid)
             {
@@ -1284,6 +1193,9 @@ namespace HousingAllotmentManagementSystem.Controllers
                     alreadyAppliedForScheme);
             }
 
+            // -----------------------------------------------------
+            // APPLICATION DATES
+            // -----------------------------------------------------
 
             application.ApplicationDate =
                 DateTime.Now;
@@ -1297,18 +1209,26 @@ namespace HousingAllotmentManagementSystem.Controllers
             application.Status =
                 "Pending";
 
-            application.User =
-                null!;
+            application.User = null!;
+            application.Property = null!;
 
-            application.Property =
-                null!;
-
+            // =====================================================
+            // SAVE APPLICATION + RESERVE PROPERTY
+            // =====================================================
 
             await using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
             try
             {
+                // -------------------------------------------------
+                // RE-CHECK PROPERTY INSIDE TRANSACTION
+                //
+                // This prevents the application from using a
+                // property that became unavailable after the
+                // previous check.
+                // -------------------------------------------------
+
                 var selectedProperty =
                     await _context.Properties
                         .FirstOrDefaultAsync(p =>
@@ -1333,7 +1253,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                         alreadyAppliedForScheme);
                 }
 
-
                 if (!string.Equals(
                         selectedProperty.Status,
                         PropertyStatusAvailable,
@@ -1343,7 +1262,8 @@ namespace HousingAllotmentManagementSystem.Controllers
 
                     ModelState.AddModelError(
                         "PropertyId",
-                        "The selected property is no longer available. Please select another property.");
+                        "The selected property is no longer available. " +
+                        "Please select another property.");
 
                     return await ReturnApplyValidationFailedView(
                         schemeId,
@@ -1353,14 +1273,18 @@ namespace HousingAllotmentManagementSystem.Controllers
                         alreadyAppliedForScheme);
                 }
 
+                // -------------------------------------------------
+                // ADD APPLICATION
+                // -------------------------------------------------
 
-                _context.Applications.Add(
-                    application);
+                _context.Applications.Add(application);
 
+                // -------------------------------------------------
+                // RESERVE PROPERTY
+                // -------------------------------------------------
 
                 selectedProperty.Status =
                     PropertyStatusReserved;
-
 
                 await _context.SaveChangesAsync();
 
@@ -1399,13 +1323,11 @@ namespace HousingAllotmentManagementSystem.Controllers
                     alreadyAppliedForScheme);
             }
 
+            // =====================================================
+            // SEND CONFIRMATION EMAIL
+            // =====================================================
 
-            // -----------------------------------------------------
-            // CONFIRMATION EMAIL
-            // -----------------------------------------------------
-
-            bool emailSent =
-                false;
+            bool emailSent = false;
 
             try
             {
@@ -1437,37 +1359,31 @@ namespace HousingAllotmentManagementSystem.Controllers
                               .ToString("N2")
                         : "N/A";
 
-
                 string subject =
                     "Housing Application Submitted Successfully";
-
 
                 string previousApplicationMessage =
                     alreadyAppliedForScheme
                         ? "You have previously submitted an application for this housing scheme. This new application has also been recorded successfully."
                         : "This is your first application for this housing scheme.";
 
-
-                string body =
-                    BuildSubmittedEmailBody(
-                        applicantName,
-                        applicantEmail,
-                        applicantMobile,
-                        application.ApplicationId,
-                        schemeName,
-                        unitNumber,
-                        propertyType,
-                        price,
-                        previousApplicationMessage);
-
+                string body = BuildSubmittedEmailBody(
+                    applicantName,
+                    applicantEmail,
+                    applicantMobile,
+                    application.ApplicationId,
+                    schemeName,
+                    unitNumber,
+                    propertyType,
+                    price,
+                    previousApplicationMessage);
 
                 await _emailService.SendEmailAsync(
                     applicantEmail,
                     subject,
                     body);
 
-                emailSent =
-                    true;
+                emailSent = true;
             }
             catch (Exception emailEx)
             {
@@ -1476,105 +1392,112 @@ namespace HousingAllotmentManagementSystem.Controllers
                     emailEx.Message);
             }
 
+            // =====================================================
+            // SUCCESS MESSAGE
+            // =====================================================
 
             if (alreadyAppliedForScheme)
             {
-                TempData["SuccessMessage"] =
-                    emailSent
-                        ? "You already had an application for this scheme, but the new application was submitted successfully and a confirmation email was sent."
-                        : "You already had an application for this scheme, but the new application was submitted successfully. The confirmation email could not be sent.";
+                if (emailSent)
+                {
+                    TempData["SuccessMessage"] =
+                        "You already had an application for this scheme, " +
+                        "but the new application was submitted successfully " +
+                        "and a confirmation email was sent.";
+                }
+                else
+                {
+                    TempData["SuccessMessage"] =
+                        "You already had an application for this scheme, " +
+                        "but the new application was submitted successfully. " +
+                        "The confirmation email could not be sent.";
+                }
             }
             else
             {
-                TempData["SuccessMessage"] =
-                    emailSent
-                        ? "Application submitted successfully. Confirmation email sent to your registered email address."
-                        : "Application submitted successfully. However, the confirmation email could not be sent.";
+                if (emailSent)
+                {
+                    TempData["SuccessMessage"] =
+                        "Application submitted successfully. " +
+                        "Confirmation email sent to your registered email address.";
+                }
+                else
+                {
+                    TempData["SuccessMessage"] =
+                        "Application submitted successfully. " +
+                        "However, the confirmation email could not be sent.";
+                }
             }
 
-
-            TempData["ApplicationEmailSent"] =
-                emailSent
-                    ? "true"
-                    : "false";
-
+            if (emailSent)
+            {
+                TempData["ApplicationEmailSent"] = "true";
+            }
+            else
+            {
+                TempData["ApplicationEmailSent"] = "false";
+            }
 
             return RedirectToAction(
                 nameof(Success),
                 new
                 {
-                    applicationId =
-                        application.ApplicationId
+                    applicationId = application.ApplicationId
                 });
         }
 
 
         // =========================================================
-        // MY APPLICATIONS
+        // MY APPLICATIONS - LOGGED-IN USER
         // =========================================================
 
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> MyApplications()
         {
-            var userIdClaim =
-                User.FindFirst(
-                    ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst(
+                ClaimTypes.NameIdentifier);
 
             if (userIdClaim == null ||
-                !int.TryParse(
-                    userIdClaim.Value,
-                    out int userId))
+                !int.TryParse(userIdClaim.Value, out int userId))
             {
-                return RedirectToAction(
-                    "Login",
-                    "Account");
+                return RedirectToAction("Login", "Account");
             }
 
+            var applications = await _context.Applications
+                .Include(a => a.Property)
+                    .ThenInclude(p => p.Scheme)
+                .Where(a => a.UserId == userId)
+                .OrderByDescending(a => a.ApplicationId)
+                .AsNoTracking()
+                .ToListAsync();
 
-            var applications =
-                await _context.Applications
-
-                    .Include(a => a.Property)
-                        .ThenInclude(p => p.Scheme)
-
-                    .Include(a => a.Allotments)
-
-                    .Where(a =>
-                        a.UserId == userId)
-
-                    .OrderByDescending(
-                        a => a.ApplicationId)
-
-                    .AsNoTracking()
-
-                    .ToListAsync();
-
-
-            return View(
-                "~/Views/Applications/MyApplications.cshtml",
-                applications);
+            return View("~/Views/Applications/MyApplications.cshtml", applications);
         }
+        //
+
+        ///       /////123456/////////////////////////////////////////////////////////
 
 
         // =========================================================
-        // SUCCESS PAGE
+        // APPLICATION SUCCESS PAGE - CLIENT
         // =========================================================
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Success(
-            int? applicationId)
+        public async Task<IActionResult> Success(int? applicationId)
         {
             if (applicationId == null)
             {
                 return NotFound();
             }
 
+            // -----------------------------------------------------
+            // GET LOGGED-IN USER
+            // -----------------------------------------------------
 
-            var userIdClaim =
-                User.FindFirst(
-                    ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst(
+                ClaimTypes.NameIdentifier);
 
             if (userIdClaim == null ||
                 !int.TryParse(
@@ -1586,38 +1509,38 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "Account");
             }
 
+            // -----------------------------------------------------
+            // GET ONLY THE LOGGED-IN USER'S APPLICATION
+            // -----------------------------------------------------
 
-            var application =
-                await _context.Applications
-
-                    .Include(a => a.User)
-
-                    .Include(a => a.Property)
-                        .ThenInclude(p => p.Scheme)
-
-                    .AsNoTracking()
-
-                    .FirstOrDefaultAsync(a =>
-                        a.ApplicationId ==
-                            applicationId.Value &&
-                        a.UserId ==
-                            userId);
+            var application = await _context.Applications
+                .Include(a => a.User)
+                .Include(a => a.Property)
+                    .ThenInclude(p => p.Scheme)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a =>
+                    a.ApplicationId == applicationId &&
+                    a.UserId == userId);
 
             if (application == null)
             {
                 return NotFound();
             }
 
+            // -----------------------------------------------------
+            // GET EMAIL RESULT
+            // -----------------------------------------------------
 
             ViewBag.EmailSent =
-                TempData["ApplicationEmailSent"]?
-                    .ToString() ==
-                "true";
-
+                TempData["ApplicationEmailSent"]?.ToString() == "true";
 
             return View(application);
         }
 
+
+
+
+        //////123456///////////////////////////////////////////////////////////////////
 
         // =========================================================
         // DELETE - GET - ADMIN
@@ -1633,26 +1556,20 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return NotFound();
             }
 
-
             var application =
                 await _context.Applications
-
                     .Include(a => a.User)
-
                     .Include(a => a.Property)
                         .ThenInclude(p => p.Scheme)
-
                     .AsNoTracking()
-
                     .FirstOrDefaultAsync(a =>
                         a.ApplicationId ==
-                        applicationid.Value);
+                        applicationid);
 
             if (application == null)
             {
                 return NotFound();
             }
-
 
             return View(application);
         }
@@ -1680,14 +1597,13 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return NotFound();
             }
 
-
             await using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
             try
             {
                 // -------------------------------------------------
-                // RELEASE PROPERTY
+                // RELEASE RESERVED PROPERTY
                 // -------------------------------------------------
 
                 if (application.PropertyId > 0)
@@ -1709,6 +1625,9 @@ namespace HousingAllotmentManagementSystem.Controllers
                     }
                 }
 
+                // -------------------------------------------------
+                // DELETE APPLICATION
+                // -------------------------------------------------
 
                 _context.Applications.Remove(
                     application);
@@ -1716,7 +1635,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
-
 
                 TempData["SuccessMessage"] =
                     "Application deleted successfully.";
@@ -1774,14 +1692,12 @@ namespace HousingAllotmentManagementSystem.Controllers
                     .OrderBy(u => u.FullName)
                     .ToList();
 
-
             ViewBag.UserId =
                 new SelectList(
                     users,
                     "UserId",
                     "FullName",
                     selectedUserId);
-
 
             // -----------------------------------------------------
             // PROPERTIES
@@ -1791,98 +1707,40 @@ namespace HousingAllotmentManagementSystem.Controllers
                 _context.Properties
                     .Include(p => p.Scheme)
                     .AsNoTracking()
-                    .OrderBy(p =>
-                        p.Scheme.SchemeName)
-                    .ThenBy(p =>
-                        p.UnitNumber)
+                    .OrderBy(p => p.PropertyId)
                     .ToList();
-
-
-            var propertyList =
-                properties.Select(p =>
-                    new
-                    {
-                        PropertyId =
-                            p.PropertyId,
-
-                        DisplayText =
-                            (p.Scheme?.SchemeName ??
-                             "Unknown Scheme") +
-
-                            " | " +
-
-                            (
-                                string.IsNullOrWhiteSpace(
-                                    p.UnitNumber)
-                                    ? "No Unit"
-                                    : "Unit " +
-                                      p.UnitNumber
-                            ) +
-
-                            (
-                                string.IsNullOrWhiteSpace(
-                                    p.PlotNumber)
-                                    ? ""
-                                    : " | Plot " +
-                                      p.PlotNumber
-                            ) +
-
-                            (
-                                string.IsNullOrWhiteSpace(
-                                    p.PropertyType)
-                                    ? ""
-                                    : " | " +
-                                      p.PropertyType
-                            ) +
-
-                            " | Property #" +
-                            p.PropertyId
-                    });
-
 
             ViewBag.PropertyId =
                 new SelectList(
-                    propertyList,
+                    properties,
                     "PropertyId",
-                    "DisplayText",
+                    "UnitNumber",
                     selectedPropertyId);
         }
 
 
         // =========================================================
-        // AVAILABLE PROPERTIES
+        // GET AVAILABLE PROPERTIES
         // =========================================================
 
-        private async Task<List<Property>>
-            GetAvailablePropertiesAsync(
-                int schemeId)
+        private async Task<List<Property>> GetAvailablePropertiesAsync(
+            int schemeId)
         {
             return await _context.Properties
-
                 .Where(p =>
-                    p.SchemeId ==
-                        schemeId &&
-
-                    p.Status !=
-                        null &&
-
+                    p.SchemeId == schemeId &&
+                    p.Status != null &&
                     p.Status.ToLower() ==
-                        PropertyStatusAvailable
-                            .ToLower())
-
+                        PropertyStatusAvailable.ToLower())
                 .Include(p => p.Scheme)
-
                 .AsNoTracking()
-
-                .OrderBy(p =>
-                    p.UnitNumber)
-
+                .OrderBy(p => p.UnitNumber)
                 .ToListAsync();
         }
 
 
         // =========================================================
-        // RETURN APPLY VIEW AFTER VALIDATION FAILURE
+        // RELOAD APPLY VIEW AFTER VALIDATION ERROR
         // =========================================================
 
         private async Task<IActionResult>
@@ -1897,9 +1755,7 @@ namespace HousingAllotmentManagementSystem.Controllers
                 await GetAvailablePropertiesAsync(
                     schemeId);
 
-
-            ViewBag.Scheme =
-                scheme;
+            ViewBag.Scheme = scheme;
 
             ViewBag.Properties =
                 properties;
@@ -1909,7 +1765,6 @@ namespace HousingAllotmentManagementSystem.Controllers
 
             ViewBag.AlreadyApplied =
                 alreadyAppliedForScheme;
-
 
             return View(
                 "Apply",
@@ -1932,7 +1787,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return null;
             }
 
-
             if (!int.TryParse(
                     userIdClaim.Value,
                     out int userId))
@@ -1940,13 +1794,12 @@ namespace HousingAllotmentManagementSystem.Controllers
                 return null;
             }
 
-
             return userId;
         }
 
 
         // =========================================================
-        // SEND SUBMITTED EMAIL
+        // SEND APPLICATION SUBMITTED EMAIL
         // =========================================================
 
         private async Task SendSubmittedEmailAsync(
@@ -1956,14 +1809,10 @@ namespace HousingAllotmentManagementSystem.Controllers
             {
                 var application =
                     await _context.Applications
-
                         .Include(a => a.User)
-
                         .Include(a => a.Property)
                             .ThenInclude(p => p.Scheme)
-
                         .AsNoTracking()
-
                         .FirstOrDefaultAsync(a =>
                             a.ApplicationId ==
                             applicationId);
@@ -1975,7 +1824,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                 {
                     return;
                 }
-
 
                 string applicantName =
                     application.User.FullName ??
@@ -1989,37 +1837,45 @@ namespace HousingAllotmentManagementSystem.Controllers
                     "N/A";
 
                 string schemeName =
-                    application.Property?
-                        .Scheme?
-                        .SchemeName ??
+                    application.Property?.Scheme?.SchemeName ??
                     "Housing Scheme";
 
                 string propertyName =
-                    application.Property?
-                        .UnitNumber ??
+                    application.Property?.UnitNumber ??
                     "N/A";
 
                 string applicationDate =
                     application.ApplicationDate
                         .ToString("dd-MM-yyyy");
 
-
                 string body =
                     BuildStatusEmailBody(
-                        "Housing Application Submitted",
-                        "#2c3e50",
-                        applicantName,
-                        application.ApplicationId,
-                        schemeName,
-                        propertyName,
-                        applicationDate,
-                        null,
-                        null,
-                        "Pending",
-                        "#212529",
-                        "Your housing application has been successfully submitted and is currently under review.",
-                        null);
-
+                        headerTitle:
+                            "Housing Application Submitted",
+                        headerColor:
+                            "#2c3e50",
+                        applicantName:
+                            applicantName,
+                        applicationId:
+                            application.ApplicationId,
+                        schemeName:
+                            schemeName,
+                        propertyName:
+                            propertyName,
+                        applicationDate:
+                            applicationDate,
+                        dateLabel:
+                            null,
+                        dateValue:
+                            null,
+                        statusText:
+                            "Pending",
+                        statusColor:
+                            "#212529",
+                        messageHtml:
+                            "Your housing application has been successfully submitted and is currently under review.",
+                        remarks:
+                            null);
 
                 await _emailService.SendEmailAsync(
                     applicantEmail,
@@ -2047,14 +1903,10 @@ namespace HousingAllotmentManagementSystem.Controllers
             {
                 var application =
                     await _context.Applications
-
                         .Include(a => a.User)
-
                         .Include(a => a.Property)
                             .ThenInclude(p => p.Scheme)
-
                         .AsNoTracking()
-
                         .FirstOrDefaultAsync(a =>
                             a.ApplicationId ==
                             applicationId);
@@ -2067,20 +1919,16 @@ namespace HousingAllotmentManagementSystem.Controllers
                     return;
                 }
 
-
                 string applicantName =
                     application.User.FullName ??
                     "Applicant";
 
                 string schemeName =
-                    application.Property?
-                        .Scheme?
-                        .SchemeName ??
+                    application.Property?.Scheme?.SchemeName ??
                     "Housing Scheme";
 
                 string propertyName =
-                    application.Property?
-                        .UnitNumber ??
+                    application.Property?.UnitNumber ??
                     "N/A";
 
                 string applicationDate =
@@ -2093,7 +1941,6 @@ namespace HousingAllotmentManagementSystem.Controllers
                     ?? DateTime.Now
                         .ToString("dd-MM-yyyy");
 
-
                 // -------------------------------------------------
                 // APPROVED
                 // -------------------------------------------------
@@ -2104,27 +1951,38 @@ namespace HousingAllotmentManagementSystem.Controllers
                 {
                     string body =
                         BuildStatusEmailBody(
-                            "Housing Application Approved",
-                            "#198754",
-                            applicantName,
-                            application.ApplicationId,
-                            schemeName,
-                            propertyName,
-                            applicationDate,
-                            "Approval Date",
-                            updatedDate,
-                            "Approved",
-                            "#198754",
-                            "Congratulations! Your housing application has been successfully approved.<br/><br/>Please contact the housing administration office for further allotment and payment instructions.",
-                            null);
-
+                            headerTitle:
+                                "Housing Application Approved",
+                            headerColor:
+                                "#198754",
+                            applicantName:
+                                applicantName,
+                            applicationId:
+                                application.ApplicationId,
+                            schemeName:
+                                schemeName,
+                            propertyName:
+                                propertyName,
+                            applicationDate:
+                                applicationDate,
+                            dateLabel:
+                                "Approval Date",
+                            dateValue:
+                                updatedDate,
+                            statusText:
+                                "Approved",
+                            statusColor:
+                                "#198754",
+                            messageHtml:
+                                "Congratulations! Your housing application has been successfully approved and your selected property has been allotted to you automatically.<br/><br/>Please log in to the Housing Allotment Management System and open <strong>My Allotments</strong> to view your allotment details and continue with the next steps.",
+                            remarks:
+                                null);
 
                     await _emailService.SendEmailAsync(
                         application.User.Email,
                         "Housing Application Approved",
                         body);
                 }
-
 
                 // -------------------------------------------------
                 // REJECTED
@@ -2140,23 +1998,34 @@ namespace HousingAllotmentManagementSystem.Controllers
                             ? "No additional remarks were provided."
                             : application.Remarks;
 
-
                     string body =
                         BuildStatusEmailBody(
-                            "Housing Application Status Update",
-                            "#dc3545",
-                            applicantName,
-                            application.ApplicationId,
-                            schemeName,
-                            propertyName,
-                            applicationDate,
-                            "Status Update Date",
-                            updatedDate,
-                            "Rejected",
-                            "#dc3545",
-                            "Your housing application has been rejected. If you have any questions regarding this decision, please contact the housing administration office.",
-                            remarks);
-
+                            headerTitle:
+                                "Housing Application Status Update",
+                            headerColor:
+                                "#dc3545",
+                            applicantName:
+                                applicantName,
+                            applicationId:
+                                application.ApplicationId,
+                            schemeName:
+                                schemeName,
+                            propertyName:
+                                propertyName,
+                            applicationDate:
+                                applicationDate,
+                            dateLabel:
+                                "Status Update Date",
+                            dateValue:
+                                updatedDate,
+                            statusText:
+                                "Rejected",
+                            statusColor:
+                                "#dc3545",
+                            messageHtml:
+                                "Your housing application has been rejected. If you have any questions regarding this decision, please contact the housing administration office.",
+                            remarks:
+                                remarks);
 
                     await _emailService.SendEmailAsync(
                         application.User.Email,
@@ -2174,7 +2043,7 @@ namespace HousingAllotmentManagementSystem.Controllers
 
 
         // =========================================================
-        // BUILD SUBMITTED EMAIL
+        // APPLICATION SUBMITTED EMAIL BODY
         // =========================================================
 
         private static string BuildSubmittedEmailBody(
@@ -2221,21 +2090,17 @@ namespace HousingAllotmentManagementSystem.Controllers
                     previousApplicationMessage ??
                     string.Empty);
 
-
             return $@"
-
 <!DOCTYPE html>
 
 <html>
 
 <head>
+    <meta charset='UTF-8'>
 
-<meta charset='UTF-8'>
-
-<title>
-Housing Application
-</title>
-
+    <title>
+        Housing Application
+    </title>
 </head>
 
 <body style='font-family:Arial,sans-serif;
@@ -2249,16 +2114,16 @@ Housing Application
             border-radius:12px;'>
 
 <h2 style='color:#2563eb;'>
-Housing Application Submitted
+    Housing Application Submitted
 </h2>
 
 <p>
-Dear <strong>{safeApplicantName}</strong>,
+    Dear <strong>{safeApplicantName}</strong>,
 </p>
 
 <p>
-Your housing application has been
-successfully submitted.
+    Your housing application has been
+    successfully submitted.
 </p>
 
 <table style='width:100%;
@@ -2384,24 +2249,25 @@ Please do not reply to this email.
 </html>";
         }
 
-    // =========================================================
-    // BUILD STATUS EMAIL
-    // =========================================================
 
-    private static string BuildStatusEmailBody(
-        string headerTitle,
-        string headerColor,
-        string applicantName,
-        int applicationId,
-        string schemeName,
-        string propertyName,
-        string applicationDate,
-        string? dateLabel,
-        string? dateValue,
-        string statusText,
-        string statusColor,
-        string messageHtml,
-        string? remarks)
+        // =========================================================
+        // BUILD STATUS EMAIL HTML
+        // =========================================================
+
+        private static string BuildStatusEmailBody(
+            string headerTitle,
+            string headerColor,
+            string applicantName,
+            int applicationId,
+            string schemeName,
+            string propertyName,
+            string applicationDate,
+            string? dateLabel,
+            string? dateValue,
+            string statusText,
+            string statusColor,
+            string messageHtml,
+            string? remarks)
         {
             string safeApplicantName =
                 WebUtility.HtmlEncode(
@@ -2423,13 +2289,11 @@ Please do not reply to this email.
                 WebUtility.HtmlEncode(
                     headerTitle ?? string.Empty);
 
-
             string extraDateRow =
                 string.IsNullOrWhiteSpace(
                     dateLabel)
                     ? string.Empty
                     : $@"
-
 <tr>
 
 <td style='padding:10px;border:1px solid #ddd;'>
@@ -2444,14 +2308,11 @@ Please do not reply to this email.
 
 </tr>";
 
-
-        string remarksRow =
-            string.IsNullOrWhiteSpace(
-                remarks)
-                ? string.Empty
-                : $@"
-
-
+            string remarksRow =
+                string.IsNullOrWhiteSpace(
+                    remarks)
+                    ? string.Empty
+                    : $@"
 <tr>
 
 <td style='padding:10px;border:1px solid #ddd;'>
@@ -2466,20 +2327,18 @@ Remarks
 
 </tr>";
 
-        return $@"
-
-
+            return $@"
 <!DOCTYPE html>
 
 <html>
 
 <head>
 
-<meta charset='UTF-8'>
+    <meta charset='UTF-8'>
 
-<title>
-{safeHeaderTitle}
-</title>
+    <title>
+        {safeHeaderTitle}
+    </title>
 
 </head>
 
@@ -2494,15 +2353,15 @@ Remarks
             border-radius:10px;'>
 
 <h2 style='color:{headerColor};'>
-{safeHeaderTitle}
+    {safeHeaderTitle}
 </h2>
 
 <p>
-Dear <strong>{safeApplicantName}</strong>,
+    Dear <strong>{safeApplicantName}</strong>,
 </p>
 
 <p>
-{messageHtml}
+    {messageHtml}
 </p>
 
 <table style='width:100%;

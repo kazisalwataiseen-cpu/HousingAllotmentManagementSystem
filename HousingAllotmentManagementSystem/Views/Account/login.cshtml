@@ -125,6 +125,24 @@
                     text-decoration: underline;
                 }
 
+            /* Forgot Password */
+
+            .forgot-password {
+                display: block;
+                text-align: right;
+                margin-top: -8px;
+                margin-bottom: 20px;
+                color: #2563eb;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+                .forgot-password:hover {
+                    color: #1d4ed8;
+                    text-decoration: underline;
+                }
+
     </style>
 
 </head>
@@ -226,6 +244,18 @@
                     </div>
 
                 </div>
+
+
+                <!-- FORGOT PASSWORD -->
+
+                <a asp-controller="Account"
+                   asp-action="ForgotPassword"
+                   class="forgot-password">
+
+                    <i class="bi bi-key-fill me-1"></i>
+                    Forgot Password?
+
+                </a>
 
 
                 <!-- REMEMBER ME -->
